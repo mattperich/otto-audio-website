@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streams Tutorial — Learn Granular Synthesis</title>
+<meta name="description" content="Interactive tutorial for Streams granular synthesizer. Explore 6 visualization modes, trigger grains, shape sounds, and design textures.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:          #060b14;
+  --surface:     #0d1424;
+  --surface2:    #111c30;
+  --border:      #1a2a44;
+  --text:        #c8d6e5;
+  --text-dim:    #5a7a99;
+  --accent:      #4a90b8;
+  --accent-glow: rgba(74, 144, 184, 0.25);
+  --teal:        #1a9e9e;
+  --teal-glow:   rgba(26, 158, 158, 0.2);
+  --warm:        #c8864a;
+  --warm-glow:   rgba(200, 134, 74, 0.15);
+  --amber:       #b89040;
+  --amber-glow:  rgba(184, 144, 64, 0.15);
+  --red:         #c84646;
+  --red-glow:    rgba(200, 70, 70, 0.15);
+}
+
+html { -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Fixed immersive canvas background ────────────────── */
+
+#vizLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+#vizLayer canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* ── Top nav bar ──────────────────────────────────────── */
+
+#topNav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 16px 10px 58px;
+  background: linear-gradient(to bottom, rgba(6,11,20,0.85), rgba(6,11,20,0));
+  pointer-events: auto;
+}
+
+#topNav .logo {
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  margin-right: auto;
+}
+#topNav .logo span {
+  background: linear-gradient(135deg, var(--accent), var(--teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#topNav a {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+#topNav a:hover { color: var(--text); }
+
+/* ── Fixed left nav strip (replica of plugin UI) ──────── */
+
+#navStrip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  gap: 5px;
+  background: linear-gradient(to right, rgba(6,8,15,0.85), rgba(6,8,15,0.4));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(13,20,36,0.7);
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.4s;
+}
+
+.nav-btn:hover { border-color: var(--accent); color: var(--text); background: rgba(74,144,184,0.08); }
+.nav-btn.orange:hover { border-color: rgba(200,134,74,0.5); color: rgba(200,134,74,0.7); }
+.nav-btn.teal:hover   { border-color: rgba(26,158,158,0.5);  color: rgba(26,158,158,0.7); }
+.nav-btn.amber:hover  { border-color: rgba(184,144,64,0.5);  color: rgba(184,144,64,0.7); }
+.nav-btn.red:hover    { border-color: rgba(200,70,70,0.5);   color: rgba(200,70,70,0.7); }
+
+.nav-btn.orange { color: rgba(200,134,74,0.4); border-color: rgba(200,134,74,0.2); }
+.nav-btn.teal   { color: rgba(26,158,158,0.4); border-color: rgba(26,158,158,0.2); }
+.nav-btn.amber  { color: rgba(184,144,64,0.4); border-color: rgba(184,144,64,0.2); }
+.nav-btn.red    { color: rgba(200,70,70,0.4); border-color: rgba(200,70,70,0.2); }
+
+.nav-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(74,144,184,0.15);
+  box-shadow: 0 0 12px rgba(74,144,184,0.2);
+}
+.nav-btn.orange.active { border-color: var(--warm); color: var(--warm); background: var(--warm-glow); box-shadow: 0 0 12px rgba(200,134,74,0.2); }
+.nav-btn.teal.active   { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); box-shadow: 0 0 12px rgba(26,158,158,0.2); }
+.nav-btn.amber.active  { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); box-shadow: 0 0 12px rgba(184,144,64,0.2); }
+.nav-btn.red.active    { border-color: var(--red); color: var(--red); background: var(--red-glow); box-shadow: 0 0 12px rgba(200,70,70,0.2); }
+
+/* ── Description overlay (above param panel) ─────────── */
+
+#descOverlay {
+  position: fixed;
+  left: 56px;
+  z-index: 61;
+  background: rgba(6,11,20,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  width: 240px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events: none;
+}
+
+#descOverlay.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+#descOverlay.border-orange { border-color: rgba(200,134,74,0.3); }
+#descOverlay.border-teal   { border-color: rgba(26,158,158,0.3); }
+#descOverlay.border-amber  { border-color: rgba(184,144,64,0.3); }
+#descOverlay.border-red    { border-color: rgba(200,70,70,0.3); }
+
+.desc-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.desc-tag.orange { color: var(--warm); }
+.desc-tag.teal   { color: var(--teal); }
+.desc-tag.amber  { color: var(--amber); }
+.desc-tag.red    { color: var(--red); }
+
+#descOverlay h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+#descOverlay p {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Floating param panel (exact V2 Immersive replica) ── */
+
+#floatPanel {
+  position: fixed;
+  left: 56px;
+  z-index: 60;
+  background: var(--bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  width: 240px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#floatPanel::-webkit-scrollbar { width: 4px; }
+#floatPanel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+#floatPanel.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+#floatPanel.panel-orange { border-color: rgba(200,134,74,0.3); }
+#floatPanel.panel-teal   { border-color: rgba(26,158,158,0.3); }
+#floatPanel.panel-amber  { border-color: rgba(184,144,64,0.3); }
+#floatPanel.panel-red    { border-color: rgba(200,70,70,0.3); }
+
+/* ── Parameter rows (exact plugin classes) ───────────── */
+
+.param {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.param-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.param-label {
+  font-size: 11px;
+  color: #8fb8d0;
+  letter-spacing: .04em;
+}
+
+.param-value {
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  color: #b8cfe0;
+  min-width: 72px;
+  text-align: right;
+}
+
+/* Range slider (exact plugin styling) */
+#floatPanel input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: calc(100% - 6px);
+  margin: 0 3px;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: default;
+  background: linear-gradient(to right,
+    var(--accent) 0%,
+    var(--accent) var(--fill, 50%),
+    var(--border) var(--fill, 50%),
+    var(--border) 100%);
+}
+
+#floatPanel input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #b8cfe0;
+  box-shadow: 0 0 0 2px var(--accent), 0 0 8px rgba(74,144,184,0.18);
+  cursor: default;
+  transition: transform .1s, box-shadow .15s;
+}
+
+#floatPanel input[type=range]::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: none;
+  border-radius: 50%;
+  background: #b8cfe0;
+  box-shadow: 0 0 0 2px var(--accent);
+  cursor: default;
+}
+
+/* Toggle button (exact plugin .toggle-btn) */
+.toggle-btn {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface2);
+  color: var(--text-dim);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  cursor: default;
+  transition: all .15s;
+  font-family: inherit;
+}
+
+.toggle-btn.active {
+  background: rgba(74,144,184,.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Subsection divider (exact plugin .subsection-divider) */
+.subsection-divider {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 10px 0 6px;
+}
+
+.subsection-divider::before { display: none; }
+
+.subsection-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(74,144,184,0.08);
+}
+
+.subsection-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* Seg button group (exact plugin .seg-btn) */
+.seg-btn-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin: 2px 0;
+}
+
+.seg-btn {
+  padding: 3px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface2);
+  color: var(--text-dim);
+  cursor: default;
+  transition: all .15s;
+}
+
+.seg-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(74,144,184,0.08);
+}
+
+/* Panel hint */
+.panel-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--teal);
+  background: rgba(26,158,158,0.08);
+  border: 1px solid rgba(26,158,158,0.15);
+  border-radius: 5px;
+  padding: 6px 10px;
+  margin-top: 4px;
+}
+
+/* ── Section color overrides (exact plugin V2 rules) ─── */
+
+/* Orange (Grain) */
+.panel-orange .param-label { color: #c8864a; }
+.panel-orange .param-value { color: #c8864a; opacity: 0.7; }
+.panel-orange .subsection-label { color: #c8864a; }
+.panel-orange .subsection-divider::after { background: rgba(200,134,74,.1); }
+.panel-orange .toggle-btn.active { background: rgba(200,134,74,.1); border-color: #c8864a; color: #c8864a; }
+.panel-orange .seg-btn.active { border-color: #c8864a; color: #c8864a; background: rgba(200,134,74,0.08); }
+.panel-orange input[type=range] {
+  background: linear-gradient(to right, #c8864a 0%, #c8864a var(--fill,50%), var(--border) var(--fill,50%), var(--border) 100%);
+}
+.panel-orange input[type=range]::-webkit-slider-thumb { box-shadow: 0 0 0 2px #c8864a, 0 0 8px rgba(200,134,74,.22); }
+
+/* Teal (Stream, Resonator, Delay) */
+.panel-teal .param-label { color: #1a9e9e; }
+.panel-teal .param-value { color: #1a9e9e; opacity: 0.7; }
+.panel-teal .subsection-label { color: #1a9e9e; }
+.panel-teal .subsection-divider::after { background: rgba(26,158,158,.08); }
+.panel-teal .toggle-btn.active { border-color: #1a9e9e; color: #1a9e9e; background: rgba(26,158,158,.08); }
+.panel-teal .seg-btn.active { border-color: #1a9e9e; color: #1a9e9e; background: rgba(26,158,158,.08); }
+.panel-teal input[type=range] {
+  background: linear-gradient(to right, #1a9e9e 0%, #1a9e9e var(--fill,50%), var(--border) var(--fill,50%), var(--border) 100%);
+}
+.panel-teal input[type=range]::-webkit-slider-thumb { box-shadow: 0 0 0 2px #1a9e9e, 0 0 8px rgba(26,158,158,.18); }
+
+/* Amber (Modulation) */
+.panel-amber .param-label { color: #b89040; }
+.panel-amber .param-value { color: #b89040; opacity: 0.7; }
+.panel-amber .subsection-label { color: #b89040; }
+.panel-amber .subsection-divider::after { background: rgba(184,144,64,.08); }
+.panel-amber .toggle-btn.active { border-color: #b89040; color: #b89040; background: rgba(184,144,64,.08); }
+.panel-amber .seg-btn.active { border-color: #b89040; color: #b89040; background: rgba(184,144,64,.08); }
+.panel-amber input[type=range] {
+  background: linear-gradient(to right, #b89040 0%, #b89040 var(--fill,50%), var(--border) var(--fill,50%), var(--border) 100%);
+}
+.panel-amber input[type=range]::-webkit-slider-thumb { box-shadow: 0 0 0 2px #b89040, 0 0 8px rgba(184,144,64,.25); }
+
+/* Red (Sequencer) */
+.panel-red .param-label { color: #c84646; }
+.panel-red .param-value { color: #c84646; opacity: 0.7; }
+.panel-red .subsection-label { color: #c84646; }
+.panel-red .subsection-divider::after { background: rgba(200,70,70,.08); }
+.panel-red .toggle-btn.active { border-color: #c84646; color: #c84646; background: rgba(200,70,70,.08); }
+.panel-red .seg-btn.active { border-color: #c84646; color: #c84646; background: rgba(200,70,70,.08); }
+.panel-red input[type=range] {
+  background: linear-gradient(to right, #c84646 0%, #c84646 var(--fill,50%), var(--border) var(--fill,50%), var(--border) 100%);
+}
+.panel-red input[type=range]::-webkit-slider-thumb { box-shadow: 0 0 0 2px #c84646, 0 0 8px rgba(200,70,70,.25); }
+
+/* ── Mode selector (inside STR panel) ─────────────────── */
+
+.mode-btns {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+
+.mode-btn {
+  padding: 5px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover { border-color: var(--teal); color: var(--teal); }
+.mode-btn.active { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); }
+
+/* ── Scroll sections (invisible spacers that drive state) ── */
+
+.scroll-section {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  pointer-events: none;
+}
+
+/* First section is taller so user sees the intro */
+.scroll-section:first-child { height: 110vh; }
+/* Last section needs extra space for CTA */
+.scroll-section:last-child { height: 60vh; }
+
+/* ── Intro overlay (shown at top) ─────────────────────── */
+
+#introOverlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 40;
+  text-align: center;
+  max-width: 560px;
+  padding: 0 24px;
+  transition: opacity 0.6s;
+}
+
+#introOverlay.hidden { opacity: 0; pointer-events: none; }
+
+#introOverlay h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  line-height: 1.15;
+}
+
+#introOverlay h1 span {
+  background: linear-gradient(135deg, var(--accent), var(--teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#introOverlay p {
+  font-size: 1rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+#introOverlay .scroll-cue {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  opacity: 0.5;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+/* ── CTA footer ───────────────────────────────────────── */
+
+#ctaFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  text-align: center;
+  padding: 30px 24px 24px;
+  background: linear-gradient(transparent, rgba(6,11,20,0.95));
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s, transform 0.5s;
+  pointer-events: none;
+}
+
+#ctaFooter.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, var(--accent), var(--teal));
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 24px var(--accent-glow);
+  transition: transform 0.2s;
+}
+.btn-primary:hover { transform: translateY(-2px); text-decoration: none; }
+.btn-primary svg { width: 16px; height: 16px; fill: currentColor; }
+
+#ctaFooter .cta-note {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+
+/* ── Right-side step progress ─────────────────────────── */
+
+#stepDots {
+  position: fixed;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.3s, transform 0.2s;
+}
+.step-dot.active { background: var(--accent); transform: scale(1.4); }
+
+/* ── Toolbar buttons (bottom of nav strip) ───────────── */
+
+.nav-spacer {
+  flex: 1;
+  min-height: 8px;
+}
+
+.tool-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(13,20,36,0.7);
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.4s;
+  padding: 0;
+}
+
+.tool-btn:hover { border-color: var(--accent); color: var(--text); background: rgba(74,144,184,0.08); }
+
+.tool-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(74,144,184,0.15);
+  box-shadow: 0 0 12px rgba(74,144,184,0.2);
+}
+
+.tool-btn.gear { font-size: 15px; line-height: 1; }
+
+/* ── Responsive ───────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  #navStrip { width: 40px; padding: 6px 0; gap: 3px; }
+  .nav-btn { width: 30px; height: 30px; font-size: 7px; }
+  .tool-btn { width: 24px; height: 24px; font-size: 8px; }
+  .tool-btn.gear { font-size: 12px; }
+  #descOverlay, #floatPanel { left: 46px; width: 210px; padding: 10px 12px; }
+  #stepDots { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #floatPanel { transition: none; }
+  #introOverlay { transition: none; }
+  .scroll-cue { animation: none; opacity: 0.5; }
+}
+
+/* ── Window shape buttons (GRN panel) ────────────────── */
+
+.tut-win-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.tut-win-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface2);
+  cursor: default;
+}
+
+.tut-win-btn canvas {
+  width: 100%;
+  height: 22px;
+  display: block;
+}
+
+.tut-win-btn span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.tut-win-btn.active {
+  border-color: var(--warm);
+  background: var(--warm-glow);
+}
+
+.tut-win-btn.active span { color: var(--warm); }
+
+.tut-win-btn.full-width {
+  grid-column: 1 / -1;
+}
+
+/* ── LFO visualization (MOD panel) ───────────────────── */
+
+.tut-lfo-item {
+  margin: 8px 0;
+}
+
+.tut-lfo-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+}
+
+.tut-lfo-canvas {
+  width: 100%;
+  height: 32px;
+  display: block;
+  border-radius: 3px;
+  background: rgba(6,8,15,0.85);
+}
+
+/* ── Piano keyboard (Scale panel) ────────────────────── */
+
+.tut-piano {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  margin: 6px 0 2px;
+  user-select: none;
+}
+
+.tut-piano .w-key {
+  position: absolute;
+  height: 100%;
+  border: 1px solid rgba(27,48,80,0.9);
+  border-radius: 0 0 3px 3px;
+  background: #16243a;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 3px;
+  box-sizing: border-box;
+}
+
+.tut-piano .w-key span {
+  font-size: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+.tut-piano .w-key.active {
+  background: rgba(74,144,184,0.22);
+  border-color: rgba(74,144,184,0.5);
+}
+
+.tut-piano .w-key.active span { color: var(--accent); }
+
+.tut-piano .w-key.off {
+  background: #0d1424;
+  border-color: rgba(27,48,80,0.5);
+}
+
+.tut-piano .w-key.off span { color: rgba(61,96,122,0.4); }
+
+.tut-piano .b-key {
+  position: absolute;
+  height: 60%;
+  top: 0;
+  background: #060b14;
+  border: 1px solid rgba(27,48,80,0.7);
+  border-radius: 0 0 3px 3px;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.tut-piano .b-key.active {
+  background: rgba(74,144,184,0.35);
+  border-color: rgba(74,144,184,0.6);
+}
+
+.tut-piano .b-key.off {
+  background: #040810;
+  border-color: rgba(27,48,80,0.35);
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ FIXED VIZ LAYER ═══════ -->
+<div id="vizLayer">
+  <canvas id="vizCanvas"></canvas>
+</div>
+
+<!-- ═══════ TOP NAV ═══════ -->
+<nav id="topNav">
+  <a href="index.html" class="logo"><span>Streams</span></a>
+  <a href="index.html">Home</a>
+  <a href="tutorial.html">Tutorial</a>
+  <a href="https://github.com/mattperich/granular-synth">GitHub</a>
+</nav>
+
+<!-- ═══════ LEFT NAV STRIP ═══════ -->
+<div id="navStrip">
+  <div class="nav-btn" data-step="input">IN</div>
+  <div class="nav-btn" data-step="generate" style="color:#4a90b8">GEN</div>
+  <div class="nav-btn" data-step="tempo">BPM</div>
+  <div class="nav-btn" data-step="scale">KEY</div>
+  <div class="nav-btn orange" data-step="grain">GRN</div>
+  <div class="nav-btn teal" data-step="stream">STR</div>
+  <div class="nav-btn teal" data-step="resonator">RES</div>
+  <div class="nav-btn teal" data-step="delay">DLY</div>
+  <div class="nav-btn" data-step="reverb">REV</div>
+  <div class="nav-btn" data-step="output">OUT</div>
+  <div class="nav-btn amber" data-step="mod">MOD</div>
+  <div class="nav-btn red" data-step="seq">SEQ</div>
+  <div class="nav-spacer"></div>
+  <div class="tool-btn" data-step="help">?</div>
+  <div class="tool-btn" data-step="preset">PRE</div>
+  <div class="tool-btn" data-step="reset">&#8635;</div>
+  <div class="tool-btn gear" data-step="settings">&#9881;</div>
+</div>
+
+<!-- ═══════ DESCRIPTION OVERLAY (above panel) ═══════ -->
+<div id="descOverlay">
+  <div class="desc-tag" id="descTag"></div>
+  <div id="descBody"></div>
+</div>
+
+<!-- ═══════ FLOATING PARAM PANEL (V2-style replica) ═══════ -->
+<div id="floatPanel">
+  <div id="panelBody"></div>
+</div>
+
+<!-- ═══════ INTRO OVERLAY ═══════ -->
+<div id="introOverlay">
+  <h1>Explore <span>Streams</span></h1>
+  <p>
+    Scroll through the immersive view to discover each section of the synthesizer.
+    The left toolbar mirrors the real plugin interface &mdash; each button opens a
+    parameter panel that shapes your sound.
+  </p>
+  <div class="scroll-cue">Scroll to begin</div>
+</div>
+
+<!-- ═══════ CTA FOOTER ═══════ -->
+<div id="ctaFooter">
+  <a href="https://github.com/mattperich/granular-synth" class="btn-primary">
+    <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    Get Started on GitHub
+  </a>
+  <div class="cta-note">Streams Granular Synthesizer &mdash; Built by <a href="https://github.com/mattperich">Matt Perich</a> &middot; <a href="index.html">Home</a></div>
+</div>
+
+<!-- ═══════ STEP DOTS ═══════ -->
+<div id="stepDots"></div>
+
+<!-- ═══════ INVISIBLE SCROLL SECTIONS ═══════ -->
+<div class="scroll-section" data-step="intro"></div>
+<div class="scroll-section" data-step="input"></div>
+<div class="scroll-section" data-step="sampler"></div>
+<div class="scroll-section" data-step="generate"></div>
+<div class="scroll-section" data-step="tempo"></div>
+<div class="scroll-section" data-step="scale"></div>
+<div class="scroll-section" data-step="grain"></div>
+<div class="scroll-section" data-step="stream"></div>
+<div class="scroll-section" data-step="resonator"></div>
+<div class="scroll-section" data-step="delay"></div>
+<div class="scroll-section" data-step="reverb"></div>
+<div class="scroll-section" data-step="output"></div>
+<div class="scroll-section" data-step="mod"></div>
+<div class="scroll-section" data-step="seq"></div>
+<div class="scroll-section" data-step="preset"></div>
+<div class="scroll-section" data-step="end"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// SHARED ENGINE (colormap, FFT, viz simulation)
+// ══════════════════════════════════════════════════════════
+
+const CMAP = new Uint8Array(256 * 3);
+const CMAP_STOPS = [{t:0,c:[200,130,60]},{t:0.3,c:[184,144,64]},{t:0.6,c:[26,158,158]},{t:1,c:[74,144,184]}];
+for (let i = 0; i < 256; i++) {
+  const t = i / 255; let idx = 0;
+  for (let j = 1; j < CMAP_STOPS.length; j++) { if (t >= CMAP_STOPS[j].t) idx = j; }
+  idx = Math.min(idx, CMAP_STOPS.length - 2);
+  const a = CMAP_STOPS[idx], b_ = CMAP_STOPS[idx + 1];
+  const u = (t - a.t) / (b_.t - a.t), s = u * u * (3 - 2 * u);
+  CMAP[i*3]   = Math.round(a.c[0] + (b_.c[0] - a.c[0]) * s);
+  CMAP[i*3+1] = Math.round(a.c[1] + (b_.c[1] - a.c[1]) * s);
+  CMAP[i*3+2] = Math.round(a.c[2] + (b_.c[2] - a.c[2]) * s);
+}
+
+function createFakeFFT(profile) {
+  let t = Math.random() * 100; const N = 256; const out = new Float32Array(N);
+  const surgePhase = Math.random() * 100;
+  return { tick() {
+    t += 1/60; out.fill(0);
+    if (profile === 'balanced') { for (let i=0;i<N;i++){const f=i/N;out[i]=Math.max(0,Math.min(200,110*(1-f*0.35)+Math.sin(t*0.8+f*4)*35+Math.sin(t*1.3+f*8)*20+Math.random()*25));} }
+    else if (profile === 'midrange') { const surge=Math.max(0,Math.sin(t*0.4+surgePhase))*70;for(let i=0;i<N;i++){const f=i/N;out[i]=Math.max(0,Math.min(200,60+Math.exp(-((f-0.4)**2)/0.06)*130+surge*Math.exp(-((f-0.5)**2)/0.1)+Math.sin(t*1.1+i*0.3)*18+Math.random()*20));} }
+    else if (profile === 'bass-heavy') { const burst=Math.random()<0.03?90:0;for(let i=0;i<N;i++){const f=i/N;out[i]=Math.max(0,Math.min(200,150*Math.exp(-f*2.5)+30+burst*Math.exp(-f*1.5)+Math.sin(t*0.6+f*3)*25+Math.random()*20));} }
+    else if (profile === 'harmonic') { const P=(1+Math.sqrt(5))/2,sw=Math.sin(t*0.15)*0.1;for(let i=0;i<N;i++){const f=i/N;let v=50;for(let h=1;h<=6;h++)v+=80*Math.exp(-((f-(h*P*0.08+sw)%1)**2)/0.004);out[i]=Math.max(0,Math.min(200,v+Math.sin(t*0.9+i*0.2)*12+Math.random()*15));} }
+    else if (profile === 'burst') { const c=(t*0.3)%1,ac=c<0.7,env=ac?Math.sin(c/0.7*Math.PI):0;for(let i=0;i<N;i++){out[i]=Math.max(0,Math.min(200,env*(90+60*Math.sin(i/N*12+t*2))+Math.random()*(ac?25:8)));} }
+    else if (profile === 'broadband') { const imp=Math.random()<0.06,ib=(Math.random()*N)|0;for(let i=0;i<N;i++){let v=70+Math.sin(t*0.5+i*0.1)*20+Math.random()*25;if(imp&&Math.abs(i-ib)<15)v+=90;out[i]=Math.max(0,Math.min(200,v));} }
+    return out;
+  }};
+}
+
+const FL_COLS=16,FL_ROWS=12;
+function buildCurlGrid(vx,vy,time,layers,str){const eps=0.01;for(let r=0;r<FL_ROWS;r++){const ny=r/(FL_ROWS-1);for(let c=0;c<FL_COLS;c++){const nx=c/(FL_COLS-1),idx=r*FL_COLS+c;let p=0,px=0,py=0;for(let k=0;k<layers.length;k++){const L=layers[k],A=L[0],kx=L[1],ky=L[2],om=L[3],phX=L[4],phY=L[5];const ax=kx*nx*6.2832+phX+om*time,ay=ky*ny*6.2832+phY+om*time*0.7;p+=A*Math.sin(ax)*Math.sin(ay);px+=A*Math.sin(kx*(nx+eps)*6.2832+phX+om*time)*Math.sin(ay);py+=A*Math.sin(ax)*Math.sin(ky*(ny+eps)*6.2832+phY+om*time*0.7);}vx[idx]=((py-p)/eps)*str;vy[idx]=-((px-p)/eps)*str;}}}
+function sampleCurl(vx,vy,x,y,W,H){const gx=(x/W)*(FL_COLS-1),gy=(y/H)*(FL_ROWS-1),cx=Math.max(0,Math.min(FL_COLS-2,gx|0)),cy=Math.max(0,Math.min(FL_ROWS-2,gy|0)),fx=gx-cx,fy=gy-cy;const i00=cy*FL_COLS+cx,i10=i00+1,i01=i00+FL_COLS,i11=i01+1;const w00=(1-fx)*(1-fy),w10=fx*(1-fy),w01=(1-fx)*fy,w11=fx*fy;return{vx:vx[i00]*w00+vx[i10]*w10+vx[i01]*w01+vx[i11]*w11,vy:vy[i00]*w00+vy[i10]*w10+vy[i01]*w01+vy[i11]*w11};}
+const FLOCK_LAYERS=[[2,0.5,0.4,0.12,0,0],[1.5,0.3,0.7,0.10,1.7,2.3],[0.9,1.5,1,0.16,3.1,0.7],[0.7,1,1.8,0.13,4.9,1.1]];
+const FLAME_LAYERS=[[2,2.5,0.3,0.25,0,0],[1.5,3,0.4,0.20,1.7,2.3],[1,1.5,0.6,0.30,3.1,0.7],[0.7,4,0.8,0.28,4.9,1.1]];
+const PHI=(1+Math.sqrt(5))/2;
+
+// ── createVizSim (full-screen version, higher budget) ──
+function createVizSim(canvas,mode,opts){
+  opts=opts||{};const ctx=canvas.getContext('2d');let W=0,H=0;
+  const MAX=opts.maxDroplets||10000,SPAWN=opts.spawnRate||50;
+  const drX=new Float32Array(MAX),drY=new Float32Array(MAX),drA=new Float32Array(MAX);
+  const drB=new Uint8Array(MAX),drVx=new Float32Array(MAX),drVy=new Float32Array(MAX);
+  const drHx=new Float32Array(MAX),drHy=new Float32Array(MAX),drTch=new Float32Array(MAX);
+  let drCount=0;
+  const PROFILES={flow:'balanced',flock:'midrange',flame:'bass-heavy',fractal:'harmonic',flora:'burst',flood:'broadband'};
+  const fft=createFakeFFT(PROFILES[mode]||'balanced');let fftData=new Float32Array(256);
+  const LUT=512,centerLUT=new Float32Array(LUT);let ph1=Math.random()*10,ph2=Math.random()*10;
+  const gVx=new Float32Array(FL_COLS*FL_ROWS),gVy=new Float32Array(FL_COLS*FL_ROWS);
+  let fTime=0,splitVal=0,splitTgt=0,splitTmr=0;
+  const NT=4,tX=new Float32Array(NT),tY=new Float32Array(NT);let flTime=0;
+  let branches=[],spawnPts=[],blossoms=[],batchTmr=0,treeAge=0,growTmr=0,nextSprout=1.5+Math.random();
+  let treeCanvas=null,treeCtx=null,treeDirty=true;
+  const RM=20,rX=new Float32Array(RM),rY=new Float32Array(RM),rVy=new Float32Array(RM),rVx=new Float32Array(RM);
+  const rA=new Float32Array(RM),rSz=new Float32Array(RM);const RTL=12;
+  const rTX=new Float32Array(RM*RTL),rTY=new Float32Array(RM*RTL),rTH=new Uint8Array(RM);
+  let rDN=0,rAcc=0;let vortices=[];
+  let mx=-1e4,my=-1e4,mDown=false,dvx=0,dvy=0,lmx=0,lmy=0,interact=true,windT=0;
+
+  // Resonator strings overlay
+  let showStrings = false;
+  const RES_N = 16;
+  const resEnergy = new Float32Array(RES_N);
+  const resBend = new Float32Array(RES_N);
+  const resNotes = ['C2','D2','E2','G2','A2','C3','D3','E3','G3','A3','C4','D4','E4','G4','A4','C5'];
+
+  function pluckString(idx) {
+    if (idx >= 0 && idx < RES_N) {
+      resEnergy[idx] = Math.min(1, resEnergy[idx] + 0.8);
+      resBend[idx] += (Math.random() - 0.5) * 0.6;
+    }
+  }
+
+  function pluckNearestString(y) {
+    if (!showStrings || !H) return;
+    const margin = 20;
+    const spacing = (H - 2 * margin) / Math.max(RES_N - 1, 1);
+    let best = -1, bestD = Infinity;
+    for (let i = 0; i < RES_N; i++) {
+      const sy = margin + i * spacing;
+      const d = Math.abs(y - sy);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    if (best >= 0 && bestD < spacing * 0.6) pluckString(best);
+  }
+
+  function resize(){const dpr=Math.min(devicePixelRatio||1,2);const r=canvas.getBoundingClientRect();W=r.width;H=r.height;if(!W||!H)return;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);if(mode==='flora'&&branches.length===0)initFlora();treeDirty=true;}
+  function getCX(y){return centerLUT[Math.min(LUT-1,Math.max(0,(y/H*LUT)|0))];}
+  function updateLUT(){const hw=W/2,amp=W*0.12;for(let j=0;j<LUT;j++){const yN=j/LUT;centerLUT[j]=hw+Math.sin(yN*2.2+ph1)*amp+Math.sin(yN*5.1+ph2)*amp*0.3;}}
+
+  // Flora helpers (same as index.html)
+  function initFlora(){branches=[];spawnPts=[];blossoms=[];treeAge=0;const tx=W/2;branches.push({x1:tx,y1:H*0.92,x2:tx,y2:H*0.5,tipX:tx,tipY:H*0.5,depth:0,opacity:1,parentIdx:-1,growProgress:1,_fading:false,_sunset:false,curveSide:1,_split:false,birthTime:-Infinity});for(let r=0;r<3;r++)floSprout();rebuildSP();treeDirty=true;}
+  function floSprout(){const tr=branches[0];if(!tr)return;const t=0.4+Math.random()*0.6,cs=tr.curveSide||1;const cmx=(tr.x1+tr.tipX)/2+(tr.tipY-tr.y1)*0.08*cs,cmy=(tr.y1+tr.tipY)/2-(tr.tipX-tr.x1)*0.08*cs;const u=1-t;const sx=u*u*tr.x1+2*u*t*cmx+t*t*tr.tipX,sy=u*u*tr.y1+2*u*t*cmy+t*t*tr.tipY;const side=Math.random()<0.5?-1:1,angle=-Math.PI/2+side*(0.2+Math.random()*0.6),len=Math.min(W,H)*(0.1+Math.random()*0.12);branches.push({x1:sx,y1:sy,x2:Math.max(5,Math.min(W-5,sx+Math.cos(angle)*len)),y2:Math.max(5,sy+Math.sin(angle)*len),tipX:sx,tipY:sy,depth:1,opacity:0.1,parentIdx:0,growProgress:0,_fading:false,_sunset:false,curveSide:side,_split:false,birthTime:treeAge});}
+  function rebuildSP(){spawnPts=[];for(let i=1;i<branches.length;i++){const b=branches[i];if(b.growProgress<0.2||b._fading||b.opacity<0.15)continue;for(let t=0.3;t<=1;t+=0.25)spawnPts.push({x:b.x1+(b.x2-b.x1)*Math.min(t,b.growProgress),y:b.y1+(b.y2-b.y1)*Math.min(t,b.growProgress)});}}
+  function updateTree(dt){treeAge+=dt;let st=false;for(let i=1;i<branches.length;i++){const b=branches[i];if(b.growProgress<1&&!b._fading){b.growProgress=Math.min(1,b.growProgress+dt*0.5);b.tipX=b.x1+(b.x2-b.x1)*b.growProgress;b.tipY=b.y1+(b.y2-b.y1)*b.growProgress;b.opacity=Math.min(1,b.opacity+dt*0.5);}if(!b._fading&&!b._sunset&&b.growProgress>=1&&(b.tipX<10||b.tipX>W-10||b.tipY<10||b.tipY>H-10)){b._sunset=true;b._sunsetTime=treeAge;}if(!b._sunset&&!b._fading&&b.depth===1&&treeAge-b.birthTime>18){b._sunset=true;b._sunsetTime=treeAge;st=true;}if(!b._sunset&&b.parentIdx>0&&branches[b.parentIdx]._sunset){b._sunset=true;b._sunsetTime=branches[b.parentIdx]._sunsetTime;}if(b._sunset&&!b._fading&&treeAge-b._sunsetTime>6){b._fading=true;st=true;}if(!b._fading&&b.parentIdx>0&&branches[b.parentIdx]._fading){b._fading=true;st=true;}if(b.growProgress>=1&&!b._fading&&!b._sunset&&!b._split&&branches.length<80){b._split=true;const pa=Math.atan2(b.tipY-b.y1,b.tipX-b.x1),lb=Math.hypot(b.x2-b.x1,b.y2-b.y1);for(let f=0;f<2;f++){const sp=(f===0?-1:1)*(0.25+Math.random()*0.35),fa=pa+sp,ln=lb*(0.5+Math.random()*0.3);let ex=b.tipX+Math.cos(fa)*ln,ey=b.tipY+Math.sin(fa)*ln;branches.push({x1:b.tipX,y1:b.tipY,x2:Math.max(2,Math.min(W-2,ex)),y2:Math.max(2,Math.min(H-2,ey)),tipX:b.tipX,tipY:b.tipY,depth:b.depth+1,opacity:0.1,parentIdx:i,growProgress:0,_fading:false,_sunset:false,curveSide:f===0?-1:1,_split:false,birthTime:treeAge});}st=true;}if(b._fading)b.opacity-=dt*0.12;}if(branches.length>0)branches[0].opacity=1;let nl=1;for(let i=1;i<branches.length;i++){if(branches[i].opacity>0.02){if(nl!==i)branches[nl]=branches[i];nl++;}}if(nl<branches.length){branches.length=nl;st=true;}growTmr+=dt;if(growTmr>nextSprout&&branches.length<80){growTmr=0;nextSprout=1.5+Math.random();floSprout();st=true;}if(st){rebuildSP();treeDirty=true;}}
+  function renderTree(){if(!treeDirty&&treeCanvas)return;const dpr=Math.min(devicePixelRatio||1,2);if(!treeCanvas){treeCanvas=document.createElement('canvas');treeCtx=treeCanvas.getContext('2d');}const pw=Math.round(W*dpr),ph=Math.round(H*dpr);if(treeCanvas.width!==pw||treeCanvas.height!==ph){treeCanvas.width=pw;treeCanvas.height=ph;}const tc=treeCtx;tc.clearRect(0,0,pw,ph);tc.setTransform(dpr,0,0,dpr,0,0);tc.lineCap='round';for(const b of branches){if(b.opacity<0.03)continue;tc.lineWidth=Math.max(0.75,3-b.depth*0.45)*Math.min(1,b.opacity*2);tc.strokeStyle=`rgba(140,100,60,${b.opacity*0.85})`;tc.beginPath();const cs=b.curveSide||1;tc.moveTo(b.x1,b.y1);tc.quadraticCurveTo((b.x1+b.tipX)/2+(b.tipY-b.y1)*0.08*cs,(b.y1+b.tipY)/2-(b.tipX-b.x1)*0.08*cs,b.tipX,b.tipY);tc.stroke();}for(const bl of blossoms){const pulse=0.4+0.2*Math.sin(bl.phase+treeAge*3),lifeT=Math.min(1,bl.age/0.5),lifeN=Math.max(0,1-bl.age/bl.decayDur);tc.beginPath();tc.arc(bl.cx,bl.cy,4.5,0,Math.PI*2);tc.fillStyle=`rgba(220,190,130,${pulse*lifeT*lifeN**3})`;tc.fill();}tc.setTransform(1,0,0,1,0,0);treeDirty=false;}
+  function updateBlossoms(dt){for(let i=blossoms.length-1;i>=0;i--){blossoms[i].age+=dt;blossoms[i].phase+=dt;if(blossoms[i].age>blossoms[i].decayDur){blossoms.splice(i,1);treeDirty=true;}}batchTmr+=dt;const BS=4;if(batchTmr>=0.8&&spawnPts.length>=BS&&blossoms.length<32){batchTmr=0;const bpb=Math.floor(256/BS);for(let k=0;k<BS;k++){const sp=spawnPts[(Math.random()*spawnPts.length)|0];blossoms.push({binStart:k*bpb,binEnd:k===BS-1?256:(k+1)*bpb,age:0,spawnDur:0.8,decayDur:6,cx:sp.x,cy:sp.y,phase:Math.random()*Math.PI*2});}treeDirty=true;}if(blossoms.length===0&&spawnPts.length>=BS)batchTmr=0.8;}
+
+  function spawn(dt){
+    fftData=fft.tick();
+    if(mode==='flood'){rAcc+=(3+Math.random()*2)*dt*60;while(rAcc>=1&&rDN<RM){rAcc--;const i=rDN;rX[i]=20+Math.random()*(W-40);rY[i]=-10;rVx[i]=0;rVy[i]=H/(2*60);let rms=0;for(let b=0;b<256;b++){const v=fftData[b];rms+=v*v;}rA[i]=Math.max(0.15,Math.min(1,Math.sqrt(rms/256)/140));rSz[i]=5+rA[i]*6;rTH[i]=0;const base=i*RTL;for(let t=0;t<RTL;t++){rTX[base+t]=rX[i];rTY[base+t]=rY[i];}rDN++;}return;}
+    const hw=W*0.22;let spawned=0;const sb=(Math.random()*256)|0;
+    for(let j=0;j<256&&spawned<SPAWN;j++){const i=(sb+j)%256,amp=fftData[i],ft=i/255;
+      if(amp<15*(1-ft*0.4))continue;if(Math.random()>amp/200*0.95)continue;if(drCount>=MAX)break;
+      const a=amp/255,n=drCount++;
+      if(mode==='flow'){const sp=(ft-0.5)*2,off=sp*hw*0.9+(Math.random()-0.5)*6;drX[n]=off;drHx[n]=off;drY[n]=-(Math.random()*4);drVx[n]=(Math.random()-0.5)*0.15;drVy[n]=0;}
+      else if(mode==='flock'){drX[n]=-(Math.random()*30);drY[n]=H/2+(0.5-ft)*H*0.6+(Math.random()-0.5)*8;drHx[n]=0;drHy[n]=drY[n];drVx[n]=0;drVy[n]=0;}
+      else if(mode==='flame'){const bx=W*0.5+(ft-0.5)*W*0.85;drX[n]=bx+(Math.random()-0.5)*12;drY[n]=H-15-Math.random()*15;drHx[n]=drX[n];drHy[n]=drY[n];drVx[n]=(Math.random()-0.5)*1.5;drVy[n]=-(0.5+Math.random());}
+      else if(mode==='fractal'){const cx=W/2,cy=H/2,ang=ft*2*Math.PI*PHI+(Math.random()-0.5)*0.15,sR=3+Math.random()*5;drX[n]=cx+Math.cos(ang)*sR;drY[n]=cy+Math.sin(ang)*sR;drHx[n]=drX[n];drHy[n]=drY[n];const bR=Math.min(W,H)/2/(5*60)/0.65;drVx[n]=Math.cos(ang)*bR*0.5;drVy[n]=Math.sin(ang)*bR*0.5;}
+      else if(mode==='flora'){let ok=false;for(const bl of blossoms){if(bl.age>bl.spawnDur||i<bl.binStart||i>=bl.binEnd)continue;const ang=(i-bl.binStart)/Math.max(1,bl.binEnd-bl.binStart)*Math.PI*2*PHI,sR=2+Math.random()*4;drX[n]=bl.cx+Math.cos(ang)*sR;drY[n]=bl.cy+Math.sin(ang)*sR;drHx[n]=bl.cx;drHy[n]=bl.cy;drVx[n]=0;drVy[n]=0;ok=true;break;}if(!ok){drCount--;continue;}}
+      drA[n]=a;drB[n]=i;drTch[n]=0;spawned++;
+    }
+  }
+
+  function physics(dt){
+    const now=performance.now()/1000;
+    for(let v=vortices.length-1;v>=0;v--){const vt=vortices[v];vt.age=(now-vt.born)/vt.life;if(vt.age>=1){vortices.splice(v,1);continue;}vt.fade=Math.max(0,1-vt.age*vt.age);}
+    if(mode==='flow'){ph1+=dt*0.3*0.4;ph2+=dt*0.3*0.25;updateLUT();}
+    if(mode==='flock'){fTime+=2/30;buildCurlGrid(gVx,gVy,fTime,FLOCK_LAYERS,1.2);splitTmr+=1/30;if(splitTmr>10+Math.random()*5){splitTgt=splitTgt>0.5?0:1;splitTmr=0;}splitVal+=(splitTgt-splitVal)*0.01;}
+    if(mode==='flame'){flTime+=1.5/30;buildCurlGrid(gVx,gVy,flTime,FLAME_LAYERS,1);const ts=W/(NT+1);for(let t=0;t<NT;t++){tX[t]=ts*(t+1)+Math.sin(flTime*0.5+t*1.8)*ts*0.25;tY[t]=H*0.35+Math.sin(flTime*0.35+t*2.4)*H*0.05;}}
+    if(mode==='flora'){if(branches.length===0)initFlora();updateTree(dt);updateBlossoms(dt);}
+    if(mode==='flood'){windT+=dt;const wind=Math.sin(windT*0.4)*1.2+Math.sin(windT*1.1+2)*0.5;const gnd=H*0.85;let rw=0;for(let i=0;i<rDN;i++){rY[i]+=rVy[i];rX[i]+=rVx[i];rVx[i]*=0.85;rX[i]+=wind*(0.3+rY[i]/gnd*0.7)+(Math.random()-0.5)*0.15;const th=rTH[i],base=i*RTL;rTX[base+th]=rX[i];rTY[base+th]=rY[i];rTH[i]=(th+1)%RTL;if(rY[i]>=gnd){const sx=rX[i];for(let s=0;s<15&&drCount<MAX;s++){const ft=s/15,bin=(ft*255)|0;const n=drCount++;drX[n]=sx+(sx-sx+ft*W*0.15-W*0.075)*0.15;drY[n]=gnd;drVx[n]=(ft-0.5)*0.3;drVy[n]=-(3.5+Math.random()*3);drHx[n]=sx-W*0.075+ft*W*0.15;drHy[n]=gnd;drA[n]=Math.min(1,(fftData[bin]||50)/200);drB[n]=bin;drTch[n]=0;}continue;}if(rw!==i){rX[rw]=rX[i];rY[rw]=rY[i];rVx[rw]=rVx[i];rVy[rw]=rVy[i];rA[rw]=rA[i];rSz[rw]=rSz[i];const sb=i*RTL,db=rw*RTL;for(let t=0;t<RTL;t++){rTX[db+t]=rTX[sb+t];rTY[db+t]=rTY[sb+t];}rTH[rw]=rTH[i];}rw++;}rDN=rw;}
+    const bf=mode==='flow'?H/(6*60):0,bfx=mode==='flock'?W/(6*60):0,bfr=mode==='fractal'?Math.min(W,H)/2/(5*60)/0.65:0,bff=mode==='flora'?Math.min(W,H)/2/(5*60)/0.65*0.25:0,fr=mode==='flame'?2.5:0,gnd=H*0.85;
+    let w=0;
+    for(let i=0;i<drCount;i++){
+      if(mode==='flow'){drY[i]+=bf;drVx[i]+=(drHx[i]-drX[i])*0.001;drVx[i]*=0.985;drX[i]+=drVx[i];drA[i]*=0.9993;}
+      else if(mode==='flock'){drVx[i]+=bfx*0.03;const cl=sampleCurl(gVx,gVy,drX[i],drY[i],W,H);drVx[i]+=cl.vx*0.02;drVy[i]+=cl.vy*0.02;if(splitVal>0.05)drVy[i]+=(drY[i]>H/2?1:-1)*splitVal*0.04;drX[i]+=drVx[i];drY[i]+=drVy[i];if(drY[i]<10)drVy[i]+=(10-drY[i])*0.03;if(drY[i]>H-10)drVy[i]+=(H-10-drY[i])*0.03;drVx[i]*=0.96;drVy[i]*=0.96;drA[i]*=0.9993;}
+      else if(mode==='flame'){const ts=W/(NT+1),ni=Math.max(0,Math.min(NT-1,Math.round(drX[i]/ts)-1)),hn=Math.max(0,1-drY[i]/H),rl=(drY[i]-tY[ni])/H;if(rl>0)drVy[i]-=fr*0.09;else drVy[i]-=fr*Math.max(-0.02,0.09+rl*0.4);const cl=sampleCurl(gVx,gVy,drX[i],drY[i],W,H);drVx[i]+=cl.vx*(0.003+hn*0.032);drVy[i]+=cl.vy*(0.003+hn*0.032)*0.4;const dx=tX[ni]-drX[i],adx=Math.abs(dx),dz=ts*0.15;if(adx>dz)drVx[i]+=Math.sign(dx)*(adx-dz)/ts*Math.min(1,hn/0.5)*0.15;drX[i]+=drVx[i];drY[i]+=drVy[i];if(drX[i]<10)drVx[i]+=(10-drX[i])*0.03;if(drX[i]>W-10)drVx[i]+=(W-10-drX[i])*0.03;drVx[i]*=0.94;drVy[i]*=0.93;drA[i]*=hn>0.4?1-(hn-0.4)*0.04:0.9993;}
+      else if(mode==='fractal'){const cx=W/2,cy=H/2,rdx=drX[i]-cx,rdy=drY[i]-cy,rd=Math.sqrt(rdx*rdx+rdy*rdy)||1,rnx=rdx/rd,rny=rdy/rd;drVx[i]+=rnx*bfr*0.03;drVy[i]+=rny*bfr*0.03;drVx[i]+=(-rny)*bfr*0.03/PHI;drVy[i]+=rnx*bfr*0.03/PHI;drX[i]+=drVx[i];drY[i]+=drVy[i];drVx[i]*=0.96;drVy[i]*=0.96;drA[i]*=0.9993;}
+      else if(mode==='flora'){const bcx=drHx[i],bcy=drHy[i],rdx=drX[i]-bcx,rdy=drY[i]-bcy,rd=Math.sqrt(rdx*rdx+rdy*rdy)||1,rnx=rdx/rd,rny=rdy/rd,rf=bff*0.025;drVx[i]+=rnx*rf;drVy[i]+=rny*rf;drVx[i]+=(-rny)*rf/PHI;drVy[i]+=rnx*rf/PHI;drVx[i]+=rnx*(Math.random()-0.5)*0.3;drVy[i]+=rny*(Math.random()-0.5)*0.3;drX[i]+=drVx[i];drY[i]+=drVy[i];drVx[i]*=0.96;drVy[i]*=0.96;drA[i]*=drA[i]<0.15?0.97:0.998;}
+      else if(mode==='flood'){drVy[i]+=0.08;drVx[i]+=(drHx[i]-drX[i])*0.005;drX[i]+=drVx[i];drY[i]+=drVy[i];drVx[i]*=0.99;drA[i]*=0.9993;}
+      drTch[i]*=0.99;
+      for(const vt of vortices){if(vt.fade<=0)continue;const vdx=(mode==='flow'?getCX(drY[i])+drX[i]:drX[i])-vt.x,vdy=drY[i]-vt.y,vd=Math.sqrt(vdx*vdx+vdy*vdy);if(vd>=vt.radius||vd<1)continue;const f=vt.fade*vt.strength*(1-vd/vt.radius);drVx[i]+=(-vdy/vd*vt.spin+vdx/vd*-0.3)*f;if(mode==='flow')drY[i]+=(vdx/vd*vt.spin+vdy/vd*-0.3)*f*0.5;else drVy[i]+=(vdx/vd*vt.spin+vdy/vd*-0.3)*f*0.5;drTch[i]=Math.min(1,drTch[i]+f*0.3);}
+      if(mDown&&interact){const px=mode==='flow'?getCX(drY[i])+drX[i]:drX[i],dx=px-mx,dy=drY[i]-my,d=Math.sqrt(dx*dx+dy*dy);if(d<60&&d>1){const f=(1-d/60)*0.9,ds=Math.sqrt(dvx*dvx+dvy*dvy),bl=Math.min(1,ds/8),rx=dx/d,ry=dy/d;let nx=0,ny=0;if(ds>0.5){nx=dvx/ds;ny=dvy/ds;}drVx[i]+=(rx*(1-bl)+nx*bl)*f*(1+ds*0.15);if(mode==='flow')drY[i]+=(ry*(1-bl)+ny*bl)*f*0.5;else drVy[i]+=(ry*(1-bl)+ny*bl)*f*(1+ds*0.15);drA[i]=Math.min(1,drA[i]+f*0.1);drTch[i]=Math.min(1,drTch[i]+f);}}
+      let alive=drA[i]>0.01;
+      if(mode==='flow')alive=alive&&drY[i]<H+5&&drY[i]>-10;
+      else if(mode==='flock')alive=alive&&drX[i]>-200&&drX[i]<W+150&&drY[i]>-80&&drY[i]<H+80;
+      else if(mode==='flame')alive=alive&&drY[i]>-30;
+      else if(mode==='fractal')alive=alive&&drX[i]>-80&&drX[i]<W+80&&drY[i]>-80&&drY[i]<H+80;
+      else if(mode==='flora')alive=alive&&Math.hypot(drX[i]-drHx[i],drY[i]-drHy[i])<120;
+      else if(mode==='flood')alive=alive&&drY[i]<gnd+20&&drY[i]>-10;
+      if(alive){if(w!==i){drX[w]=drX[i];drY[w]=drY[i];drA[w]=drA[i];drB[w]=drB[i];drVx[w]=drVx[i];drVy[w]=drVy[i];drHx[w]=drHx[i];drHy[w]=drHy[i];drTch[w]=drTch[i];}w++;}
+    }
+    drCount=w;
+  }
+
+  function render(){
+    if(!W||!H)return;
+    const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#060a10');grad.addColorStop(1,'#0a1220');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+    if(mode==='flora'){renderTree();if(treeCanvas){ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(treeCanvas,0,0);ctx.restore();ctx.setTransform(Math.min(devicePixelRatio||1,2),0,0,Math.min(devicePixelRatio||1,2),0,0);}}
+    if(mode==='flame')ctx.globalCompositeOperation='lighter';
+    for(let i=0;i<drCount;i++){const a=drA[i],bin=drB[i],x=mode==='flow'?getCX(drY[i])+drX[i]:drX[i],y=drY[i],r=1.2+a*2;
+      let al;if(mode==='flame')al=Math.pow(a,1)*0.55*(1-(1-y/H)*0.25);else al=Math.pow(a,1.4)*0.9*(1-y/H*0.12);
+      if(al<0.01)continue;const cr=CMAP[bin*3],cg=CMAP[bin*3+1],cb=CMAP[bin*3+2];
+      if(a>0.3&&mode!=='flame'){ctx.beginPath();ctx.arc(x,y,r*3.5,0,6.28);ctx.fillStyle=`rgba(${cr},${cg},${cb},${al*0.08})`;ctx.fill();}
+      ctx.beginPath();ctx.arc(x,y,r,0,6.28);ctx.fillStyle=`rgba(${cr},${cg},${cb},${al})`;ctx.fill();}
+    if(mode==='flame')ctx.globalCompositeOperation='source-over';
+    if(mode==='flood'){const rn=performance.now()/1000;ctx.save();for(let i=0;i<rDN;i++){const x=rX[i],y=rY[i],a=rA[i],sz=rSz[i],base=i*RTL,head=rTH[i];for(let t=0;t<RTL-1;t++){const t0=(head-1-t+RTL)%RTL,t1=(head-2-t+RTL)%RTL;const x0=rTX[base+t0],y0=rTY[base+t0],x1=rTX[base+t1],y1=rTY[base+t1];if(y0<-5||y1<-5)continue;const fd=1-t/RTL,ta=a*fd*fd*0.3;if(ta<0.005)continue;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.strokeStyle=`rgba(140,190,220,${ta.toFixed(3)})`;ctx.lineWidth=Math.max(0.5,sz*0.5*fd);ctx.stroke();}const rw=sz*0.55,rh=sz*0.9;ctx.beginPath();ctx.arc(x,y+rh*0.15,rw,0,Math.PI,false);ctx.quadraticCurveTo(x-rw*0.3,y-rh*0.4,x,y-rh*0.7);ctx.quadraticCurveTo(x+rw*0.3,y-rh*0.4,x+rw,y+rh*0.15);ctx.closePath();const ft=x/W;ctx.fillStyle=`rgba(${Math.round(200-ft*174)},${Math.round(130+ft*28)},${Math.round(60+ft*124)},${(a*0.9).toFixed(3)})`;ctx.fill();const sx2=x+Math.sin(rn*5+i*2.3)*rw*0.35,sy2=y-rh*0.1+Math.cos(rn*3.7+i*1.7)*rh*0.15,sr=sz*0.3;const sg=ctx.createRadialGradient(sx2,sy2,0,sx2,sy2,sr);sg.addColorStop(0,`rgba(255,255,255,${(a*0.6).toFixed(3)})`);sg.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sx2,sy2,sr,0,Math.PI*2);ctx.fill();}ctx.restore();}
+    // Resonator strings overlay
+    if(showStrings){
+      const now2=performance.now()/1000;
+      const margin=20,spacing=(H-2*margin)/Math.max(RES_N-1,1);
+      ctx.save();
+      for(let si=0;si<RES_N;si++){
+        const sy=margin+si*spacing;
+        const energy=resEnergy[si];
+        const bend=resBend[si];
+        // Decay
+        resEnergy[si]*=0.96;
+        resBend[si]*=0.93;
+        const baseA=0.18+energy*0.6;
+        const active=energy>0.01;
+        const r0=active?220+Math.round(energy*35):120;
+        const g0=active?180+Math.round(energy*40):140;
+        const b0=active?80:170;
+        // Draw oscillating string
+        ctx.beginPath();
+        const segs=40,ampPx=energy*spacing*0.4;
+        const freqM=2+(si%3),timeM=10+si*0.7;
+        for(let seg=0;seg<=segs;seg++){
+          const t=seg/segs,x=t*W;
+          const env=Math.sin(t*Math.PI);
+          const disp=ampPx*Math.sin(t*Math.PI*freqM)*Math.sin(now2*timeM)*env+bend*8*env;
+          if(seg===0)ctx.moveTo(x,sy+disp);else ctx.lineTo(x,sy+disp);
+        }
+        ctx.strokeStyle=`rgba(${r0},${g0},${b0},${Math.min(0.75,baseA).toFixed(2)})`;
+        ctx.lineWidth=0.8+energy*3;
+        ctx.stroke();
+        // Glow
+        if(energy>0.03){
+          ctx.save();
+          ctx.shadowColor=`rgba(${r0},${g0},${b0},${Math.min(0.5,energy*0.7).toFixed(2)})`;
+          ctx.shadowBlur=4+energy*16;
+          ctx.stroke();
+          ctx.restore();
+        }
+        // Note label
+        ctx.font="8px 'JetBrains Mono',monospace";
+        ctx.textAlign='left';ctx.textBaseline='middle';
+        ctx.fillStyle=`rgba(${r0},${g0},${b0},${Math.min(0.7,0.3+energy*0.4).toFixed(2)})`;
+        ctx.fillText(resNotes[si]||'',56,sy);
+      }
+      ctx.restore();
+    }
+
+    const now=performance.now()/1000;for(const vt of vortices){if(vt.fade<=0)continue;ctx.save();ctx.translate(vt.x,vt.y);ctx.rotate(now*vt.spin*3);for(let ring=0;ring<3;ring++){ctx.beginPath();ctx.arc(0,0,vt.radius*(0.3+ring*0.3),0,Math.PI*1.2);ctx.strokeStyle=`rgba(26,158,158,${vt.fade*(0.2-ring*0.05)})`;ctx.lineWidth=1.5-ring*0.3;ctx.stroke();}ctx.beginPath();ctx.arc(0,0,2.5,0,6.28);ctx.fillStyle=`rgba(26,180,180,${vt.fade*0.5})`;ctx.fill();ctx.restore();}
+    if(mDown&&interact){ctx.beginPath();ctx.arc(mx,my,60,0,6.28);ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.stroke();}
+  }
+
+  function gp(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}
+  canvas.addEventListener('mousedown',e=>{if(!interact)return;mDown=true;const p=gp(e);mx=p.x;my=p.y;lmx=mx;lmy=my;dvx=dvy=0;if(showStrings)pluckNearestString(p.y);});
+  canvas.addEventListener('mousemove',e=>{if(!interact)return;const p=gp(e);if(mDown){dvx=p.x-lmx;dvy=p.y-lmy;}mx=p.x;my=p.y;lmx=mx;lmy=my;});
+  canvas.addEventListener('mouseup',()=>{mDown=false;mx=my=-1e4;});
+  canvas.addEventListener('mouseleave',()=>{mDown=false;mx=my=-1e4;});
+  canvas.addEventListener('dblclick',e=>{if(!interact)return;e.preventDefault();const p=gp(e);vortices.push({x:p.x,y:p.y,born:performance.now()/1000,life:3+Math.random(),strength:1.0,radius:65,spin:(Math.random()>0.5?1:-1)*(0.8+Math.random()*0.4),fade:1,age:0});});
+  canvas.addEventListener('touchstart',e=>{if(!interact)return;e.preventDefault();mDown=true;const t=e.touches[0],r=canvas.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;lmx=mx;lmy=my;dvx=dvy=0;if(showStrings)pluckNearestString(my);},{passive:false});
+  canvas.addEventListener('touchmove',e=>{if(!interact)return;e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();const px=t.clientX-r.left,py=t.clientY-r.top;dvx=px-lmx;dvy=py-lmy;mx=px;my=py;lmx=mx;lmy=my;},{passive:false});
+  canvas.addEventListener('touchend',()=>{mDown=false;mx=my=-1e4;});
+
+  let running=false,lastT=0;
+  return{
+    tick(t){const dt=Math.min(0.05,(t-lastT)/1000);lastT=t;if(dt<=0)return;spawn(dt);physics(dt);render();},
+    resize(){resize();},start(){if(!running){running=true;resize();lastT=performance.now();}},stop(){running=false;},
+    setInteraction(en){interact=en;},isRunning(){return running;},
+    setStrings(on){showStrings=on;},pluckNearest(y){pluckNearestString(y);},
+    reset(){drCount=0;rDN=0;rAcc=0;vortices=[];branches=[];spawnPts=[];blossoms=[];batchTmr=0;treeAge=0;growTmr=0;treeDirty=true;}
+  };
+}
+
+// ══════════════════════════════════════════════════════════
+// TUTORIAL CONTROLLER
+// ══════════════════════════════════════════════════════════
+
+(function tutorial() {
+  const canvas = document.getElementById('vizCanvas');
+  let currentMode = 'flow';
+  let sim = createVizSim(canvas, currentMode, { maxDroplets: 10000, spawnRate: 50 });
+  sim.setInteraction(true);
+  sim.start();
+
+  // Animation loop
+  function tick(t) { if (sim.isRunning()) sim.tick(t); requestAnimationFrame(tick); }
+  requestAnimationFrame(tick);
+  window.addEventListener('resize', () => sim.resize());
+
+  // ── Mode switching (used by STR panel) ──
+  function switchMode(newMode) {
+    if (newMode === currentMode) return;
+    currentMode = newMode;
+    sim.stop();
+    sim = createVizSim(canvas, newMode, { maxDroplets: 10000, spawnRate: 50 });
+    sim.setInteraction(true);
+    sim.start();
+    sim.resize();
+    // Update mode buttons if visible
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === newMode));
+  }
+  window._switchMode = switchMode;
+
+  // ── Grain window preview helpers (static, drawn once) ──
+  const TUT_WIN_N = 128;
+
+  function tutNonePts() {
+    const pts = new Float32Array(TUT_WIN_N);
+    const ramp = Math.max(2, Math.floor(TUT_WIN_N * 0.04));
+    for (let i = 0; i < TUT_WIN_N; i++) {
+      if (i < ramp) pts[i] = i / ramp;
+      else if (i >= TUT_WIN_N - ramp) pts[i] = (TUT_WIN_N - 1 - i) / ramp;
+      else pts[i] = 1.0;
+    }
+    return pts;
+  }
+
+  function tutHannPts() {
+    const pts = new Float32Array(TUT_WIN_N);
+    const rise = 0.5, fall = 0.5;
+    const riseEnd = Math.max(0.001, rise);
+    const fallSt = Math.min(0.999, 1.0 - fall);
+    for (let i = 0; i < TUT_WIN_N; i++) {
+      const t = i / (TUT_WIN_N - 1);
+      if (t <= riseEnd && riseEnd > 0)
+        pts[i] = 0.5 * (1 - Math.cos(Math.PI * (t / riseEnd)));
+      else if (t >= fallSt && fall > 0)
+        pts[i] = 0.5 * (1 + Math.cos(Math.PI * ((t - fallSt) / fall)));
+      else
+        pts[i] = 1.0;
+    }
+    return pts;
+  }
+
+  function tutSmoothPts() {
+    const riseExp = 5 - 4.9 * 0.5;
+    const fallExp = 5 - 4.9 * 0.5;
+    const pts = new Float32Array(TUT_WIN_N);
+    for (let i = 0; i < TUT_WIN_N; i++) {
+      const t = i / (TUT_WIN_N - 1);
+      pts[i] = t <= 0.5
+        ? Math.pow(Math.min(t * 2, 1), riseExp)
+        : Math.pow(Math.min((1 - t) * 2, 1), fallExp);
+    }
+    return pts;
+  }
+
+  function tutEnvelopePts() {
+    const pts = new Float32Array(TUT_WIN_N);
+    const attack = 0.15, sustain = 0.6, release = 0.25;
+    for (let i = 0; i < TUT_WIN_N; i++) {
+      const t = i / (TUT_WIN_N - 1);
+      if (t < attack) pts[i] = t / attack;
+      else if (t < attack + sustain) pts[i] = 1.0;
+      else pts[i] = Math.max(0, 1.0 - (t - attack - sustain) / release);
+    }
+    return pts;
+  }
+
+  function tutCustomPts() {
+    // Deterministic pseudo-random step pattern (seeded)
+    const steps = 16;
+    const seed = [0, 0.7, 0.3, 0.9, 0.5, 0.8, 0.2, 0.6, 0.95, 0.4, 0.75, 0.55, 0.85, 0.35, 0.65, 0];
+    const pts = new Float32Array(TUT_WIN_N);
+    for (let i = 0; i < TUT_WIN_N; i++) {
+      pts[i] = seed[Math.min(Math.floor(i / TUT_WIN_N * steps), steps - 1)];
+    }
+    return pts;
+  }
+
+  function tutDrawPreview(canvas, pts) {
+    if (!canvas) return;
+    const cssW = canvas.offsetWidth || 80;
+    const cssH = 22;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(cssW * dpr);
+    const H = Math.round(cssH * dpr);
+    canvas.width = W;
+    canvas.height = H;
+    canvas.style.height = cssH + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const w = cssW, h = cssH;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(6,8,15,0.85)';
+    ctx.fillRect(0, 0, w, h);
+    if (!pts || !pts.length) return;
+    const rgb = '200,134,74'; // warm/orange accent
+
+    ctx.beginPath();
+    for (let i = 0; i < pts.length; i++) {
+      const x = (i / (pts.length - 1)) * (w - 1);
+      const y = (h - 2) - pts[i] * (h - 4);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.lineTo(w - 1, h - 2);
+    ctx.lineTo(0, h - 2);
+    ctx.closePath();
+    ctx.fillStyle = `rgba(${rgb},0.12)`;
+    ctx.fill();
+
+    ctx.beginPath();
+    for (let i = 0; i < pts.length; i++) {
+      const x = (i / (pts.length - 1)) * (w - 1);
+      const y = (h - 2) - pts[i] * (h - 4);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = `rgba(${rgb},0.85)`;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  function initGrainPreviews() {
+    requestAnimationFrame(() => {
+      tutDrawPreview(document.getElementById('tut-preview-none'), tutNonePts());
+      tutDrawPreview(document.getElementById('tut-preview-smooth'), tutSmoothPts());
+      tutDrawPreview(document.getElementById('tut-preview-hann'), tutHannPts());
+      tutDrawPreview(document.getElementById('tut-preview-envelope'), tutEnvelopePts());
+      tutDrawPreview(document.getElementById('tut-preview-custom'), tutCustomPts());
+    });
+  }
+
+  // ── LFO animation helpers (runs while on MOD step) ──
+  let _tutLfoPhase = 0;
+  let _tutLfoLastT = 0;
+  let _tutLfoAnimId = 0;
+  // S&H ring buffer state
+  const _tutShBufLen = 2048;
+  const _tutShBuf = new Float32Array(_tutShBufLen);
+  let _tutShHead = 0;
+  let _tutShPhase = 0;
+  let _tutShCurrent = 0.5;
+  let _tutShSmooth = 0.5;
+  let _tutShColdStart = true;
+
+  function tutLfoSine(phase) {
+    return Math.sin(2 * Math.PI * phase);
+  }
+
+  function tutShAdvance(dt, hz) {
+    _tutShPhase += hz * dt;
+    while (_tutShPhase >= 1) {
+      _tutShPhase -= 1;
+      _tutShCurrent = Math.random();
+    }
+    // Smooth towards current value
+    const smoothRate = 1 - Math.exp(-dt * 30);
+    _tutShSmooth += (_tutShCurrent - _tutShSmooth) * smoothRate;
+    // Write to ring buffer (normalized 0..1)
+    const samplesPerSec = 1920;
+    const nSamples = Math.max(1, Math.round(dt * samplesPerSec));
+    for (let s = 0; s < nSamples; s++) {
+      _tutShBuf[_tutShHead % _tutShBufLen] = _tutShSmooth;
+      _tutShHead++;
+    }
+  }
+
+  function _tutShGetSample(age) {
+    const idx = ((_tutShHead - 1 - Math.round(age)) % _tutShBufLen + _tutShBufLen) % _tutShBufLen;
+    return _tutShBuf[idx];
+  }
+
+  function tutDrawLfoCanvas(canvas, mode, phase, hz) {
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+    if (w < 2 || h < 2) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(w * dpr);
+    const H = Math.round(h * dpr);
+    if (canvas.width !== W || canvas.height !== H) {
+      canvas.width = W;
+      canvas.height = H;
+    }
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    const accent = '#b89040';
+    const pad = 3;
+    const drawH = h - pad * 2;
+    const cy = h / 2;
+
+    // Center line
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 0.5;
+    ctx.globalAlpha = 0.15;
+    ctx.beginPath();
+    ctx.moveTo(0, cy);
+    ctx.lineTo(w, cy);
+    ctx.stroke();
+
+    const isSH = mode === 'sh';
+    const displaySec = isSH ? 2.5 : Math.max(1.5, 3 / Math.max(0.1, hz));
+
+    if (isSH) {
+      const written = _tutShHead;
+      if (written < 64) { ctx.globalAlpha = 1; return; }
+      const samplesForWindow = Math.round(displaySec * 1920);
+      const available = Math.max(2, Math.min(written, _tutShBufLen, samplesForWindow));
+
+      // Filled area
+      ctx.fillStyle = accent;
+      ctx.globalAlpha = 0.15;
+      ctx.beginPath();
+      ctx.moveTo(0, cy);
+      for (let i = 0; i < w; i++) {
+        const age = (1 - i / w) * (available - 1);
+        const v = _tutShGetSample(age);
+        ctx.lineTo(i, pad + (1 - v) * 0.5 * drawH);
+      }
+      ctx.lineTo(w, cy);
+      ctx.closePath();
+      ctx.fill();
+
+      // Stroke line
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.8;
+      ctx.beginPath();
+      for (let i = 0; i < w; i++) {
+        const age = (1 - i / w) * (available - 1);
+        const v = _tutShGetSample(age);
+        const y = pad + (1 - v) * 0.5 * drawH;
+        if (i === 0) ctx.moveTo(i, y); else ctx.lineTo(i, y);
+      }
+      ctx.stroke();
+
+      // Current value dot
+      const vy = pad + (1 - _tutShSmooth) * 0.5 * drawH;
+      ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 1.0;
+      ctx.beginPath();
+      ctx.arc(w - 2, vy, 3, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.fillStyle = accent;
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.arc(w - 2, vy, 5, 0, 2 * Math.PI);
+      ctx.fill();
+    } else {
+      // Analytical sine rendering
+      ctx.fillStyle = accent;
+      ctx.globalAlpha = 0.15;
+      ctx.beginPath();
+      ctx.moveTo(0, cy);
+      for (let i = 0; i < w; i++) {
+        const t = (1 - i / w) * displaySec;
+        const p = phase - hz * t;
+        const normP = p - Math.floor(p);
+        const v = (tutLfoSine(normP) + 1) * 0.5; // normalize to 0..1
+        ctx.lineTo(i, pad + (1 - v) * 0.5 * drawH);
+      }
+      ctx.lineTo(w, cy);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.8;
+      ctx.beginPath();
+      for (let i = 0; i < w; i++) {
+        const t = (1 - i / w) * displaySec;
+        const p = phase - hz * t;
+        const normP = p - Math.floor(p);
+        const v = (tutLfoSine(normP) + 1) * 0.5;
+        const y = pad + (1 - v) * 0.5 * drawH;
+        if (i === 0) ctx.moveTo(i, y); else ctx.lineTo(i, y);
+      }
+      ctx.stroke();
+
+      // Current value dot
+      const currentV = (tutLfoSine(phase) + 1) * 0.5;
+      const vy = pad + (1 - currentV) * 0.5 * drawH;
+      ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 1.0;
+      ctx.beginPath();
+      ctx.arc(w - 2, vy, 3, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.fillStyle = accent;
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.arc(w - 2, vy, 5, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function startTutLfoAnim() {
+    if (_tutLfoAnimId) return;
+    // Pre-fill S&H buffer on cold start (~3s of history)
+    if (_tutShColdStart) {
+      _tutShColdStart = false;
+      const prefillDt = 1 / 60;
+      for (let i = 0; i < 180; i++) {
+        tutShAdvance(prefillDt, 2.0);
+      }
+    }
+    _tutLfoLastT = performance.now();
+    function loop(t) {
+      const dt = Math.min(0.05, (t - _tutLfoLastT) / 1000);
+      _tutLfoLastT = t;
+      if (dt > 0) {
+        _tutLfoPhase += 0.8 * dt; // sine at 0.8 Hz
+        tutShAdvance(dt, 2.0);    // S&H at 2.0 Hz
+      }
+      tutDrawLfoCanvas(document.getElementById('tut-lfo-sine'), 'sine', _tutLfoPhase, 0.8);
+      tutDrawLfoCanvas(document.getElementById('tut-lfo-sh'), 'sh', 0, 2.0);
+      _tutLfoAnimId = requestAnimationFrame(loop);
+    }
+    _tutLfoAnimId = requestAnimationFrame(loop);
+  }
+
+  function stopTutLfoAnim() {
+    if (_tutLfoAnimId) {
+      cancelAnimationFrame(_tutLfoAnimId);
+      _tutLfoAnimId = 0;
+    }
+  }
+
+  // ── Helpers for V2-style param HTML ──
+  function P(label, value, fill) {
+    return `<div class="param"><div class="param-row"><span class="param-label">${label}</span><span class="param-value">${value}</span></div><input type="range" min="0" max="1000" value="${fill * 10}" style="--fill:${fill}%"></div>`;
+  }
+  function D(label) { return `<div class="subsection-divider"><span class="subsection-label">${label}</span></div>`; }
+  function T(label, on) { return `<span class="toggle-btn${on ? ' active' : ''}">${label}</span>`; }
+
+  // ── Panel content per step (desc = description overlay, html = V2 param panel) ──
+  const STEPS = {
+    input: {
+      title: 'Input', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Feed the stream</h3><p>Stream live audio or load a sample. Incoming audio fills a 30-second ring buffer &mdash; your raw material for granular processing.</p>`,
+      html: `${P('Input Gain','1.0x',50)}
+        ${P('Blend','Mic 100%',100)}
+        ${D('Sampler')}
+        ${T('RECORD',false)} ${T('LOAD',false)} ${T('CLEAR',false)}
+        ${D('Filter')}
+        ${P('High Pass','20 Hz',0)}
+        ${P('Low Pass','20 kHz',100)}`
+    },
+    sampler: {
+      title: 'Input', tagClass: '', borderClass: '', panelClass: '',
+      navStep: 'input',
+      desc: `<h3>Resample your own output</h3><p>The built-in sampler can record directly from the granular engine's output &mdash; capture a texture you like, then feed it back in for further mangling. Layer, mutate, and evolve sounds endlessly.</p>`,
+      html: `${D('Sampler')}
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          ${T('RECORD',true)} ${T('LOAD',false)} ${T('CLEAR',false)}
+        </div>
+        ${P('Sample Gain','0 dB',75)}
+        <div class="seg-btn-group" style="margin-top:4px">
+          <span class="seg-btn">Input</span>
+          <span class="seg-btn active">Output</span>
+        </div>
+        <div class="panel-hint" style="color:var(--accent);background:rgba(74,144,184,0.06);border-color:rgba(74,144,184,0.12)">Record from Output to resample your granular textures into the buffer for re-granulation</div>`
+    },
+    generate: {
+      title: 'Generate', tagClass: '', borderClass: '', panelClass: '',
+      navStep: 'generate',
+      desc: `<h3>Describe a sound. Hear it.</h3><p>Type a text prompt and Streams generates spectrally rich source material using an AI diffusion model running locally on your device. Designed for granular synthesis &mdash; not perfect reproduction, but endlessly interesting raw material to slice, scatter, and transform.</p>`,
+      html: `${D('AI Generate')}
+        <div style="background:rgba(74,144,184,0.06);border:1px solid rgba(74,144,184,0.15);border-radius:4px;padding:6px 8px;margin-bottom:6px">
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px">Prompt</div>
+          <div style="font-size:11px;color:var(--accent)">a drum beat</div>
+        </div>
+        <div style="display:flex;gap:4px">
+          ${T('GENERATE',true)} ${T('CANCEL',false)}
+        </div>
+        <div class="panel-hint" style="color:var(--accent);background:rgba(74,144,184,0.06);border-color:rgba(74,144,184,0.12)">Short, descriptive prompts work best. Generated audio feeds directly into the granular engine as source material.</div>`
+    },
+    tempo: {
+      title: 'Tempo', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Lock to the beat</h3><p>Set the BPM for tempo-synced grain triggering, LFO rates, and delay times. Tap tempo or sync to your DAW's host clock.</p>`,
+      html: `${P('Tempo','120 bpm',50)}
+        <div class="seg-btn-group">${T('MIDI CLK',false)} ${T('HOST SYNC',true)}</div>
+        ${D('Division')}
+        <div class="seg-btn-group">
+          <span class="seg-btn">1</span>
+          <span class="seg-btn">1/2</span>
+          <span class="seg-btn active">1/4</span>
+          <span class="seg-btn">1/8</span>
+          <span class="seg-btn">1/16</span>
+        </div>`
+    },
+    scale: {
+      title: 'Scale', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Stay in key</h3><p>Constrain the resonator bank and step sequencer to musical intervals. Grains and plucked strings follow your harmonic palette.</p>`,
+      html: `${T('SCALE LOCK',true)}
+        ${P('Root / Tune','C',50)}
+        <div class="seg-btn-group" style="margin-top:6px">
+          <span class="seg-btn">Chrom</span>
+          <span class="seg-btn">Major</span>
+          <span class="seg-btn active">Minor</span>
+          <span class="seg-btn">Penta</span>
+          <span class="seg-btn">Blues</span>
+          <span class="seg-btn">Dorian</span>
+          <span class="seg-btn">Lydian</span>
+        </div>
+        <div class="tut-piano">
+          <div class="w-key active" style="left:0%;width:14.28%"><span>C</span></div>
+          <div class="w-key active" style="left:14.28%;width:14.28%"><span>D</span></div>
+          <div class="w-key off"    style="left:28.57%;width:14.29%"><span>E</span></div>
+          <div class="w-key active" style="left:42.86%;width:14.28%"><span>F</span></div>
+          <div class="w-key active" style="left:57.14%;width:14.28%"><span>G</span></div>
+          <div class="w-key off"    style="left:71.43%;width:14.28%"><span>A</span></div>
+          <div class="w-key off"    style="left:85.71%;width:14.29%"><span>B</span></div>
+          <div class="b-key off"    style="left:9.52%;width:8.57%"></div>
+          <div class="b-key active" style="left:23.81%;width:8.57%"></div>
+          <div class="b-key off"    style="left:52.38%;width:8.57%"></div>
+          <div class="b-key active" style="left:66.67%;width:8.57%"></div>
+          <div class="b-key active" style="left:80.95%;width:8.57%"></div>
+        </div>`
+    },
+    grain: {
+      title: 'Grain', tagClass: 'orange', borderClass: 'border-orange', panelClass: 'panel-orange',
+      desc: `<h3>Shape every grain</h3><p>Up to 256 concurrent grains with per-grain pitch shifting, stereo spread, and custom envelope windows.</p>`,
+      html: `<div style="display:flex;gap:6px;margin-bottom:4px">${T('CONTINUOUS',true)} ${T('MAX',false)}</div>
+        ${P('Grain Size','60 ms',30)}
+        ${P('Density','12 /s',48)}
+        ${P('Spatial Spread','200 ms',40)}
+        ${P('Temporal Spread','50 ms',20)}
+        ${P('Stereo','0.60',60)}
+        ${D('Pitch')}
+        ${P('Pitch','1.0x',50)}
+        ${P('Pitch Spread','0.00',0)}
+        ${D('Window')}
+        <div class="tut-win-btns">
+          <div class="tut-win-btn"><canvas id="tut-preview-none"></canvas><span>None</span></div>
+          <div class="tut-win-btn"><canvas id="tut-preview-smooth"></canvas><span>Smooth</span></div>
+          <div class="tut-win-btn"><canvas id="tut-preview-hann"></canvas><span>Log/Exp</span></div>
+          <div class="tut-win-btn"><canvas id="tut-preview-envelope"></canvas><span>Envelope</span></div>
+          <div class="tut-win-btn full-width active"><canvas id="tut-preview-custom"></canvas><span>Custom</span></div>
+        </div>
+        <div style="margin-top:2px">${T('ANTI-CLICK',true)}</div>`
+    },
+    stream: {
+      title: 'Stream', tagClass: 'teal', borderClass: 'border-teal', panelClass: 'panel-teal',
+      desc: `<h3>Choose a visualization</h3><p>Six modes transform your audio into different particle systems. Click a mode to switch, then drag on the stream or double-click for vortices.</p>`,
+      html: `${D('Stream')}
+        <div class="mode-btns">
+          <button class="mode-btn active" data-mode="flow">Flow</button>
+          <button class="mode-btn" data-mode="flock">Flock</button>
+          <button class="mode-btn" data-mode="flame">Flame</button>
+          <button class="mode-btn" data-mode="fractal">Fractal</button>
+          <button class="mode-btn" data-mode="flora">Flora</button>
+          <button class="mode-btn" data-mode="flood">Flood</button>
+        </div>
+        ${P('Flow Speed','0.30',30)}
+        ${P('Size','0.50',50)}
+        ${P('Elasticity','0.30',30)}
+        ${T('FREEZE',false)}
+        ${D('Interaction')}
+        ${P('Force','0.50',50)}
+        ${P('Radius','0.40',40)}
+        ${P('Backsplash','0.00',0)}
+        ${T('DEPTH REVERB',false)}`
+    },
+    resonator: {
+      title: 'Resonator', tagClass: 'teal', borderClass: 'border-teal', panelClass: 'panel-teal',
+      desc: `<h3>Pluckable strings</h3><p>A bank of resonant strings with frequency-normalized biquad bandpass filters. Scale-aware tuning rings when excited by grains or the sequencer.</p>`,
+      html: `${T('ENABLE',true)}
+        ${P('Decay','0.65',65)}
+        ${P('Damping','0.40',40)}
+        ${P('Energy','0.50',50)}
+        ${P('Strings','24',50)}
+        ${P('Grain / Res','0.50',50)}`
+    },
+    delay: {
+      title: 'Delay', tagClass: 'teal', borderClass: 'border-teal', panelClass: 'panel-teal',
+      desc: `<h3>Flange, chorus, delay</h3><p>Three time ranges with digital, analog, and tape character. Hermite-interpolated sub-sample reads, LFO modulation, and filtered feedback.</p>`,
+      html: `<div class="seg-btn-group">
+          <span class="seg-btn">Digital</span>
+          <span class="seg-btn active">Analog</span>
+          <span class="seg-btn">Tape</span>
+        </div>
+        <div class="seg-btn-group" style="margin-top:4px">
+          <span class="seg-btn">Flange</span>
+          <span class="seg-btn">Chorus</span>
+          <span class="seg-btn active">Delay</span>
+        </div>
+        ${P('Time','340 ms',34)}
+        ${P('Feedback','0.55',55)}
+        ${P('Mix','0.35',35)}
+        ${D('Filter')}
+        ${P('High Pass','80 Hz',8)}
+        ${P('Low Pass','12 kHz',85)}`
+    },
+    reverb: {
+      title: 'Reverb', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Dattorro plate reverb</h3><p>Full-topology plate reverb with 4-modulator chorusing, input diffusion, synthetic early reflections, and a shimmer pitch-shifter. 2&times; oversampled on desktop.</p>`,
+      html: `${D('Master')}
+        ${P('Mix','50%',50)}
+        ${P('Decay','3.0 s',25)}
+        ${P('Size','70%',70)}
+        ${P('Damping','50%',50)}
+        ${P('Diffusion','80%',80)}
+        ${P('Mod Rate','1.2 Hz',30)}
+        ${P('Mod Depth','25%',25)}
+        ${P('ER Level','-12 dB',40)}
+        ${P('Shimmer','off',0)}
+        ${P('Low Cut','20 Hz',0)} ${P('High Cut','20 kHz',100)}
+        ${T('FREEZE',false)}
+        ${D('Character')}
+        ${P('Presence','50%',50)}
+        ${P('Space','55%',55)}
+        ${P('Clarity','50%',50)}
+        ${P('Thickness','45%',45)}
+        ${P('Tail','50%',50)}
+        ${P('Chaos','40%',40)}
+        ${P('Emphasis','50%',50)}
+        ${P('Dynamics','off',0)}
+        ${P('Evolve','off',0)}
+        ${P('Drift','off',0)}`
+    },
+    output: {
+      title: 'Output', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Shape the final signal</h3><p>Drive, tone shaping, mid EQ, and output compression sit at the end of the chain. Polish your granular textures.</p>`,
+      html: `${P('Output Level','0 dB',75)}
+        ${P('Dry / Wet','1.00',100)}
+        ${P('Grain Amp','0 dB',75)}
+        ${D('Character')}
+        ${P('Drive','0.20',20)}
+        ${P('Compression','0.50',50)}
+        ${P('Tone','0.50',50)}
+        ${P('Mid','0.50',50)}
+        <div style="margin-top:2px">${T('PRE REVERB',false)}</div>`
+    },
+    mod: {
+      title: 'Modulation', tagClass: 'amber', borderClass: 'border-amber', panelClass: 'panel-amber',
+      desc: `<h3>Animate everything</h3><p>Route LFOs to any parameter &mdash; including other LFOs. Sine for smooth sweeps, S&amp;H for random stepped modulation.</p>`,
+      html: `<div class="tut-lfo-item">
+          <div class="tut-lfo-label">Sine LFO &mdash; 0.8 Hz &rarr; Pitch</div>
+          <canvas class="tut-lfo-canvas" id="tut-lfo-sine"></canvas>
+        </div>
+        <div class="tut-lfo-item">
+          <div class="tut-lfo-label">S&amp;H LFO &mdash; 2.0 Hz &rarr; Filter</div>
+          <canvas class="tut-lfo-canvas" id="tut-lfo-sh"></canvas>
+        </div>
+        ${P('Rate','0.8 Hz',16)}
+        ${P('Amount','50%',50)}
+        <div style="margin-top:4px">${T('+ ADD LFO',false)}</div>`
+    },
+    seq: {
+      title: 'Sequencer', tagClass: 'red', borderClass: 'border-red', panelClass: 'panel-red',
+      desc: `<h3>Rhythmic patterns</h3><p>Scale-aware step sequencer drives grain triggering and resonator excitation in musical patterns.</p>`,
+      html: `<div class="seg-btn-group">
+          <span class="seg-btn">Off</span>
+          <span class="seg-btn active">Step</span>
+          <span class="seg-btn">Interactive</span>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:6px">
+          ${T('INPUT SEQ',false)} ${T('PLAY',true)} ${T('RESET',false)}
+        </div>
+        ${P('Steps','16',100)}
+        ${P('Rows','4',33)}
+        ${P('Root','C3',50)}`
+    },
+    preset: {
+      title: 'Presets', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Save &amp; recall everything</h3><p>Factory and user presets live in one unified list. Presets that include audio samples show a &#x223F; waveform icon. Loading a preset with a sample replaces your current sample; one without leaves it untouched.</p>`,
+      html: `${D('Preset Browser')}
+        <div style="display:flex;flex-direction:column;gap:6px;margin:4px 0">
+          <div style="font-size:10px;color:var(--text-dim);background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:6px 8px">&#x25BE; Default &nbsp;&bull;&nbsp; Granular Clouds &nbsp;&bull;&nbsp; Ambient Machine &nbsp;&bull;&nbsp; String Wash &nbsp;&bull;&nbsp; Resynthesis &hellip;</div>
+        </div>
+        ${D('Actions')}
+        <div style="display:flex;gap:4px;margin:4px 0">
+          ${T('SAVE NEW',false)} ${T('SAVE',false)} ${T('RENAME',false)} ${T('DELETE',false)}
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);line-height:1.5;margin-top:2px">
+          <b>Save New</b> creates a new preset. <b>Save</b> overwrites the current one (grays out until you change something). <b>Rename</b> and <b>Delete</b> gray out while modified &mdash; save or reload first.
+        </div>
+        ${D("What's Saved")}
+        <div style="display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--text-dim);font-family:'JetBrains Mono',monospace">
+          <span>&#10003; All parameter values</span>
+          <span>&#10003; Audio samples (&#x223F; indicator)</span>
+          <span>&#10003; Window envelope drawings</span>
+          <span>&#10003; Sequencer patterns</span>
+          <span>&#10003; LFO routings &amp; configs</span>
+          <span>&#10003; Scale &amp; tuning settings</span>
+        </div>
+        ${D('Import / Export')}
+        <div style="display:flex;gap:4px;margin:4px 0">
+          ${T('EXPORT',false)} ${T('IMPORT',false)}
+        </div>
+        <div style="font-size:10px;color:var(--text-dim)">Share .granular files with the full state including samples.</div>`
+    }
+  };
+
+  const STEP_ORDER = ['intro','input','sampler','generate','tempo','scale','grain','stream','resonator','delay','reverb','output','mod','seq','preset','end'];
+  const panel = document.getElementById('floatPanel');
+  const panelBody = document.getElementById('panelBody');
+  const descEl = document.getElementById('descOverlay');
+  const descTag = document.getElementById('descTag');
+  const descBody = document.getElementById('descBody');
+  const introOverlay = document.getElementById('introOverlay');
+  const ctaFooter = document.getElementById('ctaFooter');
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const toolBtns = document.querySelectorAll('.tool-btn');
+  const allStepBtns = document.querySelectorAll('[data-step]');
+
+  let activeStep = 'intro';
+
+  function positionOverlays(stepName, navOverride) {
+    const target = navOverride || stepName;
+    const btn = document.querySelector(`.nav-btn[data-step="${target}"]`) ||
+                document.querySelector(`.tool-btn[data-step="${target}"]`);
+    if (!btn) return;
+    const btnRect = btn.getBoundingClientRect();
+    const descH = descEl.offsetHeight || 80;
+    const panelH = panel.offsetHeight || 200;
+    const gap = 8;
+    const totalH = descH + gap + panelH;
+
+    // Center total block vertically next to the nav button
+    let top = btnRect.top + btnRect.height / 2 - totalH / 2;
+    top = Math.max(10, Math.min(window.innerHeight - totalH - 10, top));
+
+    descEl.style.top = top + 'px';
+    panel.style.top = (top + descH + gap) + 'px';
+  }
+
+  function setStep(stepName) {
+    if (stepName === activeStep) return;
+    activeStep = stepName;
+
+    // Stop LFO animation on any step change
+    stopTutLfoAnim();
+
+    // Intro overlay
+    introOverlay.classList.toggle('hidden', stepName !== 'intro');
+
+    // CTA footer
+    ctaFooter.classList.toggle('visible', stepName === 'end');
+
+    // Panel + description content
+    const data = STEPS[stepName];
+    const navTarget = (data && data.navStep) || stepName;
+
+    // Nav + toolbar buttons (use navStep override for sub-steps like sampler→input)
+    navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.step === navTarget));
+    toolBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.step === navTarget));
+    if (data) {
+      // Description overlay
+      descTag.textContent = data.title;
+      descTag.className = 'desc-tag' + (data.tagClass ? ' ' + data.tagClass : '');
+      descBody.innerHTML = data.desc;
+      descEl.className = 'visible' + (data.borderClass ? ' ' + data.borderClass : '');
+
+      // Parameter panel
+      panelBody.innerHTML = data.html;
+      panel.className = 'visible' + (data.panelClass ? ' ' + data.panelClass : '');
+
+      // Position next frame so content is measured
+      requestAnimationFrame(() => positionOverlays(stepName, navTarget));
+
+      // Draw grain window previews
+      if (stepName === 'grain') {
+        initGrainPreviews();
+      }
+
+      // Start LFO animation
+      if (stepName === 'mod') {
+        requestAnimationFrame(() => startTutLfoAnim());
+      }
+
+      // Wire mode buttons if STR panel
+      if (stepName === 'stream') {
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+          btn.addEventListener('click', () => window._switchMode(btn.dataset.mode));
+        });
+      }
+
+      // Reset to flow when leaving stream step
+      if (stepName !== 'stream' && currentMode !== 'flow') {
+        switchMode('flow');
+      }
+
+      // Show/hide resonator strings
+      sim.setStrings(stepName === 'resonator');
+    } else {
+      // intro or end — hide both overlays
+      panel.className = '';
+      descEl.className = '';
+      sim.setStrings(false);
+    }
+
+    // Update step dots
+    const dotIdx = STEP_ORDER.indexOf(stepName);
+    document.querySelectorAll('.step-dot').forEach((d, i) => d.classList.toggle('active', i === dotIdx));
+  }
+
+  // ── Scroll-driven step detection ──
+  const sections = document.querySelectorAll('.scroll-section');
+  const obs = new IntersectionObserver(entries => {
+    // Find the most visible section
+    let best = null, bestRatio = 0;
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > bestRatio) {
+        best = e.target;
+        bestRatio = e.intersectionRatio;
+      }
+    });
+    if (best) setStep(best.dataset.step);
+  }, { threshold: [0, 0.3, 0.5, 0.7, 1], rootMargin: '-40% 0px -40% 0px' });
+
+  sections.forEach(s => obs.observe(s));
+
+  // ── Step dots ──
+  const dotsEl = document.getElementById('stepDots');
+  STEP_ORDER.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot';
+    dotsEl.appendChild(dot);
+  });
+
+  // ── Click nav/toolbar buttons to jump to section ──
+  allStepBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const step = btn.dataset.step;
+      const section = document.querySelector(`.scroll-section[data-step="${step}"]`);
+      if (section) {
+        // Force step change even if scroll hasn't settled yet
+        activeStep = '';  // reset so setStep doesn't skip
+        setStep(step);
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+
+  // Set initial state
+  setStep('intro');
+})();
+</script>
+</body>
+</html>
