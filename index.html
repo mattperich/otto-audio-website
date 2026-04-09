@@ -3,63 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Streams — Granular Synthesizer & Sampler</title>
-<meta name="description" content="Streams is a real-time granular synthesizer with AI text-to-audio generation, 6 interactive visualization modes, spectral filtering, resonant strings, and an immersive particle interface.">
+<title>Otto Audio — Instruments & Effects</title>
+<meta name="description" content="Otto Audio creates expressive instruments and effects for macOS, iPad, AU, and VST3. Explore Streams, Habitat, and OttoVerb.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-  --bg:          #060b14;
-  --surface:     #0d1424;
-  --surface2:    #111c30;
-  --border:      #1a2a44;
-  --text:        #c8d6e5;
-  --text-dim:    #5a7a99;
-  --accent:      #4a90b8;
-  --accent-glow: rgba(74, 144, 184, 0.25);
-  --teal:        #1a9e9e;
-  --teal-glow:   rgba(26, 158, 158, 0.2);
-  --warm:        #c8864a;
-  --warm-glow:   rgba(200, 134, 74, 0.15);
-  --amber:       #b89040;
-  --amber-glow:  rgba(184, 144, 64, 0.15);
-}
-
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-/* ── Nav ──────────────────────────────────────────────── */
-
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  background: rgba(6, 11, 20, 0.9);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 24px;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-nav .logo { font-weight: 700; font-size: 15px; color: #fff; letter-spacing: -0.02em; }
-nav .logo span { background: linear-gradient(135deg, var(--accent), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-nav a { font-size: 13px; color: var(--text-dim); }
-nav a:hover { color: var(--text); text-decoration: none; }
-
 /* ── Hero ─────────────────────────────────────────────── */
 
 .hero {
@@ -132,55 +82,9 @@ nav a:hover { color: var(--text); text-decoration: none; }
   color: var(--text-dim);
   font-weight: 300;
   max-width: 600px;
-  margin: 0 auto 28px;
+  margin: 0 auto 40px;
   line-height: 1.7;
 }
-
-.hero-platforms {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
-}
-
-.platform-badge {
-  display: inline-block;
-  padding: 6px 16px;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: rgba(13, 20, 36, 0.6);
-  backdrop-filter: blur(8px);
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 32px;
-  background: linear-gradient(135deg, var(--accent), var(--teal));
-  color: #fff;
-  font-weight: 600;
-  font-size: 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.3s;
-  box-shadow: 0 4px 24px var(--accent-glow);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 40px var(--accent-glow);
-  text-decoration: none;
-}
-
-.btn-primary svg { width: 18px; height: 18px; fill: currentColor; }
 
 .scroll-hint {
   position: absolute;
@@ -199,291 +103,188 @@ nav a:hover { color: var(--text); text-decoration: none; }
   50% { transform: translateX(-50%) translateY(8px); }
 }
 
-/* ── Section Layout ───────────────────────────────────── */
+/* ── App Cards ───────────────────────────────────────────── */
 
-section { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
-
-.section-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--teal);
-  margin-bottom: 12px;
-}
-
-.section-title {
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.02em;
-  margin-bottom: 16px;
-  line-height: 1.15;
-}
-
-.section-desc {
-  font-size: 1.05rem;
-  color: var(--text-dim);
-  max-width: 640px;
-  line-height: 1.7;
-  font-weight: 300;
-}
-
-/* ── Viz Grid ─────────────────────────────────────────── */
-
-.viz-grid {
+.apps-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 24px;
   margin-top: 48px;
-  max-width: 1100px;
 }
 
-.viz-cell {
+.app-card {
   position: relative;
-  aspect-ratio: 4 / 3;
-  border-radius: 12px;
-  overflow: hidden;
+  background: var(--surface);
   border: 1px solid var(--border);
-  background: #060a10;
-  cursor: crosshair;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  border-radius: 16px;
+  padding: 36px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  overflow: hidden;
 }
 
-.viz-cell:hover {
-  border-color: var(--accent);
-  box-shadow: 0 0 20px var(--accent-glow);
-}
-
-.viz-cell canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-}
-
-.viz-label {
+.app-card::before {
+  content: '';
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 10px 14px;
-  background: linear-gradient(transparent, rgba(6,11,20,0.85));
-  pointer-events: none;
-  z-index: 2;
-}
-
-.viz-label h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 2px;
-}
-
-.viz-label p {
-  font-size: 11px;
-  color: var(--text-dim);
-  line-height: 1.4;
-}
-
-.viz-hint {
-  position: absolute;
-  bottom: 55px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--text-dim);
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
   opacity: 0;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 3;
   transition: opacity 0.3s;
 }
 
-.viz-cell:hover .viz-hint {
-  opacity: 0.5;
+.app-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* ── Features Grid ────────────────────────────────────── */
+.app-card:hover::before { opacity: 1; }
 
-.features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
-  margin-top: 60px;
-}
+.app-card.streams::before  { background: linear-gradient(90deg, var(--accent), var(--teal)); }
+.app-card.habitat::before  { background: linear-gradient(90deg, var(--warm), var(--amber)); }
+.app-card.ottoverb::before { background: linear-gradient(90deg, var(--teal), var(--accent)); }
 
-.feature-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 28px;
-  transition: border-color 0.3s, transform 0.2s;
-}
+.app-card.streams:hover  { border-color: var(--accent); }
+.app-card.habitat:hover  { border-color: var(--warm); }
+.app-card.ottoverb:hover { border-color: var(--teal); }
 
-.feature-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-4px);
-}
-
-.feature-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+.app-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  font-size: 22px;
 }
 
-.feature-icon.reverb   { background: var(--accent-glow); color: var(--accent); }
-.feature-icon.delay    { background: var(--teal-glow); color: var(--teal); }
-.feature-icon.resonator { background: var(--teal-glow); color: var(--teal); }
-.feature-icon.character { background: var(--warm-glow); color: var(--warm); }
+.app-card.streams .app-icon  { background: var(--accent-glow); color: var(--accent); }
+.app-card.habitat .app-icon  { background: var(--warm-glow); color: var(--warm); }
+.app-card.ottoverb .app-icon { background: var(--teal-glow); color: var(--teal); }
 
-.feature-card h3 { font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 8px; }
-.feature-card p  { font-size: 0.88rem; color: var(--text-dim); line-height: 1.65; }
-
-/* ── Grain System ─────────────────────────────────────── */
-
-.grain-demo {
-  margin-top: 48px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  align-items: start;
+.app-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
 }
 
-.grain-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 28px;
-}
+.app-card.streams .app-type  { color: var(--accent); }
+.app-card.habitat .app-type  { color: var(--warm); }
+.app-card.ottoverb .app-type { color: var(--teal); }
 
-.grain-card h4 {
-  font-size: 0.9rem;
-  font-weight: 600;
+.app-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
   color: #fff;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
 }
 
-.grain-card p {
-  font-size: 0.85rem;
+.app-card .app-desc {
+  font-size: 0.9rem;
   color: var(--text-dim);
-  line-height: 1.6;
+  line-height: 1.7;
+  flex: 1;
+  margin-bottom: 20px;
 }
 
-.waveform-canvas {
-  display: block;
-  width: 100%;
-  height: 120px;
-  border-radius: 8px;
-  background: rgba(0,0,0,0.3);
-  margin-bottom: 16px;
-}
-
-.grain-tag-row {
+.app-tags {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 24px;
 }
 
-.grain-tag {
+.app-tag {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   padding: 4px 10px;
   border-radius: 4px;
-  background: var(--accent-glow);
-  color: var(--accent);
-  border: 1px solid rgba(74,144,184,0.2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  background: rgba(13, 20, 36, 0.5);
 }
 
-/* ── Modulation ───────────────────────────────────────── */
+.app-card .app-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: gap 0.2s;
+}
 
-.mod-grid {
+.app-card.streams .app-link  { color: var(--accent); }
+.app-card.habitat .app-link  { color: var(--warm); }
+.app-card.ottoverb .app-link { color: var(--teal); }
+
+.app-card .app-link:hover { text-decoration: none; gap: 10px; }
+
+.app-link .arrow { transition: transform 0.2s; }
+.app-card .app-link:hover .arrow { transform: translateX(2px); }
+
+.app-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: auto;
+}
+
+.app-status.available {
+  color: var(--teal);
+  background: var(--teal-glow);
+  border: 1px solid rgba(26, 158, 158, 0.2);
+}
+
+.app-status.coming-soon {
+  color: var(--text-dim);
+  background: rgba(90, 122, 153, 0.08);
+  border: 1px solid rgba(90, 122, 153, 0.15);
+}
+
+/* ── About Section ───────────────────────────────────────── */
+
+.about-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 48px;
   margin-top: 48px;
+  align-items: start;
 }
 
-.mod-card {
+.about-text {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.8;
+}
+
+.about-text p + p { margin-top: 16px; }
+
+.about-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 28px;
-}
-
-.mod-card h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 8px;
-}
-
-.mod-card p {
-  font-size: 0.88rem;
-  color: var(--text-dim);
-  line-height: 1.65;
-}
-
-.mod-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--amber);
-  margin-bottom: 8px;
-}
-
-/* ── Interaction ──────────────────────────────────────── */
-
-.interact-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-top: 48px;
-}
-
-.interact-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px;
+  padding: 24px;
   text-align: center;
 }
 
-.interact-item .action {
+.stat-value {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 6px;
-}
-
-.interact-item p {
-  font-size: 0.82rem;
-  color: var(--text-dim);
-  line-height: 1.5;
-}
-
-/* ── Specs ────────────────────────────────────────────── */
-
-.specs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 32px;
-  margin-top: 48px;
-}
-
-.spec { text-align: center; }
-
-.spec-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: 1.8rem;
   font-weight: 700;
   background: linear-gradient(135deg, var(--accent), var(--teal));
   -webkit-background-clip: text;
@@ -492,78 +293,29 @@ section { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
   line-height: 1.2;
 }
 
-.spec-label { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
-
-/* ── CTA Section ──────────────────────────────────────── */
-
-.cta-section {
-  text-align: center;
-  padding: 120px 24px;
-  position: relative;
-}
-
-.cta-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, var(--accent-glow) 0%, transparent 60%);
-  pointer-events: none;
-}
-
-.cta-section .section-title { margin-bottom: 24px; }
-.cta-section .section-desc  { margin: 0 auto 40px; }
-
-/* ── Footer ───────────────────────────────────────────── */
-
-footer {
-  border-top: 1px solid var(--border);
-  padding: 40px 24px;
-  text-align: center;
-  font-size: 0.8rem;
+.stat-label {
+  font-size: 0.82rem;
   color: var(--text-dim);
+  margin-top: 4px;
 }
 
-/* ── Responsive ───────────────────────────────────────── */
+/* ── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .viz-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 768px) {
-  section { padding: 60px 16px; }
-  .viz-grid { grid-template-columns: 1fr; }
-  .features { grid-template-columns: 1fr; }
-  .specs-grid { grid-template-columns: 1fr 1fr; }
-  .grain-demo { grid-template-columns: 1fr; }
-  .mod-grid { grid-template-columns: 1fr; }
-}
-
-/* ── Fade-in ──────────────────────────────────────────── */
-
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
-  .scroll-hint { animation: none; }
+  .apps-grid { grid-template-columns: 1fr; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .about-content { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="logo"><span>Streams</span></div>
-  <a href="index.html">Home</a>
-  <a href="tutorial.html">Tutorial</a>
-  <a href="https://github.com/mattperich/granular-synth">GitHub</a>
+<nav class="site-nav">
+  <a href="index.html" class="logo"><span>Otto Audio</span></a>
+  <div class="nav-links">
+    <a href="streams-index.html">Streams</a>
+    <a href="#">Habitat</a>
+    <a href="#">OttoVerb</a>
+  </div>
 </nav>
 
 <!-- ═══════ HERO ═══════ -->
@@ -571,1541 +323,223 @@ footer {
   <canvas class="hero-canvas" id="heroCanvas"></canvas>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-badge">Granular Synthesizer & Sampler</div>
-    <h1><span>Streams</span></h1>
+    <div class="hero-badge">Instruments & Effects</div>
+    <h1><span>Otto Audio</span></h1>
     <p class="hero-sub">
-      AI text-to-audio generation. Six visualization modes. 256 concurrent grains. Spectral droplets,
-      flocking murmurations, rising flames, golden spirals, blooming flora, and falling rain &mdash;
-      all driven by real-time audio.
+      Expressive instruments and effects built for sound design, synthesis,
+      and creative audio processing. macOS, iPad, AU &amp; VST3.
     </p>
-    <div class="hero-platforms">
-      <span class="platform-badge">macOS Standalone</span>
-      <span class="platform-badge">AU / VST3</span>
-      <span class="platform-badge">iPad</span>
-    </div>
-    <a href="https://github.com/mattperich/granular-synth" class="btn-primary">
-      <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      View on GitHub
-    </a>
   </div>
   <div class="scroll-hint">
     <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 </div>
 
-<!-- ═══════ MODES ═══════ -->
-<section id="modes">
+<!-- ═══════ APPS ═══════ -->
+<section id="apps">
   <div class="reveal">
-    <div class="section-label">6 Visualization Modes</div>
-    <h2 class="section-title">Every sound has a shape</h2>
+    <div class="section-label">Applications</div>
+    <h2 class="section-title">Three instruments, one vision</h2>
     <p class="section-desc">
-      Each mode transforms your audio into a different particle system with unique physics.
-      Click any card to expand it &mdash; then drag to push droplets and double-click to create vortices.
+      Each app is designed to be deep, expressive, and visually immersive &mdash;
+      turning sound into something you can see and feel.
     </p>
   </div>
-  <div class="viz-grid reveal" id="vizGrid">
-    <div class="viz-cell" data-mode="flow">
-      <canvas></canvas>
-      <div class="viz-label"><h3>Flow</h3><p>Spectral droplets meander down a flowing stream</p></div>
-      <div class="viz-hint">Click & drag to push &middot; Double-click for vortex</div>
+  <div class="apps-grid reveal">
+
+    <div class="app-card streams">
+      <div class="app-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 12c2-3 4-5 6-5s4 3 6 3 4-4 6-4"/><path d="M2 16c2-2 4-4 6-4s4 2 6 2 4-3 6-3" opacity="0.5"/></svg>
+      </div>
+      <div class="app-type">Granular Synthesizer</div>
+      <h3>Streams</h3>
+      <p class="app-desc">
+        Real-time granular synthesis with AI text-to-audio generation and six interactive
+        visualization modes. 256 concurrent grains, spectral filtering, resonant strings,
+        and an immersive particle interface.
+      </p>
+      <div class="app-tags">
+        <span class="app-tag">Granular</span>
+        <span class="app-tag">AI Generation</span>
+        <span class="app-tag">Visualizer</span>
+      </div>
+      <a href="streams-index.html" class="app-link">Explore Streams <span class="arrow">&rarr;</span></a>
     </div>
-    <div class="viz-cell" data-mode="flock">
-      <canvas></canvas>
-      <div class="viz-label"><h3>Flock</h3><p>Curl-noise murmuration drifts and splits</p></div>
-      <div class="viz-hint">Click & drag to push &middot; Double-click for vortex</div>
+
+    <div class="app-card habitat">
+      <div class="app-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2a10 10 0 0 1 0 20"/><path d="M12 2a10 10 0 0 0 0 20"/><path d="M2 12h20" opacity="0.5"/></svg>
+      </div>
+      <div class="app-type">Synthesizer</div>
+      <h3>Habitat</h3>
+      <p class="app-desc">
+        An immersive synthesizer built around evolving sonic environments. Shape and
+        inhabit rich, layered soundscapes that respond to your input in real time.
+      </p>
+      <div class="app-tags">
+        <span class="app-tag">Synthesis</span>
+        <span class="app-tag">Soundscapes</span>
+        <span class="app-tag">Immersive</span>
+      </div>
+      <span class="app-status coming-soon">Coming Soon</span>
     </div>
-    <div class="viz-cell" data-mode="flame">
-      <canvas></canvas>
-      <div class="viz-label"><h3>Flame</h3><p>Rising tongues of spectral fire with additive glow</p></div>
-      <div class="viz-hint">Click & drag to push &middot; Double-click for vortex</div>
+
+    <div class="app-card ottoverb">
+      <div class="app-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2v4M12 18v4"/><path d="M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83"/><path d="M2 12h4M18 12h4" opacity="0.5"/><circle cx="12" cy="12" r="4"/></svg>
+      </div>
+      <div class="app-type">Reverb Effect</div>
+      <h3>OttoVerb</h3>
+      <p class="app-desc">
+        A creative reverb effect with deep modulation, spectral processing, and
+        an expressive interface. From subtle spaces to infinite, shimmering atmospheres.
+      </p>
+      <div class="app-tags">
+        <span class="app-tag">Reverb</span>
+        <span class="app-tag">Spectral</span>
+        <span class="app-tag">Effect</span>
+      </div>
+      <span class="app-status coming-soon">Coming Soon</span>
     </div>
-    <div class="viz-cell" data-mode="fractal">
-      <canvas></canvas>
-      <div class="viz-label"><h3>Fractal</h3><p>Golden-ratio spiral expanding from center</p></div>
-      <div class="viz-hint">Click & drag to push &middot; Double-click for vortex</div>
-    </div>
-    <div class="viz-cell" data-mode="flora">
-      <canvas></canvas>
-      <div class="viz-label"><h3>Flora</h3><p>Spectral blossoms bloom on growing branches</p></div>
-      <div class="viz-hint">Click & drag to push &middot; Double-click for vortex</div>
-    </div>
-    <div class="viz-cell" data-mode="flood">
-      <canvas></canvas>
-      <div class="viz-label"><h3>Flood</h3><p>Raindrops fall and splash into spectral arcs</p></div>
-      <div class="viz-hint">Click & drag to push &middot; Double-click for vortex</div>
-    </div>
+
   </div>
 </section>
 
-<!-- ═══════ AI GENERATION ═══════ -->
-<section id="generate">
+<!-- ═══════ ABOUT ═══════ -->
+<section id="about">
   <div class="reveal">
-    <div class="section-label">AI Generation</div>
-    <h2 class="section-title">Describe a sound. Hear it.</h2>
-    <p class="section-desc">
-      Type a text prompt and Streams generates spectrally rich source material using a
-      diffusion model running locally on your device. Designed for granular synthesis and
-      resampling &mdash; not perfect reproduction, but endlessly interesting raw material
-      to mangle, layer, and transform.
-    </p>
+    <div class="section-label">About</div>
+    <h2 class="section-title">Built for musicians, by a musician</h2>
   </div>
-  <div class="features reveal">
-    <div class="feature-card">
-      <div class="feature-icon" style="color: var(--accent);">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-      </div>
-      <h3>Text-to-Audio</h3>
-      <p>Describe what you want to hear &mdash; &ldquo;a drum beat&rdquo;, &ldquo;ethereal choir&rdquo;,
-         &ldquo;distorted bass&rdquo; &mdash; and the model generates ~12 seconds of stereo audio at 44.1kHz.</p>
+  <div class="about-content reveal">
+    <div class="about-text">
+      <p>
+        Otto Audio is the work of Matt Perich &mdash; building tools that treat
+        audio software as an instrument in its own right. Every plugin is designed
+        around real-time interaction, visual feedback, and deep sonic control.
+      </p>
+      <p>
+        All apps run natively on macOS and iPad as AU and VST3 plugins, with
+        standalone versions for exploration and performance.
+      </p>
     </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="color: var(--accent);">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    <div class="about-stats">
+      <div class="stat-card">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Applications</div>
       </div>
-      <h3>On-Device Inference</h3>
-      <p>Runs entirely on Apple Silicon via CoreML &mdash; no cloud, no internet, no latency.
-         8-step rectified flow sampling generates audio in seconds.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="color: var(--accent);">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <div class="stat-card">
+        <div class="stat-value">AU/VST3</div>
+        <div class="stat-label">Plugin Formats</div>
       </div>
-      <h3>Granular Source Material</h3>
-      <p>Generated audio feeds directly into the granular engine. Use it as a starting point for
-         sound design &mdash; slice, scatter, and reshape with grains, effects, and modulation.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ EFFECTS ═══════ -->
-<section id="effects">
-  <div class="reveal">
-    <div class="section-label">Processing Chain</div>
-    <h2 class="section-title">Shape every texture</h2>
-    <p class="section-desc">
-      Grains flow through a full signal chain: resonant strings, granular delay,
-      algorithmic reverb, and character shaping.
-    </p>
-  </div>
-  <div class="features reveal">
-    <div class="feature-card">
-      <div class="feature-icon reverb">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" stroke-dasharray="3 2"/><circle cx="12" cy="12" r="2"/></svg>
+      <div class="stat-card">
+        <div class="stat-value">macOS</div>
+        <div class="stat-label">+ iPad</div>
       </div>
-      <h3>Algorithmic Reverb</h3>
-      <p>Multi-topology reverb with Dattorro plate, FDN, nested allpass, and velvet noise tanks.
-         18 presets from tight rooms to infinite voids, with simple controls for mix, decay, and size.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon delay">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      </div>
-      <h3>Granular Delay</h3>
-      <p>Three time ranges &mdash; flange, chorus, delay &mdash; with digital, analog, and tape
-         character modes. Hermite-interpolated sub-sample reads and feedback filtering.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon resonator">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h2c1-4 3-8 7-8s6 4 7 8h2"/><path d="M5 12c1-3 3-6 7-6s6 3 7 6" opacity=".5"/></svg>
-      </div>
-      <h3>Resonator Bank</h3>
-      <p>Pluckable resonant strings with frequency-normalized biquad bandpass filters.
-         Scale-aware tuning, adjustable energy and damping, excited by audio or the sequencer.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon character">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83"/></svg>
-      </div>
-      <h3>Character Compressor</h3>
-      <p>Drive, tone shaping, mid EQ, and output compression. Sits at the end of the signal chain
-         to give your granular textures warmth and presence.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ GRAIN SYSTEM ═══════ -->
-<section id="grain-system">
-  <div class="reveal">
-    <div class="section-label">Granular Engine</div>
-    <h2 class="section-title">Every grain tells a story</h2>
-    <p class="section-desc">
-      Composite grains pool multiple bandpass-filtered frequency components from nearby
-      spectral droplets into a single voice. The result: rich, evolving timbres that
-      respond to your interaction with the visualization.
-    </p>
-  </div>
-  <div class="grain-demo reveal">
-    <div>
-      <canvas class="waveform-canvas" id="waveformCanvas"></canvas>
-      <div class="grain-tag-row">
-        <span class="grain-tag">pitch: 1.2x</span>
-        <span class="grain-tag">size: 85ms</span>
-        <span class="grain-tag">pan: 0.3L</span>
-        <span class="grain-tag">density: 12/s</span>
-        <span class="grain-tag">spread: 200ms</span>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:16px;">
-      <div class="grain-card">
-        <h4>Triggered</h4>
-        <p>Click the stream to sample nearby spectral droplets into composite grains. Drag faster
-           for richer textures with up to 40 frequency components.</p>
-      </div>
-      <div class="grain-card">
-        <h4>Continuous</h4>
-        <p>Auto-spawn grains at a configurable rate. Position spread scatters spawn points across
-           the stream for evolving textural clouds.</p>
-      </div>
-      <div class="grain-card">
-        <h4>MIDI &amp; Sequenced</h4>
-        <p>Trigger grains from MIDI notes or the built-in step sequencer. Scale-aware routing
-           tunes grains to musical intervals.</p>
+      <div class="stat-card">
+        <div class="stat-value">C++</div>
+        <div class="stat-label">Native Performance</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════ MODULATION ═══════ -->
-<section id="modulation">
-  <div class="reveal">
-    <div class="section-label">Modulation</div>
-    <h2 class="section-title">Animate everything</h2>
-    <p class="section-desc">
-      Route LFOs to any parameter &mdash; including other LFOs. Build complex, evolving
-      modulation networks or let the step sequencer drive rhythmic patterns.
-    </p>
-  </div>
-  <div class="mod-grid reveal">
-    <div class="mod-card">
-      <div class="mod-label">LFO System</div>
-      <h4>Multi-shape, multi-target</h4>
-      <p>Sine, triangle, square, saw, and sample-and-hold. Freely assign any LFO to any parameter
-         for complex animated textures. BPM-sync or free-running rates.</p>
-    </div>
-    <div class="mod-card">
-      <div class="mod-label">Step Sequencer</div>
-      <h4>Rhythmic grain triggering</h4>
-      <p>Scale-aware note routing excites grains and resonator strings in musical patterns.
-         Sync to host tempo or run independently.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ INTERACTION ═══════ -->
-<section id="interaction">
-  <div class="reveal">
-    <div class="section-label">Touch &amp; Mouse</div>
-    <h2 class="section-title">Play the visualization</h2>
-    <p class="section-desc">
-      The stream is your instrument. Every gesture triggers audio and reshapes the particle system.
-    </p>
-  </div>
-  <div class="interact-grid reveal">
-    <div class="interact-item">
-      <div class="action">Click</div>
-      <p>Trigger a composite grain from nearby spectral droplets</p>
-    </div>
-    <div class="interact-item">
-      <div class="action">Drag</div>
-      <p>Push droplets and trigger grains along the path with velocity-enriched timbres</p>
-    </div>
-    <div class="interact-item">
-      <div class="action">Double-click</div>
-      <p>Create a spinning vortex that pulls and swirls nearby particles</p>
-    </div>
-    <div class="interact-item">
-      <div class="action">Scroll</div>
-      <p>Zoom the visualization in and out for different levels of detail</p>
-    </div>
-    <div class="interact-item">
-      <div class="action">Freeze</div>
-      <p>Hold space to freeze particles in place with spring-elastic physics</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ SPECS ═══════ -->
-<section id="specs">
-  <div class="reveal">
-    <h2 class="section-title">Built for real-time</h2>
-    <p class="section-desc">
-      Lock-free audio architecture, parallel grain rendering via GCD,
-      and zero-copy ring buffer paths ensure glitch-free performance.
-    </p>
-  </div>
-  <div class="specs-grid reveal">
-    <div class="spec"><div class="spec-value">256</div><div class="spec-label">Max Simultaneous Grains</div></div>
-    <div class="spec"><div class="spec-value">&lt;5ms</div><div class="spec-label">Audio Latency</div></div>
-    <div class="spec"><div class="spec-value">AU/VST3/iPad</div><div class="spec-label">Platforms</div></div>
-    <div class="spec"><div class="spec-value">60fps</div><div class="spec-label">Visualization</div></div>
-    <div class="spec"><div class="spec-value">Text&rarr;Audio</div><div class="spec-label">AI Generation</div></div>
-  </div>
-</section>
-
-<!-- ═══════ CTA ═══════ -->
-<section class="cta-section">
-  <div class="reveal">
-    <h2 class="section-title">Start streaming</h2>
-    <p class="section-desc">
-      Streams is free and open source. Clone the repo, build with CMake, and start
-      transforming sound.
-    </p>
-    <a href="https://github.com/mattperich/granular-synth" class="btn-primary" style="position:relative">
-      <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      View on GitHub
-    </a>
-  </div>
-</section>
-
-<footer>
-  <p>Streams Granular Synthesizer &mdash; Built by <a href="https://github.com/mattperich">Matt Perich</a> &middot; <a href="tutorial.html">Tutorial</a></p>
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="site-footer">
+  <p>Otto Audio &mdash; Built by <a href="https://github.com/mattperich">Matt Perich</a></p>
 </footer>
 
-<!-- ═══════════════════════════════════════════════════════
-     SCRIPTS
-     ═══════════════════════════════════════════════════════ -->
+<!-- ═══════ SCRIPTS ═══════ -->
 <script>
-// ══════════════════════════════════════════════════════════
-// SHARED: Colormap, FFT Simulator, Viz Engine
-// ══════════════════════════════════════════════════════════
-
-// ── 4-stop colormap: orange → amber → teal → blue ──
-const CMAP = new Uint8Array(256 * 3);
-const CMAP_STOPS = [{t:0,c:[200,130,60]},{t:0.3,c:[184,144,64]},{t:0.6,c:[26,158,158]},{t:1,c:[74,144,184]}];
-for (let i = 0; i < 256; i++) {
-  const t = i / 255;
-  let idx = 0;
-  for (let j = 1; j < CMAP_STOPS.length; j++) { if (t >= CMAP_STOPS[j].t) idx = j; }
-  idx = Math.min(idx, CMAP_STOPS.length - 2);
-  const a = CMAP_STOPS[idx], b_ = CMAP_STOPS[idx + 1];
-  const u = (t - a.t) / (b_.t - a.t), s = u * u * (3 - 2 * u);
-  CMAP[i*3]   = Math.round(a.c[0] + (b_.c[0] - a.c[0]) * s);
-  CMAP[i*3+1] = Math.round(a.c[1] + (b_.c[1] - a.c[1]) * s);
-  CMAP[i*3+2] = Math.round(a.c[2] + (b_.c[2] - a.c[2]) * s);
-}
-// Pre-compute 20 quantized alpha strings per bin
-const ALPHA_STEPS = 20;
-const COLOR_STRINGS = [];
-for (let i = 0; i < 256; i++) {
-  COLOR_STRINGS[i] = [];
-  for (let a = 0; a <= ALPHA_STEPS; a++) {
-    COLOR_STRINGS[i][a] = `rgba(${CMAP[i*3]},${CMAP[i*3+1]},${CMAP[i*3+2]},${(a/ALPHA_STEPS).toFixed(2)})`;
-  }
-}
-
-// ── Fake FFT Generator ──
-function createFakeFFT(profile) {
-  let t = Math.random() * 100;
-  const N = 256;
-  const out = new Float32Array(N);
-  const surgePhase = Math.random() * 100;
-
-  return {
-    tick() {
-      t += 1/60;
-      out.fill(0);
-
-      if (profile === 'balanced') {
-        for (let i = 0; i < N; i++) {
-          const f = i / N;
-          const base = 110 * (1 - f * 0.35);
-          const mod = Math.sin(t * 0.8 + f * 4) * 35 + Math.sin(t * 1.3 + f * 8) * 20;
-          out[i] = Math.max(0, Math.min(200, base + mod + Math.random() * 25));
-        }
-      } else if (profile === 'midrange') {
-        const surge = Math.max(0, Math.sin(t * 0.4 + surgePhase)) * 70;
-        for (let i = 0; i < N; i++) {
-          const f = i / N;
-          const peak = Math.exp(-((f - 0.4) * (f - 0.4)) / 0.06) * 130;
-          const base = 60 + peak + surge * Math.exp(-((f - 0.5) * (f - 0.5)) / 0.1);
-          out[i] = Math.max(0, Math.min(200, base + Math.sin(t * 1.1 + i * 0.3) * 18 + Math.random() * 20));
-        }
-      } else if (profile === 'bass-heavy') {
-        const burst = Math.random() < 0.03 ? 90 : 0;
-        for (let i = 0; i < N; i++) {
-          const f = i / N;
-          const base = 150 * Math.exp(-f * 2.5) + 30 + burst * Math.exp(-f * 1.5);
-          out[i] = Math.max(0, Math.min(200, base + Math.sin(t * 0.6 + f * 3) * 25 + Math.random() * 20));
-        }
-      } else if (profile === 'harmonic') {
-        const PHI = (1 + Math.sqrt(5)) / 2;
-        const sweep = Math.sin(t * 0.15) * 0.1;
-        for (let i = 0; i < N; i++) {
-          const f = i / N;
-          let v = 50;
-          for (let h = 1; h <= 6; h++) {
-            const center = (h * PHI * 0.08 + sweep) % 1;
-            v += 80 * Math.exp(-((f - center) * (f - center)) / 0.004);
-          }
-          out[i] = Math.max(0, Math.min(200, v + Math.sin(t * 0.9 + i * 0.2) * 12 + Math.random() * 15));
-        }
-      } else if (profile === 'burst') {
-        const cycle = (t * 0.3) % 1;
-        const active = cycle < 0.7;
-        const env = active ? Math.sin(cycle / 0.7 * Math.PI) : 0;
-        for (let i = 0; i < N; i++) {
-          const f = i / N;
-          const base = env * (90 + 60 * Math.sin(f * 12 + t * 2));
-          out[i] = Math.max(0, Math.min(200, base + Math.random() * (active ? 25 : 8)));
-        }
-      } else if (profile === 'broadband') {
-        const impulse = Math.random() < 0.06;
-        const impBin = (Math.random() * N) | 0;
-        for (let i = 0; i < N; i++) {
-          let v = 70 + Math.sin(t * 0.5 + i * 0.1) * 20 + Math.random() * 25;
-          if (impulse && Math.abs(i - impBin) < 15) v += 90;
-          out[i] = Math.max(0, Math.min(200, v));
-        }
-      }
-      return out;
-    }
-  };
-}
-
-// ── Curl noise grid (shared by Flock & Flame) ──
-const FL_COLS = 16, FL_ROWS = 12;
-
-function buildCurlGrid(vxGrid, vyGrid, time, layers, strength) {
-  const eps = 0.01;
-  for (let row = 0; row < FL_ROWS; row++) {
-    const ny = row / (FL_ROWS - 1);
-    for (let col = 0; col < FL_COLS; col++) {
-      const nx = col / (FL_COLS - 1);
-      const idx = row * FL_COLS + col;
-      let psi = 0, psiDx = 0, psiDy = 0;
-      for (let k = 0; k < layers.length; k++) {
-        const L = layers[k];
-        const A = L[0], kx = L[1], ky = L[2], omega = L[3], phX = L[4], phY = L[5];
-        const argX = kx * nx * 6.2832 + phX + omega * time;
-        const argY = ky * ny * 6.2832 + phY + omega * time * 0.7;
-        psi   += A * Math.sin(argX) * Math.sin(argY);
-        psiDx += A * Math.sin(kx * (nx + eps) * 6.2832 + phX + omega * time) * Math.sin(argY);
-        psiDy += A * Math.sin(argX) * Math.sin(ky * (ny + eps) * 6.2832 + phY + omega * time * 0.7);
-      }
-      vxGrid[idx] = ((psiDy - psi) / eps) * strength;
-      vyGrid[idx] = -((psiDx - psi) / eps) * strength;
-    }
-  }
-}
-
-function sampleCurlGrid(vxGrid, vyGrid, x, y, W, H) {
-  const gx = (x / W) * (FL_COLS - 1);
-  const gy = (y / H) * (FL_ROWS - 1);
-  const cx = Math.max(0, Math.min(FL_COLS - 2, gx | 0));
-  const cy = Math.max(0, Math.min(FL_ROWS - 2, gy | 0));
-  const fx = gx - cx, fy = gy - cy;
-  const i00 = cy * FL_COLS + cx, i10 = i00 + 1, i01 = i00 + FL_COLS, i11 = i01 + 1;
-  const w00 = (1-fx)*(1-fy), w10 = fx*(1-fy), w01 = (1-fx)*fy, w11 = fx*fy;
-  return {
-    vx: vxGrid[i00]*w00 + vxGrid[i10]*w10 + vxGrid[i01]*w01 + vxGrid[i11]*w11,
-    vy: vyGrid[i00]*w00 + vyGrid[i10]*w10 + vyGrid[i01]*w01 + vyGrid[i11]*w11
-  };
-}
-
-const FLOCK_LAYERS = [
-  [2.0, 0.5, 0.4, 0.12, 0.0, 0.0],
-  [1.5, 0.3, 0.7, 0.10, 1.7, 2.3],
-  [0.9, 1.5, 1.0, 0.16, 3.1, 0.7],
-  [0.7, 1.0, 1.8, 0.13, 4.9, 1.1],
-];
-
-const FLAME_LAYERS = [
-  [2.0, 2.5, 0.3, 0.25, 0.0, 0.0],
-  [1.5, 3.0, 0.4, 0.20, 1.7, 2.3],
-  [1.0, 1.5, 0.6, 0.30, 3.1, 0.7],
-  [0.7, 4.0, 0.8, 0.28, 4.9, 1.1],
-];
-
-const PHI = (1 + Math.sqrt(5)) / 2;
-
-// ══════════════════════════════════════════════════════════
-// createVizSim — Factory for isolated mode instances
-// ══════════════════════════════════════════════════════════
-
-function createVizSim(canvas, mode, options) {
-  options = options || {};
-  const ctx = canvas.getContext('2d');
-  let W = 0, H = 0;
-  const MAX = options.maxDroplets || 2000;
-  const SPAWN_RATE = options.spawnRate || 15;
-
-  // SoA arrays
-  const drX = new Float32Array(MAX);
-  const drY = new Float32Array(MAX);
-  const drA = new Float32Array(MAX);
-  const drB = new Uint8Array(MAX);
-  const drVx = new Float32Array(MAX);
-  const drVy = new Float32Array(MAX);
-  const drHx = new Float32Array(MAX);
-  const drHy = new Float32Array(MAX);
-  const drTch = new Float32Array(MAX);
-  let drCount = 0;
-
-  // FFT profile per mode
-  const FFT_PROFILES = {
-    flow: 'balanced', flock: 'midrange', flame: 'bass-heavy',
-    fractal: 'harmonic', flora: 'burst', flood: 'broadband'
-  };
-  const fft = createFakeFFT(FFT_PROFILES[mode] || 'balanced');
-  let fftData = new Float32Array(256);
-
-  // Flow-specific: meander LUT
-  const LUT = 512;
-  const centerLUT = new Float32Array(LUT);
-  let ph1 = Math.random() * 10, ph2 = Math.random() * 10;
-  const speed = 0.3;
-
-  // Curl noise grids
-  const gridVx = new Float32Array(FL_COLS * FL_ROWS);
-  const gridVy = new Float32Array(FL_COLS * FL_ROWS);
-  let fieldTime = 0;
-
-  // Flock split/merge
-  let splitVal = 0, splitTarget = 0, splitTimer = 0;
-
-  // Flame tongue positions
-  const NUM_TONGUES = 4;
-  const tongueX = new Float32Array(NUM_TONGUES);
-  const tongueY = new Float32Array(NUM_TONGUES);
-  let flameTime = 0;
-
-  // Flora tree
-  let branches = [];
-  let spawnPts = [];
-  let blossoms = [];
-  let batchTimer = 0;
-  let treeAge = 0;
-  let growTimer = 0;
-  let nextSprout = 1.5 + Math.random();
-  let treeCanvas = null, treeCtx = null;
-  let treeDirty = true;
-
-  // Flood rain
-  const RAIN_MAX = 20;
-  const rainX = new Float32Array(RAIN_MAX);
-  const rainY = new Float32Array(RAIN_MAX);
-  const rainVy = new Float32Array(RAIN_MAX);
-  const rainVx = new Float32Array(RAIN_MAX);
-  const rainA = new Float32Array(RAIN_MAX);
-  const rainSize = new Float32Array(RAIN_MAX);
-  const RAIN_TRAIL_LEN = 12;
-  const rainTrailX = new Float32Array(RAIN_MAX * RAIN_TRAIL_LEN);
-  const rainTrailY = new Float32Array(RAIN_MAX * RAIN_TRAIL_LEN);
-  const rainTrailHead = new Uint8Array(RAIN_MAX);
-  let rainDN = 0;
-  let rainAccum = 0;
-
-  // Interaction state
-  let vortices = [];
-  let mx = -1e4, my = -1e4, mDown = false, dvx = 0, dvy = 0, lmx = 0, lmy = 0;
-  let interactionEnabled = false;
-
-  // Wind for flood
-  let windT = 0;
-
-  function resize() {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    const rect = canvas.getBoundingClientRect();
-    W = rect.width; H = rect.height;
-    if (W === 0 || H === 0) return;
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    if (mode === 'flora' && branches.length === 0) initFlora();
-    treeDirty = true;
-  }
-
-  function getCX(y) {
-    return centerLUT[Math.min(LUT-1, Math.max(0, (y / H * LUT) | 0))];
-  }
-
-  function updateLUT() {
-    const hw = W/2, amp = W * 0.12;
-    for (let j = 0; j < LUT; j++) {
-      const yN = j / LUT;
-      centerLUT[j] = hw + Math.sin(yN * 2.2 + ph1) * amp + Math.sin(yN * 5.1 + ph2) * amp * 0.3;
-    }
-  }
-
-  // ── Flora: tree generation ──
-  function initFlora() {
-    branches = [];
-    spawnPts = [];
-    blossoms = [];
-    treeAge = 0;
-    const trunkX = W/2, trunkBot = H * 0.92, trunkTop = H * 0.5;
-    branches.push({
-      x1: trunkX, y1: trunkBot, x2: trunkX, y2: trunkTop,
-      tipX: trunkX, tipY: trunkTop,
-      depth: 0, opacity: 1, parentIdx: -1, growProgress: 1,
-      _fading: false, _sunset: false, curveSide: 1, _split: false, birthTime: -Infinity
-    });
-    for (let r = 0; r < 3; r++) floSprout();
-    rebuildSpawnPts();
-    treeDirty = true;
-  }
-
-  function floSprout() {
-    const trunk = branches[0];
-    if (!trunk) return;
-    const t = 0.4 + Math.random() * 0.6;
-    const cs = trunk.curveSide || 1;
-    const cmx = (trunk.x1 + trunk.tipX)/2 + (trunk.tipY - trunk.y1)*0.08*cs;
-    const cmy = (trunk.y1 + trunk.tipY)/2 - (trunk.tipX - trunk.x1)*0.08*cs;
-    const u = 1-t;
-    const sx = u*u*trunk.x1 + 2*u*t*cmx + t*t*trunk.tipX;
-    const sy = u*u*trunk.y1 + 2*u*t*cmy + t*t*trunk.tipY;
-    const side = Math.random() < 0.5 ? -1 : 1;
-    const angle = -Math.PI/2 + side * (0.2 + Math.random()*0.6);
-    const len = Math.min(W,H) * (0.1 + Math.random()*0.12);
-    const ex = sx + Math.cos(angle)*len;
-    const ey = sy + Math.sin(angle)*len;
-    branches.push({
-      x1: sx, y1: sy, x2: Math.max(5, Math.min(W-5, ex)), y2: Math.max(5, ey),
-      tipX: sx, tipY: sy,
-      depth: 1, opacity: 0.1, parentIdx: 0, growProgress: 0,
-      _fading: false, _sunset: false, curveSide: side, _split: false, birthTime: treeAge
-    });
-  }
-
-  function rebuildSpawnPts() {
-    spawnPts = [];
-    for (let i = 1; i < branches.length; i++) {
-      const b = branches[i];
-      if (b.growProgress < 0.2 || b._fading || b.opacity < 0.15) continue;
-      for (let t = 0.3; t <= 1.0; t += 0.25) {
-        const pt = Math.min(t, b.growProgress);
-        spawnPts.push({
-          x: b.x1 + (b.x2 - b.x1)*pt,
-          y: b.y1 + (b.y2 - b.y1)*pt
-        });
-      }
-    }
-  }
-
-  function updateTree(dt) {
-    treeAge += dt;
-    let structural = false;
-    // Grow branches
-    for (let i = 1; i < branches.length; i++) {
-      const b = branches[i];
-      if (b.growProgress < 1 && !b._fading) {
-        b.growProgress = Math.min(1, b.growProgress + dt * 0.5);
-        b.tipX = b.x1 + (b.x2-b.x1)*b.growProgress;
-        b.tipY = b.y1 + (b.y2-b.y1)*b.growProgress;
-        b.opacity = Math.min(1, b.opacity + dt * 0.5);
-      }
-      // Edge check
-      if (!b._fading && !b._sunset && b.growProgress >= 1) {
-        if (b.tipX < 10 || b.tipX > W-10 || b.tipY < 10 || b.tipY > H-10) {
-          b._sunset = true; b._sunsetTime = treeAge;
-        }
-      }
-      // Age sunset
-      if (!b._sunset && !b._fading && b.depth === 1 && treeAge - b.birthTime > 18) {
-        b._sunset = true; b._sunsetTime = treeAge; structural = true;
-      }
-      // Cascade sunset
-      if (!b._sunset && b.parentIdx > 0 && branches[b.parentIdx]._sunset) {
-        b._sunset = true; b._sunsetTime = branches[b.parentIdx]._sunsetTime;
-      }
-      // Start fade after grace
-      if (b._sunset && !b._fading && treeAge - b._sunsetTime > 6) {
-        b._fading = true; structural = true;
-      }
-      if (!b._fading && b.parentIdx > 0 && branches[b.parentIdx]._fading) {
-        b._fading = true; structural = true;
-      }
-      // Split
-      if (b.growProgress >= 1 && !b._fading && !b._sunset && !b._split && branches.length < 80) {
-        b._split = true;
-        const pa = Math.atan2(b.tipY - b.y1, b.tipX - b.x1);
-        const lenBase = Math.hypot(b.x2 - b.x1, b.y2 - b.y1);
-        for (let fork = 0; fork < 2; fork++) {
-          const spread = (fork === 0 ? -1 : 1) * (0.25 + Math.random()*0.35);
-          const fa = pa + spread;
-          const len = lenBase * (0.5 + Math.random()*0.3);
-          let ex = b.tipX + Math.cos(fa)*len;
-          let ey = b.tipY + Math.sin(fa)*len;
-          ex = Math.max(2, Math.min(W-2, ex));
-          ey = Math.max(2, Math.min(H-2, ey));
-          branches.push({
-            x1: b.tipX, y1: b.tipY, x2: ex, y2: ey,
-            tipX: b.tipX, tipY: b.tipY,
-            depth: b.depth+1, opacity: 0.1, parentIdx: i,
-            growProgress: 0, _fading: false, _sunset: false,
-            curveSide: fork === 0 ? -1 : 1, _split: false, birthTime: treeAge
-          });
-        }
-        structural = true;
-      }
-      // Fade
-      if (b._fading) b.opacity -= dt * 0.12;
-    }
-    if (branches.length > 0) branches[0].opacity = 1;
-    // Remove dead
-    let newLen = 1;
-    for (let i = 1; i < branches.length; i++) {
-      if (branches[i].opacity > 0.02) {
-        if (newLen !== i) branches[newLen] = branches[i];
-        newLen++;
-      }
-    }
-    if (newLen < branches.length) { branches.length = newLen; structural = true; }
-    // Sprout
-    growTimer += dt;
-    if (growTimer > nextSprout && branches.length < 80) {
-      growTimer = 0; nextSprout = 1.5 + Math.random();
-      floSprout(); structural = true;
-    }
-    if (structural) { rebuildSpawnPts(); treeDirty = true; }
-  }
-
-  function renderTree() {
-    if (!treeDirty && treeCanvas) return;
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    if (!treeCanvas) { treeCanvas = document.createElement('canvas'); treeCtx = treeCanvas.getContext('2d'); }
-    const pw = Math.round(W*dpr), ph = Math.round(H*dpr);
-    if (treeCanvas.width !== pw || treeCanvas.height !== ph) {
-      treeCanvas.width = pw; treeCanvas.height = ph;
-    }
-    const tc = treeCtx;
-    tc.clearRect(0, 0, pw, ph);
-    tc.setTransform(dpr, 0, 0, dpr, 0, 0);
-    tc.lineCap = 'round';
-    for (let i = 0; i < branches.length; i++) {
-      const b = branches[i];
-      if (b.opacity < 0.03) continue;
-      let lw = Math.max(0.75, 3 - b.depth * 0.45);
-      lw *= Math.min(1, b.opacity * 2);
-      tc.lineWidth = lw;
-      tc.strokeStyle = `rgba(140,100,60,${b.opacity * 0.85})`;
-      tc.beginPath();
-      const cs = b.curveSide || 1;
-      const mx2 = (b.x1+b.tipX)/2 + (b.tipY-b.y1)*0.08*cs;
-      const my2 = (b.y1+b.tipY)/2 - (b.tipX-b.x1)*0.08*cs;
-      tc.moveTo(b.x1, b.y1);
-      tc.quadraticCurveTo(mx2, my2, b.tipX, b.tipY);
-      tc.stroke();
-    }
-    // Blossom glow
-    for (const bl of blossoms) {
-      const pulse = 0.4 + 0.2 * Math.sin(bl.phase + treeAge * 3);
-      const lifeT = Math.min(1, bl.age / 0.5);
-      const lifeN = Math.max(0, 1 - bl.age / bl.decayDur);
-      tc.beginPath();
-      tc.arc(bl.cx, bl.cy, 4.5, 0, Math.PI*2);
-      tc.fillStyle = `rgba(220,190,130,${pulse * lifeT * lifeN * lifeN * lifeN})`;
-      tc.fill();
-    }
-    tc.setTransform(1, 0, 0, 1, 0, 0);
-    treeDirty = false;
-  }
-
-  function updateBlossoms(dt) {
-    const batchInterval = 0.8;
-    const decayDur = 6.0;
-    for (let i = blossoms.length-1; i >= 0; i--) {
-      blossoms[i].age += dt;
-      blossoms[i].phase += dt;
-      if (blossoms[i].age > blossoms[i].decayDur) { blossoms.splice(i,1); treeDirty = true; }
-    }
-    batchTimer += dt;
-    const BATCH_SIZE = 4;
-    if (batchTimer >= batchInterval && spawnPts.length >= BATCH_SIZE && blossoms.length < 32) {
-      batchTimer = 0;
-      const binsPerBlossom = Math.floor(256 / BATCH_SIZE);
-      for (let k = 0; k < BATCH_SIZE; k++) {
-        const sp = spawnPts[(Math.random() * spawnPts.length)|0];
-        blossoms.push({
-          binStart: k * binsPerBlossom,
-          binEnd: k === BATCH_SIZE-1 ? 256 : (k+1)*binsPerBlossom,
-          age: 0, spawnDur: batchInterval, decayDur,
-          cx: sp.x, cy: sp.y, phase: Math.random()*Math.PI*2
-        });
-      }
-      treeDirty = true;
-    }
-    if (blossoms.length === 0 && spawnPts.length >= BATCH_SIZE) batchTimer = batchInterval;
-  }
-
-  // ── Spawn droplets from FFT ──
-  function spawn(dt) {
-    fftData = fft.tick();
-
-    if (mode === 'flood') {
-      // Spawn raindrops
-      rainAccum += (3 + Math.random() * 2) * dt * 60;
-      while (rainAccum >= 1 && rainDN < RAIN_MAX) {
-        rainAccum -= 1;
-        const idx = rainDN;
-        rainX[idx] = 20 + Math.random() * (W - 40);
-        rainY[idx] = -10;
-        rainVx[idx] = 0;
-        rainVy[idx] = H / (2 * 60);
-        let rms = 0;
-        for (let b = 0; b < 256; b++) { const v = fftData[b]; rms += v * v; }
-        const ampN = Math.min(1, Math.sqrt(rms / 256) / 140);
-        rainA[idx] = Math.max(0.15, ampN);
-        rainSize[idx] = 3 + ampN * 4;
-        rainTrailHead[idx] = 0;
-        const base = idx * RAIN_TRAIL_LEN;
-        for (let t = 0; t < RAIN_TRAIL_LEN; t++) {
-          rainTrailX[base+t] = rainX[idx]; rainTrailY[base+t] = rainY[idx];
-        }
-        rainDN++;
-      }
-    }
-
-    if (mode === 'flood') {
-      // Splash spawns happen in physics
-      return;
-    }
-
-    const hw = W * 0.22;
-    let spawned = 0;
-    const maxSpawn = SPAWN_RATE;
-    const startBin = (Math.random() * 256) | 0;
-
-    for (let j = 0; j < 256 && spawned < maxSpawn; j++) {
-      const i = (startBin + j) % 256;
-      const amp = fftData[i];
-      const freqT = i / 255;
-      const thresh = 15 * (1 - freqT * 0.4);
-      if (amp < thresh) continue;
-      if (Math.random() > amp / 200 * 0.95) continue;
-      if (drCount >= MAX) break;
-
-      const a = amp / 255;
-      const n = drCount++;
-
-      if (mode === 'flow') {
-        const spread = (freqT - 0.5) * 2;
-        const offset = spread * hw * 0.9 + (Math.random()-0.5)*6;
-        drX[n] = offset; drHx[n] = offset;
-        drY[n] = -(Math.random()*4);
-        drVx[n] = (Math.random()-0.5)*0.15; drVy[n] = 0;
-      } else if (mode === 'flock') {
-        const ySpread = H * 0.6;
-        const homeY = H/2 + (0.5-freqT)*ySpread + (Math.random()-0.5)*8;
-        drX[n] = -(Math.random()*30);
-        drY[n] = homeY;
-        drHx[n] = 0; drHy[n] = homeY;
-        drVx[n] = 0; drVy[n] = 0;
-      } else if (mode === 'flame') {
-        const baseX = W*0.5 + (freqT-0.5)*W*0.85;
-        drX[n] = baseX + (Math.random()-0.5)*12;
-        drY[n] = H - 15 - Math.random()*15;
-        drHx[n] = drX[n]; drHy[n] = drY[n];
-        drVx[n] = (Math.random()-0.5)*1.5;
-        drVy[n] = -(0.5+Math.random());
-      } else if (mode === 'fractal') {
-        const cx = W/2, cy = H/2;
-        const angle = freqT * 2 * Math.PI * PHI + (Math.random()-0.5)*0.15;
-        const spawnR = 3 + Math.random()*5;
-        drX[n] = cx + Math.cos(angle)*spawnR;
-        drY[n] = cy + Math.sin(angle)*spawnR;
-        drHx[n] = drX[n]; drHy[n] = drY[n];
-        const baseR = Math.min(W,H)/2 / (5*60) / 0.65;
-        drVx[n] = Math.cos(angle) * baseR * 0.5;
-        drVy[n] = Math.sin(angle) * baseR * 0.5;
-      } else if (mode === 'flora') {
-        let floSpawned = false;
-        for (const blo of blossoms) {
-          if (blo.age > blo.spawnDur) continue;
-          if (i < blo.binStart || i >= blo.binEnd) continue;
-          const angle = (i - blo.binStart) / Math.max(1, blo.binEnd - blo.binStart) * Math.PI * 2 * PHI;
-          const sR = 2 + Math.random()*4;
-          drX[n] = blo.cx + Math.cos(angle)*sR;
-          drY[n] = blo.cy + Math.sin(angle)*sR;
-          drHx[n] = blo.cx; drHy[n] = blo.cy;
-          drVx[n] = 0; drVy[n] = 0;
-          floSpawned = true;
-          break;
-        }
-        if (!floSpawned) { drCount--; continue; }
-      }
-
-      drA[n] = a;
-      drB[n] = i;
-      drTch[n] = 0;
-      spawned++;
-    }
-  }
-
-  // ── Physics per mode ──
-  function physics(dt) {
-    const now = performance.now() / 1000;
-
-    // Update vortices
-    for (let v = vortices.length-1; v >= 0; v--) {
-      const vt = vortices[v];
-      vt.age = (now - vt.born) / vt.life;
-      if (vt.age >= 1) { vortices.splice(v,1); continue; }
-      vt.fade = Math.max(0, 1 - vt.age * vt.age);
-    }
-
-    // Mode-specific state
-    if (mode === 'flow') {
-      ph1 += dt * speed * 0.4;
-      ph2 += dt * speed * 0.25;
-      updateLUT();
-    }
-
-    if (mode === 'flock') {
-      fieldTime += 2.0 / 30;
-      buildCurlGrid(gridVx, gridVy, fieldTime, FLOCK_LAYERS, 1.2);
-      splitTimer += 1/30;
-      if (splitTimer > 10 + Math.random()*5) { splitTarget = splitTarget > 0.5 ? 0 : 1; splitTimer = 0; }
-      splitVal += (splitTarget - splitVal) * 0.01;
-    }
-
-    if (mode === 'flame') {
-      flameTime += 1.5 / 30;
-      buildCurlGrid(gridVx, gridVy, flameTime, FLAME_LAYERS, 1.0);
-      const tongueSpacing = W / (NUM_TONGUES + 1);
-      for (let t = 0; t < NUM_TONGUES; t++) {
-        tongueX[t] = tongueSpacing*(t+1) + Math.sin(flameTime*0.5+t*1.8)*tongueSpacing*0.25;
-        tongueY[t] = H*0.35 + Math.sin(flameTime*0.35+t*2.4)*H*0.05;
-      }
-    }
-
-    if (mode === 'flora') {
-      if (branches.length === 0) initFlora();
-      updateTree(dt);
-      updateBlossoms(dt);
-    }
-
-    // Flood: update raindrops
-    if (mode === 'flood') {
-      windT += dt;
-      const wind = Math.sin(windT * 0.4) * 1.2 + Math.sin(windT * 1.1 + 2) * 0.5;
-      const ground = H * 0.85;
-      let rw = 0;
-      for (let i = 0; i < rainDN; i++) {
-        rainY[i] += rainVy[i];
-        rainX[i] += rainVx[i];
-        rainVx[i] *= 0.85;
-        const yN = rainY[i] / ground;
-        rainX[i] += wind * (0.3 + yN * 0.7) + (Math.random()-0.5)*0.15;
-        // Trail
-        const th = rainTrailHead[i];
-        const base = i * RAIN_TRAIL_LEN;
-        rainTrailX[base+th] = rainX[i];
-        rainTrailY[base+th] = rainY[i];
-        rainTrailHead[i] = (th + 1) % RAIN_TRAIL_LEN;
-
-        if (rainY[i] >= ground) {
-          // Splash
-          const splashX = rainX[i];
-          const maxSplash = 15;
-          for (let s = 0; s < maxSplash && drCount < MAX; s++) {
-            const freqT = s / maxSplash;
-            const bin = (freqT * 255) | 0;
-            const amp = fftData[bin] || 50;
-            const a = Math.min(1, amp / 200);
-            const spreadW = W * 0.15;
-            const dx = splashX - spreadW/2 + freqT * spreadW;
-            const n = drCount++;
-            drX[n] = splashX + (dx-splashX)*0.15;
-            drY[n] = ground;
-            drVx[n] = (dx-splashX)*0.015;
-            drVy[n] = -(1.5 + Math.random()*1.5);
-            drHx[n] = dx; drHy[n] = ground;
-            drA[n] = a; drB[n] = bin; drTch[n] = 0;
-          }
-          continue;
-        }
-        if (rw !== i) {
-          rainX[rw]=rainX[i]; rainY[rw]=rainY[i]; rainVx[rw]=rainVx[i]; rainVy[rw]=rainVy[i];
-          rainA[rw]=rainA[i]; rainSize[rw]=rainSize[i];
-          const srcB = i*RAIN_TRAIL_LEN, dstB = rw*RAIN_TRAIL_LEN;
-          for (let t = 0; t < RAIN_TRAIL_LEN; t++) { rainTrailX[dstB+t]=rainTrailX[srcB+t]; rainTrailY[dstB+t]=rainTrailY[srcB+t]; }
-          rainTrailHead[rw] = rainTrailHead[i];
-        }
-        rw++;
-      }
-      rainDN = rw;
-    }
-
-    const baseFlow = mode === 'flow' ? H / (6*60) : 0;
-    const baseFlowX = mode === 'flock' ? W / (6*60) : 0;
-    const baseFlowR = mode === 'fractal' ? Math.min(W,H)/2/(5*60)/0.65 : 0;
-    const baseFlowFlo = mode === 'flora' ? Math.min(W,H)/2/(5*60)/0.65*0.25 : 0;
-    const flameRise = mode === 'flame' ? 2.5 : 0;
-    const ground = H * 0.85;
-
-    let w = 0;
-    for (let i = 0; i < drCount; i++) {
-      if (mode === 'flow') {
-        drY[i] += baseFlow;
-        drVx[i] += (drHx[i]-drX[i])*0.001;
-        drVx[i] *= 0.985;
-        drX[i] += drVx[i];
-        drA[i] *= 0.9993;
-      } else if (mode === 'flock') {
-        drVx[i] += baseFlowX * 0.03;
-        const curl = sampleCurlGrid(gridVx, gridVy, drX[i], drY[i], W, H);
-        drVx[i] += curl.vx * 0.02;
-        drVy[i] += curl.vy * 0.02;
-        // Cohesion
-        let sx2 = 0, sy2 = 0;
-        if (drCount > 0) {
-          // Approximate center (use cached or sample)
-          for (let s = 0; s < Math.min(100, drCount); s++) {
-            const si = (Math.random()*drCount)|0;
-            sx2 += drX[si]; sy2 += drY[si];
-          }
-          const sN = Math.min(100, drCount);
-          sx2 /= sN; sy2 /= sN;
-        }
-        const cdist = Math.sqrt((sx2-drX[i])*(sx2-drX[i])+(sy2-drY[i])*(sy2-drY[i]));
-        if (cdist > 80) {
-          const cohStr = 0.0006 * Math.min(cdist-80, 250);
-          drVx[i] += ((sx2-drX[i])/cdist)*cohStr;
-          drVy[i] += ((sy2-drY[i])/cdist)*cohStr*0.5;
-        }
-        // Split
-        if (splitVal > 0.05) {
-          const yOff = drY[i] - H/2;
-          const push = yOff > 0 ? 1 : -1;
-          drVy[i] += push * splitVal * 0.04;
-        }
-        drX[i] += drVx[i]; drY[i] += drVy[i];
-        if (drY[i] < 10) drVy[i] += (10-drY[i])*0.03;
-        if (drY[i] > H-10) drVy[i] += (H-10-drY[i])*0.03;
-        drVx[i] *= 0.96; drVy[i] *= 0.96;
-        drA[i] *= 0.9993;
-      } else if (mode === 'flame') {
-        const tongueSpacing = W / (NUM_TONGUES + 1);
-        const nearIdx = Math.max(0, Math.min(NUM_TONGUES-1, Math.round(drX[i]/tongueSpacing)-1));
-        const heightN = Math.max(0, 1 - drY[i] / H);
-        const relY = (drY[i] - tongueY[nearIdx]) / H;
-        // Updraft
-        if (relY > 0) drVy[i] -= flameRise * 0.09;
-        else drVy[i] -= flameRise * Math.max(-0.02, 0.09 + relY*0.4);
-        // Curl
-        const curl = sampleCurlGrid(gridVx, gridVy, drX[i], drY[i], W, H);
-        const curlStr = 0.003 + heightN * 0.032;
-        drVx[i] += curl.vx * curlStr;
-        drVy[i] += curl.vy * curlStr * 0.4;
-        // Tongue convergence
-        const dx = tongueX[nearIdx] - drX[i];
-        const adx = Math.abs(dx);
-        const deadZone = tongueSpacing * 0.15;
-        if (adx > deadZone) {
-          const pull = (adx - deadZone) / tongueSpacing;
-          const hf = Math.min(1, heightN / 0.5);
-          drVx[i] += Math.sign(dx) * pull * hf * 0.15;
-        }
-        drX[i] += drVx[i]; drY[i] += drVy[i];
-        if (drX[i] < 10) drVx[i] += (10-drX[i])*0.03;
-        if (drX[i] > W-10) drVx[i] += (W-10-drX[i])*0.03;
-        drVx[i] *= 0.94; drVy[i] *= 0.93;
-        if (heightN > 0.4) drA[i] *= 1 - (heightN-0.4)*0.04;
-        else drA[i] *= 0.9993;
-      } else if (mode === 'fractal') {
-        const cx = W/2, cy = H/2;
-        const rdx = drX[i]-cx, rdy = drY[i]-cy;
-        const rdist = Math.sqrt(rdx*rdx+rdy*rdy) || 1;
-        const rnx = rdx/rdist, rny = rdy/rdist;
-        const tnx = -rny, tny = rnx;
-        drVx[i] += rnx * baseFlowR * 0.03;
-        drVy[i] += rny * baseFlowR * 0.03;
-        const tangF = baseFlowR * 0.03 / PHI;
-        drVx[i] += tnx * tangF;
-        drVy[i] += tny * tangF;
-        drX[i] += drVx[i]; drY[i] += drVy[i];
-        drVx[i] *= 0.96; drVy[i] *= 0.96;
-        drA[i] *= 0.9993;
-      } else if (mode === 'flora') {
-        const bcx = drHx[i], bcy = drHy[i];
-        const rdx = drX[i]-bcx, rdy = drY[i]-bcy;
-        const rdist = Math.sqrt(rdx*rdx+rdy*rdy) || 1;
-        const rnx = rdx/rdist, rny = rdy/rdist;
-        const tnx = -rny, tny = rnx;
-        const radialF = baseFlowFlo * 0.025;
-        drVx[i] += rnx * radialF;
-        drVy[i] += rny * radialF;
-        drVx[i] += tnx * radialF / PHI;
-        drVy[i] += tny * radialF / PHI;
-        drVx[i] += rnx * (Math.random()-0.5) * 0.3;
-        drVy[i] += rny * (Math.random()-0.5) * 0.3;
-        drX[i] += drVx[i]; drY[i] += drVy[i];
-        drVx[i] *= 0.96; drVy[i] *= 0.96;
-        const aDecay = drA[i] < 0.15 ? 0.97 : 0.998;
-        drA[i] *= aDecay;
-      } else if (mode === 'flood') {
-        drVy[i] += 0.08;
-        drVx[i] += (drHx[i]-drX[i])*0.005;
-        drX[i] += drVx[i]; drY[i] += drVy[i];
-        drVx[i] *= 0.99;
-        drA[i] *= 0.9993;
-      }
-      drTch[i] *= 0.99;
-
-      // Vortex influence (all modes)
-      for (const vt of vortices) {
-        if (vt.fade <= 0) continue;
-        const vdx = (mode === 'flow' ? getCX(drY[i]) + drX[i] : drX[i]) - vt.x;
-        const vdy = drY[i] - vt.y;
-        const vdist = Math.sqrt(vdx*vdx + vdy*vdy);
-        if (vdist >= vt.radius || vdist < 1) continue;
-        const f = vt.fade * vt.strength * (1 - vdist/vt.radius);
-        drVx[i] += (-vdy/vdist*vt.spin + vdx/vdist*-0.3)*f;
-        if (mode === 'flow') drY[i] += (vdx/vdist*vt.spin + vdy/vdist*-0.3)*f*0.5;
-        else drVy[i] += (vdx/vdist*vt.spin + vdy/vdist*-0.3)*f*0.5;
-        drTch[i] = Math.min(1, drTch[i]+f*0.3);
-      }
-
-      // Mouse push
-      if (mDown && interactionEnabled) {
-        const px = mode === 'flow' ? getCX(drY[i]) + drX[i] : drX[i];
-        const dx = px - mx, dy = drY[i] - my;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        const pushR = 35;
-        if (dist < pushR && dist > 1) {
-          const force = (1-dist/pushR)*0.6;
-          const ds = Math.sqrt(dvx*dvx+dvy*dvy);
-          const bl = Math.min(1, ds/8);
-          const rx = dx/dist, ry = dy/dist;
-          let nx2=0, ny2=0;
-          if (ds>0.5){nx2=dvx/ds;ny2=dvy/ds;}
-          drVx[i] += (rx*(1-bl)+nx2*bl)*force*(1+ds*0.15);
-          if (mode === 'flow') drY[i] += (ry*(1-bl)+ny2*bl)*force*0.5;
-          else drVy[i] += (ry*(1-bl)+ny2*bl)*force*(1+ds*0.15);
-          drA[i] = Math.min(1, drA[i]+force*0.1);
-          drTch[i] = Math.min(1, drTch[i]+force);
-        }
-      }
-
-      // Death check
-      let alive = drA[i] > 0.01;
-      if (mode === 'flow') alive = alive && drY[i] < H+5 && drY[i] > -10;
-      else if (mode === 'flock') alive = alive && drX[i] > -200 && drX[i] < W+150 && drY[i] > -80 && drY[i] < H+80;
-      else if (mode === 'flame') alive = alive && drY[i] > -30;
-      else if (mode === 'fractal') alive = alive && drX[i] > -80 && drX[i] < W+80 && drY[i] > -80 && drY[i] < H+80;
-      else if (mode === 'flora') {
-        const bDist = Math.hypot(drX[i]-drHx[i], drY[i]-drHy[i]);
-        alive = alive && bDist < 120;
-      }
-      else if (mode === 'flood') alive = alive && drY[i] < ground+20 && drY[i] > -10;
-
-      if (alive) {
-        if (w !== i) {
-          drX[w]=drX[i];drY[w]=drY[i];drA[w]=drA[i];drB[w]=drB[i];
-          drVx[w]=drVx[i];drVy[w]=drVy[i];drHx[w]=drHx[i];drHy[w]=drHy[i];
-          drTch[w]=drTch[i];
-        }
-        w++;
-      }
-    }
-    drCount = w;
-  }
-
-  // ── Render ──
-  function render() {
-    if (!W || !H) return;
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#060a10'); grad.addColorStop(1, '#0a1220');
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-
-    // Flora: draw tree behind droplets
-    if (mode === 'flora') {
-      renderTree();
-      if (treeCanvas) {
-        ctx.save();
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.drawImage(treeCanvas, 0, 0);
-        ctx.restore();
-        const dpr = Math.min(devicePixelRatio || 1, 2);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-    }
-
-    // Droplets
-    if (mode === 'flame') ctx.globalCompositeOperation = 'lighter';
-    for (let i = 0; i < drCount; i++) {
-      const a = drA[i], bin = drB[i];
-      const x = mode === 'flow' ? getCX(drY[i]) + drX[i] : drX[i];
-      const y = drY[i];
-      const r = 1.2 + a * 2.0;
-      let alpha;
-      if (mode === 'flame') {
-        const heightN = 1 - y / H;
-        alpha = Math.pow(a, 1.0) * 0.55 * (1 - heightN * 0.25);
-      } else {
-        alpha = Math.pow(a, 1.4) * 0.9 * (1 - y/H * 0.12);
-      }
-      if (alpha < 0.01) continue;
-      const cr = CMAP[bin*3], cg = CMAP[bin*3+1], cb = CMAP[bin*3+2];
-      // Glow for bright particles
-      if (a > 0.3 && mode !== 'flame') {
-        ctx.beginPath(); ctx.arc(x, y, r*3.5, 0, 6.28);
-        ctx.fillStyle = `rgba(${cr},${cg},${cb},${alpha*0.08})`; ctx.fill();
-      }
-      ctx.beginPath(); ctx.arc(x, y, r, 0, 6.28);
-      ctx.fillStyle = `rgba(${cr},${cg},${cb},${alpha})`; ctx.fill();
-    }
-    if (mode === 'flame') ctx.globalCompositeOperation = 'source-over';
-
-    // Flood: render raindrops
-    if (mode === 'flood') {
-      const rnow = performance.now() / 1000;
-      ctx.save();
-      for (let i = 0; i < rainDN; i++) {
-        const x = rainX[i], y = rainY[i], a = rainA[i], sz = rainSize[i];
-        // Trail
-        const base = i * RAIN_TRAIL_LEN, head = rainTrailHead[i];
-        for (let t = 0; t < RAIN_TRAIL_LEN - 1; t++) {
-          const ti0 = (head-1-t+RAIN_TRAIL_LEN)%RAIN_TRAIL_LEN;
-          const ti1 = (head-2-t+RAIN_TRAIL_LEN)%RAIN_TRAIL_LEN;
-          const x0 = rainTrailX[base+ti0], y0 = rainTrailY[base+ti0];
-          const x1 = rainTrailX[base+ti1], y1 = rainTrailY[base+ti1];
-          if (y0 < -5 || y1 < -5) continue;
-          const fade = 1 - t/RAIN_TRAIL_LEN;
-          const ta = a * fade * fade * 0.15;
-          if (ta < 0.005) continue;
-          ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1);
-          ctx.strokeStyle = `rgba(140,190,220,${ta.toFixed(3)})`;
-          ctx.lineWidth = Math.max(0.5, sz*0.5*fade); ctx.stroke();
-        }
-        // Teardrop body
-        const rw = sz*0.55, rh = sz*0.9;
-        ctx.beginPath();
-        ctx.arc(x, y + rh*0.15, rw, 0, Math.PI, false);
-        ctx.quadraticCurveTo(x-rw*0.3, y-rh*0.4, x, y-rh*0.7);
-        ctx.quadraticCurveTo(x+rw*0.3, y-rh*0.4, x+rw, y+rh*0.15);
-        ctx.closePath();
-        const freqT = x / W;
-        const r = Math.round(200-freqT*174), g = Math.round(130+freqT*28), b = Math.round(60+freqT*124);
-        ctx.fillStyle = `rgba(${r},${g},${b},${(a*0.65).toFixed(3)})`; ctx.fill();
-        // Shimmer
-        const shimX = x + Math.sin(rnow*5+i*2.3)*rw*0.35;
-        const shimY = y - rh*0.1 + Math.cos(rnow*3.7+i*1.7)*rh*0.15;
-        const shimR = sz*0.2;
-        const shimGrad = ctx.createRadialGradient(shimX,shimY,0,shimX,shimY,shimR);
-        shimGrad.addColorStop(0, `rgba(255,255,255,${(a*0.4).toFixed(3)})`);
-        shimGrad.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = shimGrad; ctx.beginPath(); ctx.arc(shimX,shimY,shimR,0,Math.PI*2); ctx.fill();
-      }
-      ctx.restore();
-    }
-
-    // Vortices
-    const now = performance.now() / 1000;
-    for (const vt of vortices) {
-      if (vt.fade <= 0) continue;
-      ctx.save(); ctx.translate(vt.x, vt.y); ctx.rotate(now * vt.spin * 3);
-      for (let ring = 0; ring < 3; ring++) {
-        ctx.beginPath(); ctx.arc(0, 0, vt.radius*(0.3+ring*0.3), 0, Math.PI*1.2);
-        ctx.strokeStyle = `rgba(26,158,158,${vt.fade*(0.2-ring*0.05)})`;
-        ctx.lineWidth = 1.5 - ring * 0.3; ctx.stroke();
-      }
-      ctx.beginPath(); ctx.arc(0, 0, 2.5, 0, 6.28);
-      ctx.fillStyle = `rgba(26,180,180,${vt.fade*0.5})`; ctx.fill();
-      ctx.restore();
-    }
-
-    // Mouse cursor indicator
-    if (mDown && interactionEnabled) {
-      ctx.beginPath(); ctx.arc(mx, my, 35, 0, 6.28);
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1; ctx.stroke();
-    }
-  }
-
-  // ── Event binding ──
-  function gp(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX-r.left, y: e.clientY-r.top }; }
-
-  canvas.addEventListener('mousedown', e => {
-    if (!interactionEnabled) return;
-    mDown = true; const p = gp(e); mx=p.x; my=p.y; lmx=mx; lmy=my; dvx=dvy=0;
-  });
-  canvas.addEventListener('mousemove', e => {
-    if (!interactionEnabled) return;
-    const p = gp(e); if (mDown) { dvx=p.x-lmx; dvy=p.y-lmy; } mx=p.x; my=p.y; lmx=mx; lmy=my;
-  });
-  canvas.addEventListener('mouseup', () => { mDown=false; mx=my=-1e4; });
-  canvas.addEventListener('mouseleave', () => { mDown=false; mx=my=-1e4; });
-  canvas.addEventListener('dblclick', e => {
-    if (!interactionEnabled) return;
-    e.preventDefault(); const p = gp(e);
-    vortices.push({ x:p.x, y:p.y, born:performance.now()/1000, life:3+Math.random(),
-      strength:0.6, radius:40, spin:(Math.random()>.5?1:-1)*(0.8+Math.random()*0.4), fade:1, age:0 });
-  });
-  canvas.addEventListener('touchstart', e => {
-    if (!interactionEnabled) return;
-    e.preventDefault(); mDown=true; const t=e.touches[0], r=canvas.getBoundingClientRect();
-    mx=t.clientX-r.left; my=t.clientY-r.top; lmx=mx; lmy=my; dvx=dvy=0;
-  }, {passive:false});
-  canvas.addEventListener('touchmove', e => {
-    if (!interactionEnabled) return;
-    e.preventDefault(); const t=e.touches[0], r=canvas.getBoundingClientRect();
-    const px=t.clientX-r.left, py=t.clientY-r.top;
-    dvx=px-lmx; dvy=py-lmy; mx=px; my=py; lmx=mx; lmy=my;
-  }, {passive:false});
-  canvas.addEventListener('touchend', () => { mDown=false; mx=my=-1e4; });
-
-  let running = false;
-  let lastT = 0;
-
-  return {
-    tick(t) {
-      const dt = Math.min(0.05, (t - lastT) / 1000);
-      lastT = t;
-      if (dt <= 0) return;
-      spawn(dt);
-      physics(dt);
-      render();
-    },
-    resize() { resize(); },
-    start() { if (!running) { running = true; resize(); lastT = performance.now(); } },
-    stop() { running = false; },
-    setInteraction(enabled) { interactionEnabled = enabled; },
-    setBudget(maxDrop, spawnRate) {
-      // Can't resize typed arrays, but we can limit usage
-    },
-    isRunning() { return running; },
-  };
-}
-
-// ══════════════════════════════════════════════════════════
-// Hero Particle Background
-// ══════════════════════════════════════════════════════════
-
-(function heroParticles() {
+// ── Hero particle canvas ──
+(function() {
   const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let W, H, particles, mouse = { x: -1e4, y: -1e4 };
+  const dpr = window.devicePixelRatio || 1;
+  let W, H;
 
   function resize() {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    W = canvas.clientWidth; H = canvas.clientHeight;
+    const r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
     canvas.width = W * dpr; canvas.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    init();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const N = 120;
+  const px = [], py = [], vx = [], vy = [], pa = [];
+  for (let i = 0; i < N; i++) {
+    px[i] = Math.random() * 2000;
+    py[i] = Math.random() * 2000;
+    vx[i] = (Math.random() - 0.5) * 0.4;
+    vy[i] = (Math.random() - 0.5) * 0.4;
+    pa[i] = Math.random() * 0.5 + 0.1;
   }
 
-  // Multi-family particles: each has a movement style
-  class P {
-    constructor() { this.reset(true); }
-    reset(r) {
-      this.x = Math.random() * W;
-      this.y = r ? Math.random() * H : H + 20;
-      this.r = 1.5 + Math.random() * 2.5;
-      this.life = 0;
-      this.max = 400 + Math.random() * 600;
-      this.ph = Math.random() * 6.28;
-      this.pw = 0.005 + Math.random() * 0.01;
-      // Family determines movement style
-      const fam = Math.random();
-      if (fam < 0.33) { // Flow-like: drift up gently
-        this.vy = -(0.15 + Math.random() * 0.3);
-        this.vx = (Math.random() - 0.5) * 0.2;
-        this.style = 'flow';
-        this.hue = 25 + Math.random() * 15; // warm
-      } else if (fam < 0.66) { // Flock-like: curl noise drift
-        this.vy = (Math.random() - 0.5) * 0.3;
-        this.vx = 0.2 + Math.random() * 0.3;
-        this.style = 'flock';
-        this.hue = 170 + Math.random() * 30; // teal-blue
-      } else { // Fractal-like: spiral outward from center
-        this.vy = -(0.1 + Math.random() * 0.2);
-        this.vx = (Math.random() - 0.5) * 0.3;
-        this.style = 'spiral';
-        this.hue = 35 + Math.random() * 10; // amber
-      }
-    }
-    update() {
-      this.life++;
-      this.ph += this.pw;
-      if (this.style === 'flow') {
-        this.vx += Math.sin(this.ph) * 0.004 + (W/2 - this.x) * 2e-5;
-      } else if (this.style === 'flock') {
-        this.vx += Math.sin(this.ph * 0.7) * 0.006;
-        this.vy += Math.cos(this.ph * 1.3) * 0.004;
-      } else {
-        const dx = this.x - W/2, dy = this.y - H/2;
-        const d = Math.sqrt(dx*dx+dy*dy) || 1;
-        this.vx += (-dy/d) * 0.003; // tangential
-        this.vy += (dx/d) * 0.003;
-        this.vy -= 0.01; // slight upward bias
-      }
-      const dx = this.x - mouse.x, dy = this.y - mouse.y;
-      const d = Math.sqrt(dx*dx+dy*dy);
-      if (d < 150) { const f = (150-d)/150*0.8; this.vx += dx/d*f; this.vy += dy/d*f; }
-      this.vx *= 0.98; this.vy *= 0.98;
-      this.x += this.vx; this.y += this.vy;
-      if (this.y < -20 || this.life > this.max || this.x < -50 || this.x > W+50 || this.y > H+50) this.reset(false);
-    }
-    draw() {
-      const a = Math.min(1, this.life/60) * Math.max(0, 1 - this.life/this.max) * 0.6;
-      ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, 6.28);
-      ctx.fillStyle = `hsla(${this.hue},60%,55%,${a})`; ctx.fill();
-      if (this.r > 2) {
-        ctx.beginPath(); ctx.arc(this.x, this.y, this.r*3, 0, 6.28);
-        ctx.fillStyle = `hsla(${this.hue},60%,55%,${a*0.08})`; ctx.fill();
-      }
-    }
-  }
+  let mx = -1000, my = -1000;
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    mx = e.clientX - r.left; my = e.clientY - r.top;
+  });
+  canvas.addEventListener('mouseleave', () => { mx = -1000; my = -1000; });
 
-  function init() { particles = Array.from({length: Math.min(150, W*H/8000|0)}, () => new P()); }
-
-  function draw() {
+  function frame() {
     ctx.clearRect(0, 0, W, H);
-    const md = 80;
-    for (let i = 0; i < particles.length; i++)
-      for (let j = i+1; j < particles.length; j++) {
-        const dx = particles[i].x-particles[j].x, dy = particles[i].y-particles[j].y;
-        const d = Math.sqrt(dx*dx+dy*dy);
-        if (d < md) {
-          ctx.beginPath(); ctx.moveTo(particles[i].x,particles[i].y); ctx.lineTo(particles[j].x,particles[j].y);
-          ctx.strokeStyle = `rgba(140,160,180,${(1-d/md)*0.06})`; ctx.lineWidth = 0.5; ctx.stroke();
+    for (let i = 0; i < N; i++) {
+      px[i] += vx[i]; py[i] += vy[i];
+      if (px[i] < 0 || px[i] > W) vx[i] *= -1;
+      if (py[i] < 0 || py[i] > H) vy[i] *= -1;
+      px[i] = Math.max(0, Math.min(W, px[i]));
+      py[i] = Math.max(0, Math.min(H, py[i]));
+
+      const dmx = px[i] - mx, dmy = py[i] - my;
+      const dm = Math.sqrt(dmx * dmx + dmy * dmy);
+      if (dm < 150) {
+        const f = (1 - dm / 150) * 0.02;
+        vx[i] += dmx * f; vy[i] += dmy * f;
+      }
+
+      const sp = Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i]);
+      if (sp > 1.5) { vx[i] *= 1.5 / sp; vy[i] *= 1.5 / sp; }
+    }
+
+    for (let i = 0; i < N; i++) {
+      for (let j = i + 1; j < N; j++) {
+        const dx = px[i] - px[j], dy = py[i] - py[j];
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 140) {
+          const a = (1 - d / 140) * 0.12;
+          ctx.beginPath();
+          ctx.moveTo(px[i], py[i]);
+          ctx.lineTo(px[j], py[j]);
+          ctx.strokeStyle = `rgba(74, 144, 184, ${a})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
         }
       }
-    for (const p of particles) { p.update(); p.draw(); }
-    requestAnimationFrame(draw);
-  }
+    }
 
-  addEventListener('resize', resize);
-  canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX-r.left; mouse.y = e.clientY-r.top; });
-  canvas.addEventListener('mouseleave', () => { mouse.x = mouse.y = -1e4; });
-  resize(); draw();
+    for (let i = 0; i < N; i++) {
+      ctx.beginPath();
+      ctx.arc(px[i], py[i], 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(74, 144, 184, ${pa[i]})`;
+      ctx.fill();
+    }
+
+    requestAnimationFrame(frame);
+  }
+  frame();
 })();
 
-// ══════════════════════════════════════════════════════════
-// Viz Grid: 6 interactive canvases
-// ══════════════════════════════════════════════════════════
-
-(function vizGrid() {
-  const grid = document.getElementById('vizGrid');
-  const cells = grid.querySelectorAll('.viz-cell');
-  const sims = [];
-
-  // Create simulations
-  cells.forEach(cell => {
-    const mode = cell.dataset.mode;
-    const canvas = cell.querySelector('canvas');
-    const sim = createVizSim(canvas, mode, { maxDroplets: 6000, spawnRate: 35 });
-    sim.setInteraction(true);
-    sims.push({ sim, cell, canvas, mode });
-  });
-
-  // Single rAF ticker
-  let running = false;
-  function tick(t) {
-    for (const s of sims) {
-      if (s.sim.isRunning()) s.sim.tick(t);
-    }
-    if (running) requestAnimationFrame(tick);
-  }
-
-  // IntersectionObserver to start/stop
+// ── Scroll reveal ──
+(function() {
   const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      const cell = e.target;
-      const s = sims.find(s => s.cell === cell);
-      if (!s) return;
-      if (e.isIntersecting) {
-        s.sim.start();
-        s.sim.resize();
-        if (!running) { running = true; requestAnimationFrame(tick); }
-      } else {
-        s.sim.stop();
-      }
-    });
-    // Stop ticker if nothing visible
-    if (!sims.some(s => s.sim.isRunning())) running = false;
-  }, { threshold: 0.05 });
-
-  cells.forEach(cell => obs.observe(cell));
-
-  // Resize handler
-  addEventListener('resize', () => {
-    sims.forEach(s => { if (s.sim.isRunning()) s.sim.resize(); });
-  });
-})();
-
-// ══════════════════════════════════════════════════════════
-// Waveform Demo
-// ══════════════════════════════════════════════════════════
-
-(function waveformDemo() {
-  const canvas = document.getElementById('waveformCanvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, phase = 0;
-  const grains = [];
-  let nextSpawn = 0;
-
-  function resize() {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    W = canvas.clientWidth; H = canvas.clientHeight || 120;
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  function draw(t) {
-    t /= 1000; ctx.clearRect(0, 0, W, H);
-    phase += 0.02;
-    const mid = H / 2;
-    ctx.beginPath();
-    for (let x = 0; x < W; x++) {
-      const n = x / W;
-      const v = Math.sin(n*30+phase)*0.3 + Math.sin(n*70+phase*1.7)*0.15 + Math.sin(n*12+phase*0.4)*0.4;
-      if (x === 0) ctx.moveTo(x, mid+v*mid*0.8); else ctx.lineTo(x, mid+v*mid*0.8);
-    }
-    ctx.strokeStyle = 'rgba(74,144,184,0.35)'; ctx.lineWidth = 1; ctx.stroke();
-    ctx.beginPath();
-    for (let x = 0; x < W; x++) {
-      const n = x / W;
-      const v = Math.sin(n*30+phase)*0.3 + Math.sin(n*70+phase*1.7)*0.15 + Math.sin(n*12+phase*0.4)*0.4;
-      if (x === 0) ctx.moveTo(x, mid-v*mid*0.8); else ctx.lineTo(x, mid-v*mid*0.8);
-    }
-    ctx.strokeStyle = 'rgba(74,144,184,0.2)'; ctx.stroke();
-
-    const whX = W * 0.82;
-    ctx.beginPath(); ctx.moveTo(whX, 0); ctx.lineTo(whX, H);
-    ctx.strokeStyle = 'rgba(26,158,158,0.4)'; ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
-
-    if (t > nextSpawn) {
-      grains.push({ pos: 0.7+Math.random()*0.25, size: 0.03+Math.random()*0.08, born: t, dur: 0.08+Math.random()*0.15, pitch: 0.5+Math.random()*1.5 });
-      nextSpawn = t + 0.06 + Math.random() * 0.1;
-    }
-
-    for (let i = grains.length-1; i >= 0; i--) {
-      const g = grains[i], age = t - g.born, progress = age / g.dur;
-      if (progress > 1.5) { grains.splice(i,1); continue; }
-      const alpha = progress < 1 ? Math.sin(progress*Math.PI) : Math.max(0, 1-(progress-1)*2);
-      const gx = (g.pos-g.size/2)*W, gw = g.size*W;
-      const oct = Math.log2(Math.max(0.01, g.pitch));
-      const pt = (oct+4)/8;
-      const hue = 220-pt*190, sat = 18+Math.abs(oct)*4, lit = 38+pt*14;
-      ctx.fillStyle = `hsla(${hue},${Math.min(sat,35)}%,${Math.min(lit,52)}%,${alpha*0.22})`; ctx.fillRect(gx, 4, gw, H-8);
-      ctx.fillStyle = `hsla(${hue},${Math.min(sat+10,45)}%,${Math.min(lit+8,60)}%,${alpha*0.55})`; ctx.fillRect(gx, 2, gw, 1.5);
-    }
-    requestAnimationFrame(draw);
-  }
-
-  addEventListener('resize', resize);
-
-  // Start when visible
-  const obs = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) {
-      resize();
-      requestAnimationFrame(draw);
-      obs.disconnect();
-    }
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
-  obs.observe(canvas);
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 })();
-
-// ══════════════════════════════════════════════════════════
-// Scroll Reveal
-// ══════════════════════════════════════════════════════════
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
