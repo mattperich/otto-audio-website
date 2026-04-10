@@ -1655,7 +1655,7 @@ function createVizSim(canvas,mode,opts){
     return `<div class="param"><div class="param-row"><span class="param-label">${label}</span><span class="param-value">${value}</span></div><input type="range" min="0" max="1000" value="${fill * 10}" style="--fill:${fill}%"></div>`;
   }
   function D(label) { return `<div class="subsection-divider"><span class="subsection-label">${label}</span></div>`; }
-  function T(label, on) { return `<span class="toggle-btn${on ? ' active' : ''}">${label}</span>`; }
+  function T(label, on, full) { return `<button class="toggle-btn${on ? ' active' : ''}"${full ? ' style="width:100%;text-align:center"' : ''}>${label}</button>`; }
   function S(opts, sel) { return `<select class="param-select">${opts.map((o,i) => `<option${i===sel?' selected':''}>${o}</option>`).join('')}</select>`; }
   function R(btns, act) { return `<div class="seg-row">${btns.map((b,i) => { const label = Array.isArray(b) ? b[0] : b; const attr = Array.isArray(b) ? ` data-vizmode="${b[1]}"` : ''; return `<button class="seg-btn${i===act?' active':''}"${attr}>${label}</button>`; }).join('')}</div>`; }
   function B(label, active, cls) { return `<button class="sample-btn${active?' active':''}${cls?' '+cls:''}">${label}</button>`; }
@@ -1675,7 +1675,7 @@ function createVizSim(canvas,mode,opts){
         <div style="display:flex;gap:4px;margin-top:4px">
           ${B('Load',false)} ${B('Clear',false,'clear')}
         </div>
-        <div style="margin-top:4px">${B('Generate',false)}</div>
+        <button class="sample-btn" style="width:100%;margin-top:4px">Generate</button>
         <div class="waveform-placeholder"><span>No sample</span></div>
         ${P('Sample Gain','0 dB',50)}
         ${P('Sample Blend','grains',0)}
@@ -1724,7 +1724,7 @@ function createVizSim(canvas,mode,opts){
     scale: {
       title: 'Scale', tagClass: '', borderClass: '', panelClass: '',
       desc: `<h3>Stay in key</h3><p>Constrain the resonator bank and step sequencer to musical intervals. Grains and plucked strings follow your harmonic palette.</p>`,
-      html: `<div style="margin-bottom:6px">${T('SCALE LOCK',true)}</div>
+      html: `<div style="margin-bottom:6px">${T('SCALE LOCK',true,true)}</div>
         ${P('Root / Tune','C',50)}
         <div class="presets" style="margin-top:6px">
           <button class="preset-btn">Chromatic</button>
@@ -1772,7 +1772,7 @@ function createVizSim(canvas,mode,opts){
           <div class="tut-win-btn"><canvas id="tut-preview-envelope"></canvas><span>Envelope</span></div>
           <div class="tut-win-btn full-width active"><canvas id="tut-preview-custom"></canvas><span>Custom</span></div>
         </div>
-        <div style="margin-top:4px">${T('ANTI-CLICK',true)}</div>`
+        ${T('ANTI-CLICK',true,true)}`
     },
     stream: {
       title: 'Stream', tagClass: 'teal', borderClass: 'border-teal', panelClass: 'panel-teal',
@@ -1840,7 +1840,7 @@ function createVizSim(canvas,mode,opts){
         ${P('Hi Cut','off',100)}
         ${P('Compression','off',0)}
         </div>
-        <div style="margin-top:6px">${T('FREEZE',false)}</div>`
+        ${T('FREEZE',false,true)}`
     },
     output: {
       title: 'Output', tagClass: '', borderClass: '', panelClass: '',
@@ -1853,7 +1853,7 @@ function createVizSim(canvas,mode,opts){
         ${P('Compression','off',0)}
         ${P('Tone','flat',50)}
         ${P('Mid','flat',50)}
-        <div style="margin-top:4px;width:100%">${T('PRE REVERB',false)}</div>`
+        ${T('PRE REVERB',false,true)}`
     },
     mod: {
       title: 'Modulation', tagClass: 'amber', borderClass: 'border-amber', panelClass: 'panel-amber',
@@ -1876,7 +1876,7 @@ function createVizSim(canvas,mode,opts){
           ${P('Speed','2.0 Hz',40)}
           <div class="lfo-dest-btn assigned">Dest: Filter</div>
         </div>
-        <div style="margin-top:4px">${B('+ Add LFO',false)}</div>`
+        <button class="sample-btn" style="width:100%;margin-top:4px">+ Add LFO</button>`
     },
     seq: {
       title: 'Sequencer', tagClass: 'red', borderClass: 'border-red', panelClass: 'panel-red',
@@ -1887,7 +1887,7 @@ function createVizSim(canvas,mode,opts){
           <button class="seq-mode-btn">Interactive</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
-          <div>${B('Input Sequence',false)}</div>
+          <button class="sample-btn" style="width:100%">Input Sequence</button>
           <div style="display:flex;gap:4px">
             ${B('Play',true)} ${B('Reset',false)} ${B('Clear',false,'clear')}
           </div>
