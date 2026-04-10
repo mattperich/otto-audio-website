@@ -1066,7 +1066,8 @@
 <div class="scroll-section" data-step="reverb"></div>
 <div class="scroll-section" data-step="output"></div>
 <div class="scroll-section" data-step="mod"></div>
-<div class="scroll-section" data-step="seq"></div>
+<div class="scroll-section" data-step="seq_step"></div>
+<div class="scroll-section" data-step="seq_interactive"></div>
 <div class="scroll-section" data-step="preset"></div>
 <div class="scroll-section" data-step="end"></div>
 
@@ -1878,9 +1879,10 @@ function createVizSim(canvas,mode,opts){
         </div>
         <button class="sample-btn" style="width:100%;margin-top:4px">+ Add LFO</button>`
     },
-    seq: {
+    seq_step: {
       title: 'Sequencer', tagClass: 'red', borderClass: 'border-red', panelClass: 'panel-red',
-      desc: `<h3>Rhythmic patterns</h3><p>Scale-aware step sequencer drives grain triggering and resonator excitation in musical patterns.</p>`,
+      navStep: 'seq',
+      desc: `<h3>Step sequencer</h3><p>Program melodic patterns on a grid. Scale-aware note routing drives grain triggering and resonator excitation.</p>`,
       html: `<div class="seq-mode-group">
           <button class="seq-mode-btn">Off</button>
           <button class="seq-mode-btn active">Step</button>
@@ -1895,6 +1897,23 @@ function createVizSim(canvas,mode,opts){
         ${P('Steps','16',50)}
         ${P('Rows','8',14)}
         ${P('Root','C4',50)}`
+    },
+    seq_interactive: {
+      title: 'Sequencer', tagClass: 'red', borderClass: 'border-red', panelClass: 'panel-red',
+      navStep: 'seq',
+      desc: `<h3>Interactive sequencer</h3><p>Record a sequence by clicking notes in real time. Each block captures pitch, velocity, and timing from your interaction with the visualization.</p>`,
+      html: `<div class="seq-mode-group">
+          <button class="seq-mode-btn">Off</button>
+          <button class="seq-mode-btn">Step</button>
+          <button class="seq-mode-btn active">Interactive</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+          <button class="sample-btn" style="width:100%">Input Sequence</button>
+          <div style="display:flex;gap:4px">
+            ${B('Play',false)} ${B('Reset',false)} ${B('Clear',false,'clear')}
+          </div>
+        </div>
+        ${P('Steps','8',25)}`
     },
     preset: {
       title: 'Presets', tagClass: '', borderClass: '', panelClass: '',
@@ -1927,7 +1946,7 @@ function createVizSim(canvas,mode,opts){
     }
   };
 
-  const STEP_ORDER = ['intro','input','sampler','generate','tempo','scale','grain','stream','resonator','delay','reverb','output','mod','seq','preset','end'];
+  const STEP_ORDER = ['intro','input','sampler','generate','tempo','scale','grain','stream','resonator','delay','reverb','output','mod','seq_step','seq_interactive','preset','end'];
   const panel = document.getElementById('floatPanel');
   const panelBody = document.getElementById('panelBody');
   const descEl = document.getElementById('descOverlay');
@@ -2059,13 +2078,14 @@ function createVizSim(canvas,mode,opts){
   });
 
   // ── Click nav/toolbar buttons to jump to section ──
+  // Map nav buttons to first scroll section (for split steps like seq_step/seq_interactive)
+  const NAV_TO_STEP = { seq: 'seq_step' };
   allStepBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      const step = btn.dataset.step;
+      const step = NAV_TO_STEP[btn.dataset.step] || btn.dataset.step;
       const section = document.querySelector(`.scroll-section[data-step="${step}"]`);
       if (section) {
-        // Force step change even if scroll hasn't settled yet
-        activeStep = '';  // reset so setStep doesn't skip
+        activeStep = '';
         setStep(step);
         section.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
