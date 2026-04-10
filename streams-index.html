@@ -47,27 +47,12 @@
   max-width: 800px;
 }
 
-.hero-badge {
-  display: inline-block;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--teal);
-  border: 1px solid rgba(26, 158, 158, 0.3);
-  padding: 6px 16px;
-  border-radius: 20px;
-  margin-bottom: 28px;
-  background: rgba(26, 158, 158, 0.06);
-}
-
 .hero h1 {
   font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-weight: 300;
+  letter-spacing: 0.05em;
   line-height: 1.05;
-  color: #fff;
+  color: var(--text-heading);
   margin-bottom: 20px;
 }
 
@@ -80,39 +65,12 @@
 
 .hero-sub {
   font-size: clamp(1rem, 2.5vw, 1.25rem);
-  color: var(--text-dim);
+  color: var(--text);
   font-weight: 300;
   max-width: 600px;
   margin: 0 auto 28px;
   line-height: 1.7;
 }
-
-.hero-platforms {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
-}
-
-
-.scroll-hint {
-  position: absolute;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  opacity: 0.3;
-  animation: float 2s ease-in-out infinite;
-}
-
-.scroll-hint svg { width: 24px; height: 24px; stroke: var(--text-dim); fill: none; stroke-width: 2; }
-
-@keyframes float {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(8px); }
-}
-
 
 /* ── Viz Grid ─────────────────────────────────────────── */
 
@@ -130,7 +88,7 @@
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border);
-  background: #060a10;
+  background: var(--bg);
   cursor: crosshair;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
@@ -153,15 +111,15 @@
   left: 0;
   right: 0;
   padding: 10px 14px;
-  background: linear-gradient(transparent, rgba(6,11,20,0.85));
+  background: linear-gradient(transparent, rgba(6,8,15,0.85));
   pointer-events: none;
   z-index: 2;
 }
 
 .viz-label h3 {
   font-size: 14px;
-  font-weight: 600;
-  color: #fff;
+  font-weight: 400;
+  color: var(--text-heading);
   margin-bottom: 2px;
 }
 
@@ -233,8 +191,8 @@
 
 .grain-card h4 {
   font-size: 0.9rem;
-  font-weight: 600;
-  color: #fff;
+  font-weight: 400;
+  color: var(--text-heading);
   margin-bottom: 8px;
 }
 
@@ -266,7 +224,7 @@
   border-radius: 4px;
   background: var(--accent-glow);
   color: var(--accent);
-  border: 1px solid rgba(74,144,184,0.2);
+  border: 1px solid rgba(74,144,209,0.2);
 }
 
 /* ── Modulation ───────────────────────────────────────── */
@@ -287,8 +245,8 @@
 
 .mod-card h4 {
   font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
+  font-weight: 400;
+  color: var(--text-heading);
   margin-bottom: 8px;
 }
 
@@ -307,37 +265,6 @@
   margin-bottom: 8px;
 }
 
-/* ── Interaction ──────────────────────────────────────── */
-
-.interact-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-top: 48px;
-}
-
-.interact-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-}
-
-.interact-item .action {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 6px;
-}
-
-.interact-item p {
-  font-size: 0.82rem;
-  color: var(--text-dim);
-  line-height: 1.5;
-}
-
 /* ── Specs ────────────────────────────────────────────── */
 
 .specs-grid {
@@ -352,7 +279,7 @@
 .spec-value {
   font-family: 'JetBrains Mono', monospace;
   font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 700;
+  font-weight: 400;
   background: linear-gradient(135deg, var(--accent), var(--teal));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -361,25 +288,6 @@
 }
 
 .spec-label { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
-
-/* ── CTA Section ──────────────────────────────────────── */
-
-.cta-section {
-  text-align: center;
-  padding: 120px 24px;
-  position: relative;
-}
-
-.cta-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, var(--accent-glow) 0%, transparent 60%);
-  pointer-events: none;
-}
-
-.cta-section .section-title { margin-bottom: 24px; }
-.cta-section .section-desc  { margin: 0 auto 40px; }
 
 /* ── Responsive (page-specific) ───────────────────────── */
 
@@ -395,15 +303,12 @@
   .mod-grid { grid-template-columns: 1fr; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .scroll-hint { animation: none; }
-}
 </style>
 </head>
 <body>
 
 <nav class="site-nav">
-  <a href="index.html" class="logo"><span>Otto Audio</span></a>
+  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio"></a>
   <div class="nav-links">
     <a href="streams-index.html" class="active">Streams</a>
     <a href="#">Habitat</a>
@@ -416,36 +321,25 @@
   <canvas class="hero-canvas" id="heroCanvas"></canvas>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-badge">Granular Synthesizer & Sampler</div>
     <h1><span>Streams</span></h1>
     <p class="hero-sub">
-      AI text-to-audio generation. Six visualization modes. 256 concurrent grains. Spectral droplets,
-      flocking murmurations, rising flames, golden spirals, blooming flora, and falling rain &mdash;
-      all driven by real-time audio.
+      Granular synthesizer with AI text-to-audio generation, six visualization modes,
+      and 256 concurrent grains. macOS, iPad, AU &amp; VST3.
     </p>
-    <div class="hero-platforms">
-      <span class="platform-badge">macOS Standalone</span>
-      <span class="platform-badge">AU / VST3</span>
-      <span class="platform-badge">iPad</span>
-    </div>
     <a href="https://github.com/mattperich/granular-synth" class="btn-primary">
       <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      View on GitHub
+      GitHub
     </a>
-  </div>
-  <div class="scroll-hint">
-    <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
 </div>
 
 <!-- ═══════ MODES ═══════ -->
 <section id="modes">
   <div class="reveal">
-    <div class="section-label">6 Visualization Modes</div>
-    <h2 class="section-title">Every sound has a shape</h2>
+    <div class="section-label">Visualization</div>
+    <h2 class="section-title">Six modes</h2>
     <p class="section-desc">
-      Each mode transforms your audio into a different particle system with unique physics.
-      Click any card to expand it &mdash; then drag to push droplets and double-click to create vortices.
+      Each mode renders audio as a different particle system. Click to expand, drag to interact.
     </p>
   </div>
   <div class="viz-grid reveal" id="vizGrid">
@@ -486,12 +380,10 @@
 <section id="generate">
   <div class="reveal">
     <div class="section-label">AI Generation</div>
-    <h2 class="section-title">Describe a sound. Hear it.</h2>
+    <h2 class="section-title">Text to audio</h2>
     <p class="section-desc">
-      Type a text prompt and Streams generates spectrally rich source material using a
-      diffusion model running locally on your device. Designed for granular synthesis and
-      resampling &mdash; not perfect reproduction, but endlessly interesting raw material
-      to mangle, layer, and transform.
+      Describe a sound and generate source material locally on-device via CoreML.
+      Output feeds directly into the granular engine.
     </p>
   </div>
   <div class="features reveal">
@@ -500,24 +392,23 @@
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
       </div>
       <h3>Text-to-Audio</h3>
-      <p>Describe what you want to hear &mdash; &ldquo;a drum beat&rdquo;, &ldquo;ethereal choir&rdquo;,
-         &ldquo;distorted bass&rdquo; &mdash; and the model generates ~12 seconds of stereo audio at 44.1kHz.</p>
+      <p>Describe what you want to hear and the model generates ~12 seconds of stereo audio at 44.1kHz.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="color: var(--accent);">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
       </div>
-      <h3>On-Device Inference</h3>
-      <p>Runs entirely on Apple Silicon via CoreML &mdash; no cloud, no internet, no latency.
+      <h3>On-Device</h3>
+      <p>Runs on Apple Silicon via CoreML. No cloud, no internet.
          8-step rectified flow sampling generates audio in seconds.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="color: var(--accent);">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       </div>
-      <h3>Granular Source Material</h3>
-      <p>Generated audio feeds directly into the granular engine. Use it as a starting point for
-         sound design &mdash; slice, scatter, and reshape with grains, effects, and modulation.</p>
+      <h3>Source Material</h3>
+      <p>Generated audio feeds directly into the granular engine for slicing, scattering,
+         and reshaping with effects and modulation.</p>
     </div>
   </div>
 </section>
@@ -526,10 +417,9 @@
 <section id="effects">
   <div class="reveal">
     <div class="section-label">Processing Chain</div>
-    <h2 class="section-title">Shape every texture</h2>
+    <h2 class="section-title">Signal chain</h2>
     <p class="section-desc">
-      Grains flow through a full signal chain: resonant strings, granular delay,
-      algorithmic reverb, and character shaping.
+      Resonant strings, granular delay, algorithmic reverb, and character shaping.
     </p>
   </div>
   <div class="features reveal">
@@ -538,32 +428,31 @@
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" stroke-dasharray="3 2"/><circle cx="12" cy="12" r="2"/></svg>
       </div>
       <h3>Algorithmic Reverb</h3>
-      <p>Multi-topology reverb with Dattorro plate, FDN, nested allpass, and velvet noise tanks.
-         18 presets from tight rooms to infinite voids, with simple controls for mix, decay, and size.</p>
+      <p>Dattorro plate, FDN, nested allpass, and velvet noise tanks.
+         18 presets with controls for mix, decay, and size.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon delay">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       </div>
       <h3>Granular Delay</h3>
-      <p>Three time ranges &mdash; flange, chorus, delay &mdash; with digital, analog, and tape
-         character modes. Hermite-interpolated sub-sample reads and feedback filtering.</p>
+      <p>Flange, chorus, and delay ranges with digital, analog, and tape character modes.
+         Hermite-interpolated reads and feedback filtering.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon resonator">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h2c1-4 3-8 7-8s6 4 7 8h2"/><path d="M5 12c1-3 3-6 7-6s6 3 7 6" opacity=".5"/></svg>
       </div>
       <h3>Resonator Bank</h3>
-      <p>Pluckable resonant strings with frequency-normalized biquad bandpass filters.
-         Scale-aware tuning, adjustable energy and damping, excited by audio or the sequencer.</p>
+      <p>Resonant strings with scale-aware tuning, adjustable energy and damping.
+         Excited by audio input or the step sequencer.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon character">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83"/></svg>
       </div>
       <h3>Character Compressor</h3>
-      <p>Drive, tone shaping, mid EQ, and output compression. Sits at the end of the signal chain
-         to give your granular textures warmth and presence.</p>
+      <p>Drive, tone shaping, mid EQ, and output compression at the end of the signal chain.</p>
     </div>
   </div>
 </section>
@@ -572,11 +461,10 @@
 <section id="grain-system">
   <div class="reveal">
     <div class="section-label">Granular Engine</div>
-    <h2 class="section-title">Every grain tells a story</h2>
+    <h2 class="section-title">Granular engine</h2>
     <p class="section-desc">
-      Composite grains pool multiple bandpass-filtered frequency components from nearby
-      spectral droplets into a single voice. The result: rich, evolving timbres that
-      respond to your interaction with the visualization.
+      Composite grains combine multiple bandpass-filtered components into a single voice.
+      Triggered, continuous, or sequenced.
     </p>
   </div>
   <div class="grain-demo reveal">
@@ -593,13 +481,12 @@
     <div style="display:flex;flex-direction:column;gap:16px;">
       <div class="grain-card">
         <h4>Triggered</h4>
-        <p>Click the stream to sample nearby spectral droplets into composite grains. Drag faster
-           for richer textures with up to 40 frequency components.</p>
+        <p>Click the stream to sample nearby particles into composite grains.
+           Drag velocity controls timbre richness.</p>
       </div>
       <div class="grain-card">
         <h4>Continuous</h4>
-        <p>Auto-spawn grains at a configurable rate. Position spread scatters spawn points across
-           the stream for evolving textural clouds.</p>
+        <p>Auto-spawn grains at a configurable rate with position spread across the stream.</p>
       </div>
       <div class="grain-card">
         <h4>MIDI &amp; Sequenced</h4>
@@ -614,57 +501,23 @@
 <section id="modulation">
   <div class="reveal">
     <div class="section-label">Modulation</div>
-    <h2 class="section-title">Animate everything</h2>
+    <h2 class="section-title">Modulation</h2>
     <p class="section-desc">
-      Route LFOs to any parameter &mdash; including other LFOs. Build complex, evolving
-      modulation networks or let the step sequencer drive rhythmic patterns.
+      Route LFOs to any parameter, including other LFOs. Step sequencer for rhythmic patterns.
     </p>
   </div>
   <div class="mod-grid reveal">
     <div class="mod-card">
       <div class="mod-label">LFO System</div>
       <h4>Multi-shape, multi-target</h4>
-      <p>Sine, triangle, square, saw, and sample-and-hold. Freely assign any LFO to any parameter
-         for complex animated textures. BPM-sync or free-running rates.</p>
+      <p>Sine, triangle, square, saw, sample-and-hold. Assign to any parameter.
+         BPM-sync or free-running.</p>
     </div>
     <div class="mod-card">
       <div class="mod-label">Step Sequencer</div>
       <h4>Rhythmic grain triggering</h4>
-      <p>Scale-aware note routing excites grains and resonator strings in musical patterns.
-         Sync to host tempo or run independently.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ INTERACTION ═══════ -->
-<section id="interaction">
-  <div class="reveal">
-    <div class="section-label">Touch &amp; Mouse</div>
-    <h2 class="section-title">Play the visualization</h2>
-    <p class="section-desc">
-      The stream is your instrument. Every gesture triggers audio and reshapes the particle system.
-    </p>
-  </div>
-  <div class="interact-grid reveal">
-    <div class="interact-item">
-      <div class="action">Click</div>
-      <p>Trigger a composite grain from nearby spectral droplets</p>
-    </div>
-    <div class="interact-item">
-      <div class="action">Drag</div>
-      <p>Push droplets and trigger grains along the path with velocity-enriched timbres</p>
-    </div>
-    <div class="interact-item">
-      <div class="action">Double-click</div>
-      <p>Create a spinning vortex that pulls and swirls nearby particles</p>
-    </div>
-    <div class="interact-item">
-      <div class="action">Scroll</div>
-      <p>Zoom the visualization in and out for different levels of detail</p>
-    </div>
-    <div class="interact-item">
-      <div class="action">Freeze</div>
-      <p>Hold space to freeze particles in place with spring-elastic physics</p>
+      <p>Scale-aware note routing for grains and resonator strings.
+         Syncs to host tempo.</p>
     </div>
   </div>
 </section>
@@ -672,38 +525,21 @@
 <!-- ═══════ SPECS ═══════ -->
 <section id="specs">
   <div class="reveal">
-    <h2 class="section-title">Built for real-time</h2>
+    <div class="section-label">Architecture</div>
+    <h2 class="section-title">Specs</h2>
     <p class="section-desc">
-      Lock-free audio architecture, parallel grain rendering via GCD,
-      and zero-copy ring buffer paths ensure glitch-free performance.
+      Lock-free audio, parallel grain rendering, zero-copy ring buffers.
     </p>
   </div>
   <div class="specs-grid reveal">
-    <div class="spec"><div class="spec-value">256</div><div class="spec-label">Max Simultaneous Grains</div></div>
-    <div class="spec"><div class="spec-value">&lt;5ms</div><div class="spec-label">Audio Latency</div></div>
-    <div class="spec"><div class="spec-value">AU/VST3/iPad</div><div class="spec-label">Platforms</div></div>
+    <div class="spec"><div class="spec-value">256</div><div class="spec-label">Simultaneous grains</div></div>
+    <div class="spec"><div class="spec-value">&lt;5ms</div><div class="spec-label">Latency</div></div>
     <div class="spec"><div class="spec-value">60fps</div><div class="spec-label">Visualization</div></div>
-    <div class="spec"><div class="spec-value">Text&rarr;Audio</div><div class="spec-label">AI Generation</div></div>
-  </div>
-</section>
-
-<!-- ═══════ CTA ═══════ -->
-<section class="cta-section">
-  <div class="reveal">
-    <h2 class="section-title">Start streaming</h2>
-    <p class="section-desc">
-      Streams is free and open source. Clone the repo, build with CMake, and start
-      transforming sound.
-    </p>
-    <a href="https://github.com/mattperich/granular-synth" class="btn-primary" style="position:relative">
-      <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      View on GitHub
-    </a>
   </div>
 </section>
 
 <footer class="site-footer">
-  <p>Streams Granular Synthesizer &mdash; Built by <a href="https://github.com/mattperich">Matt Perich</a> &middot; <a href="streams-tutorial.html">Tutorial</a></p>
+  <p>Otto Audio &mdash; <a href="https://github.com/mattperich">Matt Perich</a> &middot; <a href="streams-tutorial.html">Tutorial</a></p>
 </footer>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -716,7 +552,7 @@
 
 // ── 4-stop colormap: orange → amber → teal → blue ──
 const CMAP = new Uint8Array(256 * 3);
-const CMAP_STOPS = [{t:0,c:[200,130,60]},{t:0.3,c:[184,144,64]},{t:0.6,c:[26,158,158]},{t:1,c:[74,144,184]}];
+const CMAP_STOPS = [{t:0,c:[200,130,60]},{t:0.3,c:[184,144,64]},{t:0.6,c:[26,158,158]},{t:1,c:[74,144,209]}];
 for (let i = 0; i < 256; i++) {
   const t = i / 255;
   let idx = 0;
@@ -1551,7 +1387,7 @@ function createVizSim(canvas, mode, options) {
   function render() {
     if (!W || !H) return;
     const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#060a10'); grad.addColorStop(1, '#0a1220');
+    grad.addColorStop(0, '#06080f'); grad.addColorStop(1, '#0a0c14');
     ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
 
     // Flora: draw tree behind droplets
@@ -1898,14 +1734,14 @@ function createVizSim(canvas, mode, options) {
       const v = Math.sin(n*30+phase)*0.3 + Math.sin(n*70+phase*1.7)*0.15 + Math.sin(n*12+phase*0.4)*0.4;
       if (x === 0) ctx.moveTo(x, mid+v*mid*0.8); else ctx.lineTo(x, mid+v*mid*0.8);
     }
-    ctx.strokeStyle = 'rgba(74,144,184,0.35)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.strokeStyle = 'rgba(74,144,209,0.35)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.beginPath();
     for (let x = 0; x < W; x++) {
       const n = x / W;
       const v = Math.sin(n*30+phase)*0.3 + Math.sin(n*70+phase*1.7)*0.15 + Math.sin(n*12+phase*0.4)*0.4;
       if (x === 0) ctx.moveTo(x, mid-v*mid*0.8); else ctx.lineTo(x, mid-v*mid*0.8);
     }
-    ctx.strokeStyle = 'rgba(74,144,184,0.2)'; ctx.stroke();
+    ctx.strokeStyle = 'rgba(74,144,209,0.2)'; ctx.stroke();
 
     const whX = W * 0.82;
     ctx.beginPath(); ctx.moveTo(whX, 0); ctx.lineTo(whX, H);

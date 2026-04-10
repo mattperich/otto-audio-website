@@ -11,6 +11,19 @@
 <link rel="stylesheet" href="shared.css">
 <style>
 
+/* ── App palette overrides (match actual Streams app) ─── */
+/* The website uses neutral grays, but the app UI is      */
+/* blue-tinted — override for in-app elements.            */
+
+:root {
+  --app-surface:    #080b14;
+  --app-surface2:   #0a0e18;
+  --app-border:     #1b3050;
+  --app-text:       #b8cfe0;
+  --app-text-dim:   #3d607a;
+  --app-text-bright:#e8f4ff;
+}
+
 /* ── Fixed immersive canvas background ────────────────── */
 
 #vizLayer {
@@ -37,32 +50,28 @@
   align-items: center;
   gap: 20px;
   padding: 10px 16px 10px 58px;
-  background: linear-gradient(to bottom, rgba(6,11,20,0.85), rgba(6,11,20,0));
+  background: linear-gradient(to bottom, rgba(6,8,15,0.85), rgba(6,8,15,0));
   pointer-events: auto;
 }
 
 #topNav .logo {
-  font-weight: 700;
-  font-size: 14px;
-  color: #fff;
-  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
   text-decoration: none;
   margin-right: auto;
 }
-#topNav .logo span {
-  background: linear-gradient(135deg, var(--accent), var(--teal));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+#topNav .logo img {
+  height: 24px;
+  width: auto;
 }
 
 #topNav a {
   font-size: 12px;
-  color: var(--text-dim);
+  color: var(--app-text-dim);
   text-decoration: none;
   transition: color 0.2s;
 }
-#topNav a:hover { color: var(--text); }
+#topNav a:hover { color: var(--app-text); }
 
 /* ── Fixed left nav strip (replica of plugin UI) ──────── */
 
@@ -87,9 +96,9 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--border);
+  border: 1px solid var(--app-border);
   background: rgba(13,20,36,0.7);
-  color: var(--text-dim);
+  color: var(--app-text-dim);
   font-family: 'JetBrains Mono', monospace;
   font-size: 8px;
   font-weight: 700;
@@ -102,7 +111,7 @@
   transition: all 0.4s;
 }
 
-.nav-btn:hover { border-color: var(--accent); color: var(--text); background: rgba(74,144,184,0.08); }
+.nav-btn:hover { border-color: var(--accent); color: var(--app-text); background: rgba(74,144,209,0.08); }
 .nav-btn.orange:hover { border-color: rgba(200,134,74,0.5); color: rgba(200,134,74,0.7); }
 .nav-btn.teal:hover   { border-color: rgba(26,158,158,0.5);  color: rgba(26,158,158,0.7); }
 .nav-btn.amber:hover  { border-color: rgba(184,144,64,0.5);  color: rgba(184,144,64,0.7); }
@@ -116,8 +125,8 @@
 .nav-btn.active {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(74,144,184,0.15);
-  box-shadow: 0 0 12px rgba(74,144,184,0.2);
+  background: rgba(74,144,209,0.15);
+  box-shadow: 0 0 12px rgba(74,144,209,0.2);
 }
 .nav-btn.orange.active { border-color: var(--warm); color: var(--warm); background: var(--warm-glow); box-shadow: 0 0 12px rgba(200,134,74,0.2); }
 .nav-btn.teal.active   { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); box-shadow: 0 0 12px rgba(26,158,158,0.2); }
@@ -130,10 +139,10 @@
   position: fixed;
   left: 56px;
   z-index: 61;
-  background: rgba(6,11,20,0.92);
+  background: rgba(8,11,20,0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
+  border: 1px solid var(--app-border);
   border-radius: 8px;
   padding: 14px 16px;
   width: 240px;
@@ -172,15 +181,15 @@
 
 #descOverlay h3 {
   font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
+  font-weight: 500;
+  color: var(--app-text-bright);
   margin-bottom: 4px;
   line-height: 1.3;
 }
 
 #descOverlay p {
   font-size: 0.8rem;
-  color: var(--text-dim);
+  color: var(--app-text);
   line-height: 1.5;
   margin: 0;
 }
@@ -191,10 +200,10 @@
   position: fixed;
   left: 56px;
   z-index: 60;
-  background: var(--bg);
+  background: var(--app-surface);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
+  border: 1px solid var(--app-border);
   border-radius: 8px;
   padding: 14px 16px;
   width: 240px;
@@ -206,14 +215,14 @@
   transition: opacity 0.4s, transform 0.4s;
   pointer-events: none;
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--app-border) transparent;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 #floatPanel::-webkit-scrollbar { width: 4px; }
-#floatPanel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+#floatPanel::-webkit-scrollbar-thumb { background: var(--app-border); border-radius: 2px; }
 
 #floatPanel.visible {
   opacity: 1;
@@ -262,15 +271,15 @@
   appearance: none;
   width: calc(100% - 6px);
   margin: 0 3px;
-  height: 4px;
+  height: 3px;
   border-radius: 2px;
   outline: none;
-  cursor: default;
+  cursor: pointer;
   background: linear-gradient(to right,
-    var(--accent) 0%,
-    var(--accent) var(--fill, 50%),
-    var(--border) var(--fill, 50%),
-    var(--border) 100%);
+    var(--slider-accent, var(--accent)) 0%,
+    var(--slider-accent, var(--accent)) var(--fill, 50%),
+    var(--app-border) var(--fill, 50%),
+    var(--app-border) 100%);
 }
 
 #floatPanel input[type=range]::-webkit-slider-thumb {
@@ -279,9 +288,14 @@
   height: 9px;
   border-radius: 50%;
   background: #b8cfe0;
-  box-shadow: 0 0 0 2px var(--accent), 0 0 8px rgba(74,144,184,0.18);
-  cursor: default;
+  box-shadow: 0 0 0 2px var(--slider-accent, var(--accent)), 0 0 8px var(--slider-glow, rgba(74,144,209,0.18));
+  cursor: pointer;
   transition: transform .1s, box-shadow .15s;
+}
+
+#floatPanel input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 2px var(--slider-accent, var(--accent)), 0 0 14px var(--slider-glow, rgba(74,144,209,0.25));
 }
 
 #floatPanel input[type=range]::-moz-range-thumb {
@@ -290,28 +304,27 @@
   border: none;
   border-radius: 50%;
   background: #b8cfe0;
-  box-shadow: 0 0 0 2px var(--accent);
-  cursor: default;
+  box-shadow: 0 0 0 2px var(--slider-accent, var(--accent));
+  cursor: pointer;
 }
 
 /* Toggle button (exact plugin .toggle-btn) */
 .toggle-btn {
-  display: inline-block;
   padding: 3px 10px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--app-border);
   border-radius: 3px;
-  background: var(--surface2);
-  color: var(--text-dim);
+  background: var(--app-surface2);
+  color: var(--app-text-dim);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .12em;
-  cursor: default;
+  cursor: pointer;
   transition: all .15s;
   font-family: inherit;
 }
 
 .toggle-btn.active {
-  background: rgba(74,144,184,.15);
+  background: rgba(74,144,209,.15);
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -330,7 +343,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(74,144,184,0.08);
+  background: rgba(74,144,209,0.08);
 }
 
 .subsection-label {
@@ -350,23 +363,220 @@
   margin: 2px 0;
 }
 
+.seg-row {
+  display: flex;
+  gap: 2px;
+}
+
 .seg-btn {
-  padding: 3px 10px;
-  font-family: 'JetBrains Mono', monospace;
+  flex: 1;
+  padding: 3px 0;
+  font-family: inherit;
   font-size: 9px;
-  font-weight: 600;
-  border: 1px solid var(--border);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  border: 1px solid var(--app-border);
   border-radius: 3px;
-  background: var(--surface2);
-  color: var(--text-dim);
-  cursor: default;
-  transition: all .15s;
+  background: var(--app-surface2);
+  color: var(--app-text-dim);
+  cursor: pointer;
+  transition: background .15s, color .15s;
 }
 
 .seg-btn.active {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(74,144,184,0.08);
+  background: rgba(74,144,209,0.15);
+}
+
+/* ── Select dropdown (exact plugin .param-select) ──────── */
+
+.param-select {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  padding: 6px 28px 6px 10px;
+  background-color: var(--app-surface2);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%233d607a'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  color: var(--app-text);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.param-select.small {
+  padding: 3px 20px 3px 8px;
+  font-size: 10px;
+  border-radius: 3px;
+  background-position: right 7px center;
+  width: auto;
+  min-width: 44px;
+}
+
+.param-select option { background: #111c30; color: var(--app-text); }
+
+/* ── Action button (exact plugin .sample-btn) ──────────── */
+
+.sample-btn {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  padding: 3px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+.sample-btn.active {
+  background: rgba(100, 160, 255, 0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sample-btn.clear { font-weight: 400; }
+
+/* ── Preset buttons (exact plugin .preset-btn) ─────────── */
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.preset-btn {
+  padding: 4px 9px;
+  border: 1px solid var(--app-border);
+  border-radius: 3px;
+  background: var(--app-surface2);
+  color: var(--app-text-dim);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: inherit;
+}
+
+.preset-btn.active {
+  background: rgba(74,144,209,.12);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── LFO block (exact plugin structure) ────────────────── */
+
+.lfo-block {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--app-border);
+  border-radius: 5px;
+  padding: 10px 10px 8px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lfo-block-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #b89040;
+  opacity: 0.6;
+}
+
+.lfo-top-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lfo-top-row .param-select {
+  flex: 1;
+  padding: 3px 20px 3px 8px;
+  font-size: 10px;
+  border-radius: 3px;
+  background-position: right 7px center;
+}
+
+.lfo-dest-btn {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border: 1px dashed var(--app-border);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--app-text-dim);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.lfo-dest-btn.assigned {
+  border-style: solid;
+  border-color: rgba(184,144,64,0.3);
+  color: #b89040;
+}
+
+/* ── Sequencer mode group (exact plugin structure) ──────── */
+
+.seq-mode-group {
+  display: inline-flex;
+  gap: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(200,70,70,.3);
+}
+
+.seq-mode-btn {
+  padding: 3px 8px;
+  font-size: 10px;
+  background: transparent;
+  color: #8aa;
+  border: none;
+  border-right: 1px solid rgba(200,70,70,.15);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.seq-mode-btn:last-child { border-right: none; }
+
+.seq-mode-btn.active {
+  background: rgba(200,70,70,.15);
+  color: #c84646;
+}
+
+/* ── Waveform placeholder ──────────────────────────────── */
+
+.waveform-placeholder {
+  position: relative;
+  width: 100%;
+  height: 48px;
+  border: 1px solid rgba(27,48,80,0.4);
+  border-radius: 3px;
+  background: #060a10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0;
+}
+
+.waveform-placeholder span {
+  font-size: 9px;
+  color: var(--app-text-dim);
+  letter-spacing: .06em;
 }
 
 /* Panel hint */
@@ -384,52 +594,45 @@
 /* ── Section color overrides (exact plugin V2 rules) ─── */
 
 /* Orange (Grain) */
+.panel-orange { --slider-accent: #c8864a; --slider-glow: rgba(200,134,74,.22); }
 .panel-orange .param-label { color: #c8864a; }
 .panel-orange .param-value { color: #c8864a; opacity: 0.7; }
 .panel-orange .subsection-label { color: #c8864a; }
 .panel-orange .subsection-divider::after { background: rgba(200,134,74,.1); }
-.panel-orange .toggle-btn.active { background: rgba(200,134,74,.1); border-color: #c8864a; color: #c8864a; }
+.panel-orange .toggle-btn.active { background: rgba(200,134,74,.15); border-color: #c8864a; color: #c8864a; }
 .panel-orange .seg-btn.active { border-color: #c8864a; color: #c8864a; background: rgba(200,134,74,0.08); }
-.panel-orange input[type=range] {
-  background: linear-gradient(to right, #c8864a 0%, #c8864a var(--fill,50%), var(--border) var(--fill,50%), var(--border) 100%);
-}
-.panel-orange input[type=range]::-webkit-slider-thumb { box-shadow: 0 0 0 2px #c8864a, 0 0 8px rgba(200,134,74,.22); }
+.panel-orange .sample-btn.active { background: rgba(200,134,74,.15); border-color: #c8864a; color: #c8864a; }
+.panel-orange .preset-btn.active { background: rgba(200,134,74,.12); border-color: #c8864a; color: #c8864a; }
 
 /* Teal (Stream, Resonator, Delay) */
+.panel-teal { --slider-accent: #1a9e9e; --slider-glow: rgba(26,158,158,.18); }
 .panel-teal .param-label { color: #1a9e9e; }
 .panel-teal .param-value { color: #1a9e9e; opacity: 0.7; }
 .panel-teal .subsection-label { color: #1a9e9e; }
 .panel-teal .subsection-divider::after { background: rgba(26,158,158,.08); }
-.panel-teal .toggle-btn.active { border-color: #1a9e9e; color: #1a9e9e; background: rgba(26,158,158,.08); }
-.panel-teal .seg-btn.active { border-color: #1a9e9e; color: #1a9e9e; background: rgba(26,158,158,.08); }
-.panel-teal input[type=range] {
-  background: linear-gradient(to right, #1a9e9e 0%, #1a9e9e var(--fill,50%), var(--border) var(--fill,50%), var(--border) 100%);
-}
-.panel-teal input[type=range]::-webkit-slider-thumb { box-shadow: 0 0 0 2px #1a9e9e, 0 0 8px rgba(26,158,158,.18); }
+.panel-teal .toggle-btn.active { border-color: #1a9e9e; color: #1a9e9e; background: rgba(26,158,158,.12); }
+.panel-teal .seg-btn.active { border-color: #1a9e9e; color: #1a9e9e; background: rgba(26,158,158,.12); }
+.panel-teal .sample-btn.active { background: rgba(26,158,158,.12); border-color: #1a9e9e; color: #1a9e9e; }
 
 /* Amber (Modulation) */
+.panel-amber { --slider-accent: #b89040; --slider-glow: rgba(184,144,64,.25); }
 .panel-amber .param-label { color: #b89040; }
 .panel-amber .param-value { color: #b89040; opacity: 0.7; }
 .panel-amber .subsection-label { color: #b89040; }
 .panel-amber .subsection-divider::after { background: rgba(184,144,64,.08); }
 .panel-amber .toggle-btn.active { border-color: #b89040; color: #b89040; background: rgba(184,144,64,.08); }
 .panel-amber .seg-btn.active { border-color: #b89040; color: #b89040; background: rgba(184,144,64,.08); }
-.panel-amber input[type=range] {
-  background: linear-gradient(to right, #b89040 0%, #b89040 var(--fill,50%), var(--border) var(--fill,50%), var(--border) 100%);
-}
-.panel-amber input[type=range]::-webkit-slider-thumb { box-shadow: 0 0 0 2px #b89040, 0 0 8px rgba(184,144,64,.25); }
+.panel-amber .sample-btn.active { background: rgba(184,144,64,.12); border-color: #b89040; color: #b89040; }
 
 /* Red (Sequencer) */
+.panel-red { --slider-accent: #c84646; --slider-glow: rgba(200,70,70,.25); }
 .panel-red .param-label { color: #c84646; }
 .panel-red .param-value { color: #c84646; opacity: 0.7; }
 .panel-red .subsection-label { color: #c84646; }
 .panel-red .subsection-divider::after { background: rgba(200,70,70,.08); }
 .panel-red .toggle-btn.active { border-color: #c84646; color: #c84646; background: rgba(200,70,70,.08); }
 .panel-red .seg-btn.active { border-color: #c84646; color: #c84646; background: rgba(200,70,70,.08); }
-.panel-red input[type=range] {
-  background: linear-gradient(to right, #c84646 0%, #c84646 var(--fill,50%), var(--border) var(--fill,50%), var(--border) 100%);
-}
-.panel-red input[type=range]::-webkit-slider-thumb { box-shadow: 0 0 0 2px #c84646, 0 0 8px rgba(200,70,70,.25); }
+.panel-red .sample-btn.active { background: rgba(200,70,70,.12); border-color: #c84646; color: #c84646; }
 
 /* ── Mode selector (inside STR panel) ─────────────────── */
 
@@ -445,10 +648,10 @@
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   font-weight: 600;
-  border: 1px solid var(--border);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
-  background: var(--surface2);
-  color: var(--text-dim);
+  background: var(--app-surface2);
+  color: var(--app-text-dim);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -488,9 +691,9 @@
 
 #introOverlay h1 {
   font-size: clamp(1.8rem, 4vw, 2.6rem);
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.02em;
+  font-weight: 300;
+  color: var(--app-text-bright);
+  letter-spacing: 0.05em;
   margin-bottom: 14px;
   line-height: 1.15;
 }
@@ -504,7 +707,7 @@
 
 #introOverlay p {
   font-size: 1rem;
-  color: var(--text-dim);
+  color: var(--app-text);
   line-height: 1.7;
   font-weight: 300;
   margin-bottom: 20px;
@@ -513,7 +716,7 @@
 #introOverlay .scroll-cue {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--text-dim);
+  color: var(--app-text-dim);
   opacity: 0.5;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -533,7 +736,7 @@
   z-index: 40;
   text-align: center;
   padding: 30px 24px 24px;
-  background: linear-gradient(transparent, rgba(6,11,20,0.95));
+  background: linear-gradient(transparent, rgba(6,8,15,0.95));
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.5s, transform 0.5s;
@@ -566,7 +769,7 @@
 
 #ctaFooter .cta-note {
   font-size: 0.75rem;
-  color: var(--text-dim);
+  color: var(--app-text-dim);
   margin-top: 10px;
 }
 
@@ -587,7 +790,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--border);
+  background: var(--app-border);
   transition: background 0.3s, transform 0.2s;
 }
 .step-dot.active { background: var(--accent); transform: scale(1.4); }
@@ -603,9 +806,9 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1px solid var(--border);
+  border: 1px solid var(--app-border);
   background: rgba(13,20,36,0.7);
-  color: var(--text-dim);
+  color: var(--app-text-dim);
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   font-weight: 700;
@@ -618,13 +821,13 @@
   padding: 0;
 }
 
-.tool-btn:hover { border-color: var(--accent); color: var(--text); background: rgba(74,144,184,0.08); }
+.tool-btn:hover { border-color: var(--accent); color: var(--app-text); background: rgba(74,144,209,0.08); }
 
 .tool-btn.active {
   border-color: var(--accent);
   color: var(--accent);
-  background: rgba(74,144,184,0.15);
-  box-shadow: 0 0 12px rgba(74,144,184,0.2);
+  background: rgba(74,144,209,0.15);
+  box-shadow: 0 0 12px rgba(74,144,209,0.2);
 }
 
 .tool-btn.gear { font-size: 15px; line-height: 1; }
@@ -661,9 +864,9 @@
   align-items: center;
   gap: 3px;
   padding: 6px 4px 5px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--app-border);
   border-radius: 4px;
-  background: var(--surface2);
+  background: var(--app-surface2);
   cursor: default;
 }
 
@@ -676,7 +879,7 @@
 .tut-win-btn span {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
-  color: var(--text-dim);
+  color: var(--app-text-dim);
 }
 
 .tut-win-btn.active {
@@ -699,7 +902,7 @@
 .tut-lfo-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
-  color: var(--text-dim);
+  color: var(--app-text-dim);
   margin-bottom: 3px;
 }
 
@@ -707,8 +910,9 @@
   width: 100%;
   height: 32px;
   display: block;
+  border: 1px solid var(--app-border);
   border-radius: 3px;
-  background: rgba(6,8,15,0.85);
+  background: rgba(0,0,0,0.3);
 }
 
 /* ── Piano keyboard (Scale panel) ────────────────────── */
@@ -738,13 +942,13 @@
 .tut-piano .w-key span {
   font-size: 8px;
   font-family: 'JetBrains Mono', monospace;
-  color: var(--text-dim);
+  color: var(--app-text-dim);
   pointer-events: none;
 }
 
 .tut-piano .w-key.active {
-  background: rgba(74,144,184,0.22);
-  border-color: rgba(74,144,184,0.5);
+  background: rgba(74,144,209,0.22);
+  border-color: rgba(74,144,209,0.5);
 }
 
 .tut-piano .w-key.active span { color: var(--accent); }
@@ -768,8 +972,8 @@
 }
 
 .tut-piano .b-key.active {
-  background: rgba(74,144,184,0.35);
-  border-color: rgba(74,144,184,0.6);
+  background: rgba(74,144,209,0.35);
+  border-color: rgba(74,144,209,0.6);
 }
 
 .tut-piano .b-key.off {
@@ -787,7 +991,7 @@
 
 <!-- ═══════ TOP NAV ═══════ -->
 <nav id="topNav">
-  <a href="index.html" class="logo"><span>Otto Audio</span></a>
+  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio" style="height:24px;width:auto"></a>
   <a href="streams-index.html">Streams</a>
   <a href="#">Habitat</a>
   <a href="#">OttoVerb</a>
@@ -796,7 +1000,7 @@
 <!-- ═══════ LEFT NAV STRIP ═══════ -->
 <div id="navStrip">
   <div class="nav-btn" data-step="input">IN</div>
-  <div class="nav-btn" data-step="generate" style="color:#4a90b8">GEN</div>
+  <div class="nav-btn" data-step="generate" style="color:#4a90d1">GEN</div>
   <div class="nav-btn" data-step="tempo">BPM</div>
   <div class="nav-btn" data-step="scale">KEY</div>
   <div class="nav-btn orange" data-step="grain">GRN</div>
@@ -872,7 +1076,7 @@
 // ══════════════════════════════════════════════════════════
 
 const CMAP = new Uint8Array(256 * 3);
-const CMAP_STOPS = [{t:0,c:[200,130,60]},{t:0.3,c:[184,144,64]},{t:0.6,c:[26,158,158]},{t:1,c:[74,144,184]}];
+const CMAP_STOPS = [{t:0,c:[200,130,60]},{t:0.3,c:[184,144,64]},{t:0.6,c:[26,158,158]},{t:1,c:[74,144,209]}];
 for (let i = 0; i < 256; i++) {
   const t = i / 255; let idx = 0;
   for (let j = 1; j < CMAP_STOPS.length; j++) { if (t >= CMAP_STOPS[j].t) idx = j; }
@@ -1452,6 +1656,9 @@ function createVizSim(canvas,mode,opts){
   }
   function D(label) { return `<div class="subsection-divider"><span class="subsection-label">${label}</span></div>`; }
   function T(label, on) { return `<span class="toggle-btn${on ? ' active' : ''}">${label}</span>`; }
+  function S(opts, sel) { return `<select class="param-select">${opts.map((o,i) => `<option${i===sel?' selected':''}>${o}</option>`).join('')}</select>`; }
+  function R(btns, act) { return `<div class="seg-row">${btns.map((b,i) => { const label = Array.isArray(b) ? b[0] : b; const attr = Array.isArray(b) ? ` data-vizmode="${b[1]}"` : ''; return `<button class="seg-btn${i===act?' active':''}"${attr}>${label}</button>`; }).join('')}</div>`; }
+  function B(label, active, cls) { return `<button class="sample-btn${active?' active':''}${cls?' '+cls:''}">${label}</button>`; }
 
   // ── Panel content per step (desc = description overlay, html = V2 param panel) ──
   const STEPS = {
@@ -1459,69 +1666,74 @@ function createVizSim(canvas,mode,opts){
       title: 'Input', tagClass: '', borderClass: '', panelClass: '',
       desc: `<h3>Feed the stream</h3><p>Stream live audio or load a sample. Incoming audio fills a 30-second ring buffer &mdash; your raw material for granular processing.</p>`,
       html: `${P('Input Gain','1.0x',50)}
-        ${P('Blend','Mic 100%',100)}
+        ${P('Playback Blend','audio in',0)}
         ${D('Sampler')}
-        ${T('RECORD',false)} ${T('LOAD',false)} ${T('CLEAR',false)}
+        <div style="display:flex;gap:4px;align-items:center">
+          ${B('Record',false)} <span class="param-label" style="font-size:9px;opacity:.5">Source</span>
+          <select class="param-select small" style="flex:0 0 auto"><option selected>Input</option><option>Grains</option><option>Output</option></select>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:4px">
+          ${B('Load',false)} ${B('Clear',false,'clear')}
+        </div>
+        <div style="margin-top:4px">${B('Generate',false)}</div>
+        <div class="waveform-placeholder"><span>No sample</span></div>
+        ${P('Sample Gain','0 dB',50)}
+        ${P('Sample Blend','grains',0)}
         ${D('Filter')}
-        ${P('High Pass','20 Hz',0)}
-        ${P('Low Pass','20 kHz',100)}`
+        ${P('High Pass','Off',0)}
+        ${P('Low Pass','Off',100)}`
     },
     sampler: {
       title: 'Input', tagClass: '', borderClass: '', panelClass: '',
       navStep: 'input',
-      desc: `<h3>Resample your own output</h3><p>The built-in sampler can record directly from the granular engine's output &mdash; capture a texture you like, then feed it back in for further mangling. Layer, mutate, and evolve sounds endlessly.</p>`,
+      desc: `<h3>Resample your own output</h3><p>The built-in sampler can record directly from the granular engine's output &mdash; capture a texture you like, then feed it back in for further mangling.</p>`,
       html: `${D('Sampler')}
-        <div style="display:flex;gap:4px;flex-wrap:wrap">
-          ${T('RECORD',true)} ${T('LOAD',false)} ${T('CLEAR',false)}
+        <div style="display:flex;gap:4px;align-items:center">
+          ${B('Record',true)} <span class="param-label" style="font-size:9px;opacity:.5">Source</span>
+          <select class="param-select small" style="flex:0 0 auto"><option>Input</option><option selected>Output</option></select>
         </div>
         ${P('Sample Gain','0 dB',75)}
-        <div class="seg-btn-group" style="margin-top:4px">
-          <span class="seg-btn">Input</span>
-          <span class="seg-btn active">Output</span>
-        </div>
-        <div class="panel-hint" style="color:var(--accent);background:rgba(74,144,184,0.06);border-color:rgba(74,144,184,0.12)">Record from Output to resample your granular textures into the buffer for re-granulation</div>`
+        ${P('Sample Blend','output',100)}
+        <div class="panel-hint" style="color:var(--accent);background:rgba(74,144,209,0.06);border-color:rgba(74,144,209,0.12)">Record from Output to resample your granular textures into the buffer for re-granulation</div>`
     },
     generate: {
       title: 'Generate', tagClass: '', borderClass: '', panelClass: '',
       navStep: 'generate',
-      desc: `<h3>Describe a sound. Hear it.</h3><p>Type a text prompt and Streams generates spectrally rich source material using an AI diffusion model running locally on your device. Designed for granular synthesis &mdash; not perfect reproduction, but endlessly interesting raw material to slice, scatter, and transform.</p>`,
+      desc: `<h3>Describe a sound. Hear it.</h3><p>Type a text prompt and Streams generates source material using an AI diffusion model running locally on your device.</p>`,
       html: `${D('AI Generate')}
-        <div style="background:rgba(74,144,184,0.06);border:1px solid rgba(74,144,184,0.15);border-radius:4px;padding:6px 8px;margin-bottom:6px">
-          <div style="font-size:10px;color:var(--text-dim);margin-bottom:4px">Prompt</div>
+        <div style="background:rgba(74,144,209,0.06);border:1px solid rgba(74,144,209,0.15);border-radius:4px;padding:6px 8px;margin-bottom:6px">
+          <div style="font-size:10px;color:var(--app-text-dim);margin-bottom:4px">Prompt</div>
           <div style="font-size:11px;color:var(--accent)">a drum beat</div>
         </div>
         <div style="display:flex;gap:4px">
-          ${T('GENERATE',true)} ${T('CANCEL',false)}
+          ${B('Generate',true)} ${B('Cancel',false)}
         </div>
-        <div class="panel-hint" style="color:var(--accent);background:rgba(74,144,184,0.06);border-color:rgba(74,144,184,0.12)">Short, descriptive prompts work best. Generated audio feeds directly into the granular engine as source material.</div>`
+        <div class="panel-hint" style="color:var(--accent);background:rgba(74,144,209,0.06);border-color:rgba(74,144,209,0.12)">Short, descriptive prompts work best. Generated audio feeds directly into the granular engine as source material.</div>`
     },
     tempo: {
       title: 'Tempo', tagClass: '', borderClass: '', panelClass: '',
-      desc: `<h3>Lock to the beat</h3><p>Set the BPM for tempo-synced grain triggering, LFO rates, and delay times. Tap tempo or sync to your DAW's host clock.</p>`,
-      html: `${P('Tempo','120 bpm',50)}
-        <div class="seg-btn-group">${T('MIDI CLK',false)} ${T('HOST SYNC',true)}</div>
-        ${D('Division')}
-        <div class="seg-btn-group">
-          <span class="seg-btn">1</span>
-          <span class="seg-btn">1/2</span>
-          <span class="seg-btn active">1/4</span>
-          <span class="seg-btn">1/8</span>
-          <span class="seg-btn">1/16</span>
+      desc: `<h3>Lock to the beat</h3><p>Set the BPM for tempo-synced grain triggering, LFO rates, and delay times. Sync to your DAW's host clock.</p>`,
+      html: `${P('BPM','120',33)}
+        <div style="display:flex;gap:4px;align-items:center;margin-top:4px">
+          ${B('Sync',false)}
+          <select class="param-select small"><option>1</option><option>1/2</option><option selected>1/4</option><option>1/8</option><option>1/16</option></select>
+          ${B('MIDI',false)}
+          <select class="param-select small"><option>1/4</option><option>1/8</option><option selected>1/16</option><option>1/32</option></select>
         </div>`
     },
     scale: {
       title: 'Scale', tagClass: '', borderClass: '', panelClass: '',
       desc: `<h3>Stay in key</h3><p>Constrain the resonator bank and step sequencer to musical intervals. Grains and plucked strings follow your harmonic palette.</p>`,
-      html: `${T('SCALE LOCK',true)}
+      html: `<div style="margin-bottom:6px">${T('SCALE LOCK',true)}</div>
         ${P('Root / Tune','C',50)}
-        <div class="seg-btn-group" style="margin-top:6px">
-          <span class="seg-btn">Chrom</span>
-          <span class="seg-btn">Major</span>
-          <span class="seg-btn active">Minor</span>
-          <span class="seg-btn">Penta</span>
-          <span class="seg-btn">Blues</span>
-          <span class="seg-btn">Dorian</span>
-          <span class="seg-btn">Lydian</span>
+        <div class="presets" style="margin-top:6px">
+          <button class="preset-btn">Chromatic</button>
+          <button class="preset-btn">Major</button>
+          <button class="preset-btn active">Minor</button>
+          <button class="preset-btn">Pentatonic</button>
+          <button class="preset-btn">Blues</button>
+          <button class="preset-btn">Dorian</button>
+          <button class="preset-btn">Lydian</button>
         </div>
         <div class="tut-piano">
           <div class="w-key active" style="left:0%;width:14.28%"><span>C</span></div>
@@ -1541,12 +1753,14 @@ function createVizSim(canvas,mode,opts){
     grain: {
       title: 'Grain', tagClass: 'orange', borderClass: 'border-orange', panelClass: 'panel-orange',
       desc: `<h3>Shape every grain</h3><p>Up to 256 concurrent grains with per-grain pitch shifting, stereo spread, and custom envelope windows.</p>`,
-      html: `<div style="display:flex;gap:6px;margin-bottom:4px">${T('CONTINUOUS',true)} ${T('MAX',false)}</div>
+      html: `<div style="display:flex;gap:6px;margin-bottom:6px">${T('CONTINUOUS',true)}</div>
+        ${P('Max Grains','128',50)}
         ${P('Grain Size','60 ms',30)}
         ${P('Density','12 /s',48)}
-        ${P('Spatial Spread','200 ms',40)}
-        ${P('Temporal Spread','50 ms',20)}
+        ${P('Spatial Spread','200 ms',10)}
+        ${P('Temporal Spread','50 ms',3)}
         ${P('Stereo','0.60',60)}
+        ${P('Direction','0.00',0)}
         ${D('Pitch')}
         ${P('Pitch','1.0x',50)}
         ${P('Pitch Spread','0.00',0)}
@@ -1558,146 +1772,146 @@ function createVizSim(canvas,mode,opts){
           <div class="tut-win-btn"><canvas id="tut-preview-envelope"></canvas><span>Envelope</span></div>
           <div class="tut-win-btn full-width active"><canvas id="tut-preview-custom"></canvas><span>Custom</span></div>
         </div>
-        <div style="margin-top:2px">${T('ANTI-CLICK',true)}</div>`
+        <div style="margin-top:4px">${T('ANTI-CLICK',true)}</div>`
     },
     stream: {
       title: 'Stream', tagClass: 'teal', borderClass: 'border-teal', panelClass: 'panel-teal',
       desc: `<h3>Choose a visualization</h3><p>Six modes transform your audio into different particle systems. Click a mode to switch, then drag on the stream or double-click for vortices.</p>`,
       html: `${D('Stream')}
-        <div class="mode-btns">
-          <button class="mode-btn active" data-mode="flow">Flow</button>
-          <button class="mode-btn" data-mode="flock">Flock</button>
-          <button class="mode-btn" data-mode="flame">Flame</button>
-          <button class="mode-btn" data-mode="fractal">Fractal</button>
-          <button class="mode-btn" data-mode="flora">Flora</button>
-          <button class="mode-btn" data-mode="flood">Flood</button>
+        <div style="margin-bottom:4px">
+          ${R([['Flow','flow'],['Flock','flock'],['Flame','flame']], 0)}
+          <div style="margin-top:2px">${R([['Fractal','fractal'],['Flora','flora'],['Flood','flood']], -1)}</div>
         </div>
         ${P('Flow Speed','0.30',30)}
         ${P('Size','0.50',50)}
         ${P('Elasticity','0.30',30)}
-        ${T('FREEZE',false)}
+        <div style="margin-top:4px">${T('FREEZE',false)}</div>
         ${D('Interaction')}
         ${P('Force','0.50',50)}
         ${P('Radius','0.40',40)}
+        ${P('Droplet count','5',21)}
         ${P('Backsplash','0.00',0)}
-        ${T('DEPTH REVERB',false)}`
+        <div style="margin-top:4px">${T('DEPTH REVERB',false)}</div>`
     },
     resonator: {
       title: 'Resonator', tagClass: 'teal', borderClass: 'border-teal', panelClass: 'panel-teal',
-      desc: `<h3>Pluckable strings</h3><p>A bank of resonant strings with frequency-normalized biquad bandpass filters. Scale-aware tuning rings when excited by grains or the sequencer.</p>`,
-      html: `${T('ENABLE',true)}
-        ${P('Decay','0.65',65)}
-        ${P('Damping','0.40',40)}
-        ${P('Energy','0.50',50)}
-        ${P('Strings','24',50)}
-        ${P('Grain / Res','0.50',50)}`
+      desc: `<h3>Pluckable strings</h3><p>A bank of resonant strings with scale-aware tuning. Excited by grains or the sequencer.</p>`,
+      html: `<div style="margin-bottom:6px">${T('ENABLE',true)}</div>
+        ${P('Decay','0.50',50)}
+        ${P('Brightness','0.70',70)}
+        ${P('Pluck','0.50',50)}
+        ${P('Dispersion','0.00',0)}
+        ${P('Strings','24',45)}
+        ${P('Resonator Mix','0.50',50)}`
     },
     delay: {
       title: 'Delay', tagClass: 'teal', borderClass: 'border-teal', panelClass: 'panel-teal',
-      desc: `<h3>Flange, chorus, delay</h3><p>Three time ranges with digital, analog, and tape character. Hermite-interpolated sub-sample reads, LFO modulation, and filtered feedback.</p>`,
-      html: `<div class="seg-btn-group">
-          <span class="seg-btn">Digital</span>
-          <span class="seg-btn active">Analog</span>
-          <span class="seg-btn">Tape</span>
+      desc: `<h3>Flange, chorus, delay</h3><p>Three time ranges with digital, analog, and tape character. Hermite-interpolated sub-sample reads and filtered feedback.</p>`,
+      html: `${S(['— Preset —','Flange','Chorus','Slapback','Tape Echo','Dub Delay'], 0)}
+        <div style="margin-top:6px">
+          <div class="param-label" style="font-size:9px;opacity:.6;margin-bottom:2px">Character</div>
+          ${R(['Digital','Analog','Tape'], 1)}
         </div>
-        <div class="seg-btn-group" style="margin-top:4px">
-          <span class="seg-btn">Flange</span>
-          <span class="seg-btn">Chorus</span>
-          <span class="seg-btn active">Delay</span>
+        <div class="param" style="margin-top:6px">
+          <div class="param-row" style="gap:8px">
+            <span class="param-label">Time</span>
+            <span class="param-value">340 ms</span>
+            <span class="toggle-btn" style="font-size:9px;padding:2px 8px;margin-left:auto">Sync</span>
+          </div>
+          <div style="margin:4px 0">${R(['Flange','Chorus','Delay'], 2)}</div>
+          <input type="range" min="0" max="1000" value="340" style="--fill:34%">
         </div>
-        ${P('Time','340 ms',34)}
         ${P('Feedback','0.55',55)}
         ${P('Mix','0.35',35)}
-        ${D('Filter')}
-        ${P('High Pass','80 Hz',8)}
-        ${P('Low Pass','12 kHz',85)}`
+        ${P('High-Pass','80 Hz',8)}
+        ${P('Low-Pass','12 kHz',85)}`
     },
     reverb: {
       title: 'Reverb', tagClass: '', borderClass: '', panelClass: '',
-      desc: `<h3>Dattorro plate reverb</h3><p>Full-topology plate reverb with 4-modulator chorusing, input diffusion, synthetic early reflections, and a shimmer pitch-shifter. 2&times; oversampled on desktop.</p>`,
-      html: `${D('Master')}
+      desc: `<h3>Algorithmic reverb</h3><p>Multi-topology reverb with Dattorro plate, FDN, nested allpass, and velvet noise tanks.</p>`,
+      html: `${S(['— Preset —','Small Room','Medium Hall','Large Hall','Cathedral','Plate','Spring','Shimmer','Infinite'], 0)}
+        <div style="margin-top:6px">
         ${P('Mix','50%',50)}
-        ${P('Decay','3.0 s',25)}
+        ${P('Decay','3.0s',2)}
         ${P('Size','70%',70)}
-        ${P('Damping','50%',50)}
-        ${P('Diffusion','80%',80)}
-        ${P('Mod Rate','1.2 Hz',30)}
-        ${P('Mod Depth','25%',25)}
-        ${P('ER Level','-12 dB',40)}
-        ${P('Shimmer','off',0)}
-        ${P('Low Cut','20 Hz',0)} ${P('High Cut','20 kHz',100)}
-        ${T('FREEZE',false)}
-        ${D('Character')}
-        ${P('Presence','50%',50)}
-        ${P('Space','55%',55)}
-        ${P('Clarity','50%',50)}
-        ${P('Thickness','45%',45)}
-        ${P('Tail','50%',50)}
-        ${P('Chaos','40%',40)}
-        ${P('Emphasis','50%',50)}
-        ${P('Dynamics','off',0)}
-        ${P('Evolve','off',0)}
-        ${P('Drift','off',0)}`
+        ${P('Pre-Delay','20ms',2)}
+        ${P('Width','100%',50)}
+        ${P('Lo Cut','off',0)}
+        ${P('Hi Cut','off',100)}
+        ${P('Compression','off',0)}
+        </div>
+        <div style="margin-top:6px">${T('FREEZE',false)}</div>`
     },
     output: {
       title: 'Output', tagClass: '', borderClass: '', panelClass: '',
-      desc: `<h3>Shape the final signal</h3><p>Drive, tone shaping, mid EQ, and output compression sit at the end of the chain. Polish your granular textures.</p>`,
-      html: `${P('Output Level','0 dB',75)}
+      desc: `<h3>Shape the final signal</h3><p>Drive, tone shaping, mid EQ, and output compression at the end of the chain.</p>`,
+      html: `${P('Output Level','0 dB',50)}
         ${P('Dry / Wet','1.00',100)}
-        ${P('Grain Amp','0 dB',75)}
+        ${P('Grain Amplitude','0.40',40)}
         ${D('Character')}
-        ${P('Drive','0.20',20)}
-        ${P('Compression','0.50',50)}
-        ${P('Tone','0.50',50)}
-        ${P('Mid','0.50',50)}
-        <div style="margin-top:2px">${T('PRE REVERB',false)}</div>`
+        ${P('Drive','off',0)}
+        ${P('Compression','off',0)}
+        ${P('Tone','flat',50)}
+        ${P('Mid','flat',50)}
+        <div style="margin-top:4px;width:100%">${T('PRE REVERB',false)}</div>`
     },
     mod: {
       title: 'Modulation', tagClass: 'amber', borderClass: 'border-amber', panelClass: 'panel-amber',
       desc: `<h3>Animate everything</h3><p>Route LFOs to any parameter &mdash; including other LFOs. Sine for smooth sweeps, S&amp;H for random stepped modulation.</p>`,
-      html: `<div class="tut-lfo-item">
-          <div class="tut-lfo-label">Sine LFO &mdash; 0.8 Hz &rarr; Pitch</div>
+      html: `<div class="lfo-block">
+          <div class="lfo-top-row">
+            <div class="lfo-block-label">LFO 1</div>
+            <select class="param-select" style="flex:1;padding:3px 20px 3px 8px;font-size:10px;border-radius:3px;background-position:right 7px center;width:auto"><option selected>Sine</option><option>Triangle</option><option>Square</option><option>Saw</option><option>S&amp;H</option></select>
+          </div>
           <canvas class="tut-lfo-canvas" id="tut-lfo-sine"></canvas>
+          ${P('Speed','0.8 Hz',16)}
+          <div class="lfo-dest-btn assigned">Dest: Pitch</div>
         </div>
-        <div class="tut-lfo-item">
-          <div class="tut-lfo-label">S&amp;H LFO &mdash; 2.0 Hz &rarr; Filter</div>
+        <div class="lfo-block">
+          <div class="lfo-top-row">
+            <div class="lfo-block-label">LFO 2</div>
+            <select class="param-select" style="flex:1;padding:3px 20px 3px 8px;font-size:10px;border-radius:3px;background-position:right 7px center;width:auto"><option>Sine</option><option>Triangle</option><option>Square</option><option>Saw</option><option selected>S&amp;H</option></select>
+          </div>
           <canvas class="tut-lfo-canvas" id="tut-lfo-sh"></canvas>
+          ${P('Speed','2.0 Hz',40)}
+          <div class="lfo-dest-btn assigned">Dest: Filter</div>
         </div>
-        ${P('Rate','0.8 Hz',16)}
-        ${P('Amount','50%',50)}
-        <div style="margin-top:4px">${T('+ ADD LFO',false)}</div>`
+        <div style="margin-top:4px">${B('+ Add LFO',false)}</div>`
     },
     seq: {
       title: 'Sequencer', tagClass: 'red', borderClass: 'border-red', panelClass: 'panel-red',
       desc: `<h3>Rhythmic patterns</h3><p>Scale-aware step sequencer drives grain triggering and resonator excitation in musical patterns.</p>`,
-      html: `<div class="seg-btn-group">
-          <span class="seg-btn">Off</span>
-          <span class="seg-btn active">Step</span>
-          <span class="seg-btn">Interactive</span>
+      html: `<div class="seq-mode-group">
+          <button class="seq-mode-btn">Off</button>
+          <button class="seq-mode-btn active">Step</button>
+          <button class="seq-mode-btn">Interactive</button>
         </div>
-        <div style="display:flex;gap:4px;margin-top:6px">
-          ${T('INPUT SEQ',false)} ${T('PLAY',true)} ${T('RESET',false)}
+        <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+          <div>${B('Input Sequence',false)}</div>
+          <div style="display:flex;gap:4px">
+            ${B('Play',true)} ${B('Reset',false)} ${B('Clear',false,'clear')}
+          </div>
         </div>
-        ${P('Steps','16',100)}
-        ${P('Rows','4',33)}
-        ${P('Root','C3',50)}`
+        ${P('Steps','16',50)}
+        ${P('Rows','8',14)}
+        ${P('Root','C4',50)}`
     },
     preset: {
       title: 'Presets', tagClass: '', borderClass: '', panelClass: '',
-      desc: `<h3>Save &amp; recall everything</h3><p>Factory and user presets live in one unified list. Presets that include audio samples show a &#x223F; waveform icon. Loading a preset with a sample replaces your current sample; one without leaves it untouched.</p>`,
+      desc: `<h3>Save &amp; recall everything</h3><p>Factory and user presets live in one unified list. Presets that include audio samples show a &#x223F; waveform icon.</p>`,
       html: `${D('Preset Browser')}
-        <div style="display:flex;flex-direction:column;gap:6px;margin:4px 0">
-          <div style="font-size:10px;color:var(--text-dim);background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:6px 8px">&#x25BE; Default &nbsp;&bull;&nbsp; Granular Clouds &nbsp;&bull;&nbsp; Ambient Machine &nbsp;&bull;&nbsp; String Wash &nbsp;&bull;&nbsp; Resynthesis &hellip;</div>
+        <div style="margin:4px 0">
+          ${S(['Default','Granular Clouds','Ambient Machine','String Wash','Resynthesis'], 0)}
         </div>
         ${D('Actions')}
         <div style="display:flex;gap:4px;margin:4px 0">
-          ${T('SAVE NEW',false)} ${T('SAVE',false)} ${T('RENAME',false)} ${T('DELETE',false)}
+          ${B('Save New',false)} ${B('Save',false)} ${B('Rename',false)} ${B('Delete',false)}
         </div>
-        <div style="font-size:10px;color:var(--text-dim);line-height:1.5;margin-top:2px">
-          <b>Save New</b> creates a new preset. <b>Save</b> overwrites the current one (grays out until you change something). <b>Rename</b> and <b>Delete</b> gray out while modified &mdash; save or reload first.
+        <div style="font-size:10px;color:var(--app-text-dim);line-height:1.5;margin-top:2px">
+          <b>Save New</b> creates a new preset. <b>Save</b> overwrites the current one. <b>Rename</b> and <b>Delete</b> gray out while modified.
         </div>
         ${D("What's Saved")}
-        <div style="display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--text-dim);font-family:'JetBrains Mono',monospace">
+        <div style="display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--app-text-dim);font-family:'JetBrains Mono',monospace">
           <span>&#10003; All parameter values</span>
           <span>&#10003; Audio samples (&#x223F; indicator)</span>
           <span>&#10003; Window envelope drawings</span>
@@ -1707,9 +1921,9 @@ function createVizSim(canvas,mode,opts){
         </div>
         ${D('Import / Export')}
         <div style="display:flex;gap:4px;margin:4px 0">
-          ${T('EXPORT',false)} ${T('IMPORT',false)}
+          ${B('Export',false)} ${B('Import',false)}
         </div>
-        <div style="font-size:10px;color:var(--text-dim)">Share .granular files with the full state including samples.</div>`
+        <div style="font-size:10px;color:var(--app-text-dim)">Share .granular files with the full state including samples.</div>`
     }
   };
 
@@ -1792,8 +2006,12 @@ function createVizSim(canvas,mode,opts){
 
       // Wire mode buttons if STR panel
       if (stepName === 'stream') {
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-          btn.addEventListener('click', () => window._switchMode(btn.dataset.mode));
+        document.querySelectorAll('.seg-btn[data-vizmode]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.seg-btn[data-vizmode]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            window._switchMode(btn.dataset.vizmode);
+          });
         });
       }
 
