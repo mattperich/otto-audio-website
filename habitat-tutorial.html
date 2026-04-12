@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habitat Tutorial — Generative Drone Synthesizer</title>
+<meta name="description" content="Interactive tutorial for Habitat generative drone synthesizer. Explore 8 nature engines, modulation, delay, reverb, and output shaping.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+
+/* ── App palette overrides (match actual Habitat app) ─── */
+
+:root {
+  --app-surface:    #080b14;
+  --app-surface2:   #0a0e18;
+  --app-border:     #1b3050;
+  --app-text:       #b8cfe0;
+  --app-text-dim:   #3d607a;
+  --app-text-bright:#e8f4ff;
+  --app-green:      #00e676;
+  --app-red:        #ff4444;
+
+  --wind-accent:    #7eb8a8;
+  --water-accent:   #22d1ee;
+  --bird-accent:    #c4a84d;
+  --insect-accent:  #8bc34a;
+  --thunder-accent: #e85d5d;
+  --rain-accent:    #9575cd;
+  --aurora-accent:  #40e0a0;
+  --ice-accent:     #a0d8ef;
+}
+
+/* ── Fixed immersive canvas background ────────────────── */
+
+#vizLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+#vizLayer canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* ── Top nav bar ──────────────────────────────────────── */
+
+#topNav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 16px 10px 58px;
+  background: linear-gradient(to bottom, rgba(6,8,15,0.85), rgba(6,8,15,0));
+  pointer-events: auto;
+}
+
+#topNav .logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  margin-right: auto;
+}
+#topNav .logo img {
+  height: 24px;
+  width: auto;
+}
+
+#topNav a {
+  font-size: 12px;
+  color: var(--app-text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+#topNav a:hover { color: var(--app-text); }
+
+/* ── Fixed left nav strip (replica of Habitat app) ────── */
+
+#navStrip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 5px;
+  gap: 4px;
+  background: linear-gradient(to right, rgba(6,8,15,0.85), rgba(6,8,15,0.4));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── V2 Nav Buttons (verbatim from Habitat app) ───────── */
+
+.v2-nav-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: var(--app-surface2);
+  color: var(--app-text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.v2-nav-btn:hover {
+  background: rgba(74, 144, 184, 0.12);
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+/* Nav green */
+.v2-nav-btn.nav-green { color: var(--wind-accent); opacity: 0.55; }
+.v2-nav-btn.nav-green:hover { opacity: 1; background: rgba(126, 184, 168, 0.12); border-color: rgba(126, 184, 168, 0.3); }
+.v2-nav-btn.nav-green.active { opacity: 1; background: rgba(126, 184, 168, 0.18); border-color: var(--wind-accent); box-shadow: 0 0 10px rgba(126, 184, 168, 0.25); }
+
+/* Nav cyan */
+.v2-nav-btn.nav-cyan { color: var(--water-accent); opacity: 0.55; }
+.v2-nav-btn.nav-cyan:hover { opacity: 1; background: rgba(34, 209, 238, 0.12); border-color: rgba(34, 209, 238, 0.3); }
+.v2-nav-btn.nav-cyan.active { opacity: 1; background: rgba(34, 209, 238, 0.18); border-color: var(--water-accent); box-shadow: 0 0 10px rgba(34, 209, 238, 0.25); }
+
+/* Nav amber */
+.v2-nav-btn.nav-amber { color: var(--bird-accent); opacity: 0.55; }
+.v2-nav-btn.nav-amber:hover { opacity: 1; background: rgba(196, 168, 77, 0.12); border-color: rgba(196, 168, 77, 0.3); }
+.v2-nav-btn.nav-amber.active { opacity: 1; background: rgba(196, 168, 77, 0.18); border-color: var(--bird-accent); box-shadow: 0 0 10px rgba(196, 168, 77, 0.25); }
+
+/* Nav red */
+.v2-nav-btn.nav-red { color: var(--thunder-accent); opacity: 0.55; }
+.v2-nav-btn.nav-red:hover { opacity: 1; background: rgba(232, 93, 93, 0.12); border-color: rgba(232, 93, 93, 0.3); }
+.v2-nav-btn.nav-red.active { opacity: 1; background: rgba(232, 93, 93, 0.18); border-color: var(--thunder-accent); box-shadow: 0 0 10px rgba(232, 93, 93, 0.25); }
+
+/* Nav rain */
+.v2-nav-btn.nav-rain { color: var(--rain-accent); opacity: 0.55; }
+.v2-nav-btn.nav-rain:hover { opacity: 1; background: rgba(149, 117, 205, 0.12); border-color: rgba(149, 117, 205, 0.3); }
+.v2-nav-btn.nav-rain.active { opacity: 1; background: rgba(149, 117, 205, 0.18); border-color: var(--rain-accent); box-shadow: 0 0 10px rgba(149, 117, 205, 0.25); }
+
+/* Nav aurora */
+.v2-nav-btn.nav-aurora { color: var(--aurora-accent); opacity: 0.55; }
+.v2-nav-btn.nav-aurora:hover { opacity: 1; background: rgba(64, 224, 160, 0.12); border-color: rgba(64, 224, 160, 0.3); }
+.v2-nav-btn.nav-aurora.active { opacity: 1; background: rgba(64, 224, 160, 0.18); border-color: var(--aurora-accent); box-shadow: 0 0 10px rgba(64, 224, 160, 0.25); }
+
+/* Nav ice */
+.v2-nav-btn.nav-ice { color: var(--ice-accent); opacity: 0.55; }
+.v2-nav-btn.nav-ice:hover { opacity: 1; background: rgba(160, 216, 239, 0.12); border-color: rgba(160, 216, 239, 0.3); }
+.v2-nav-btn.nav-ice.active { opacity: 1; background: rgba(160, 216, 239, 0.18); border-color: var(--ice-accent); box-shadow: 0 0 10px rgba(160, 216, 239, 0.25); }
+
+/* Nav teal */
+.v2-nav-btn.nav-teal { color: var(--accent); opacity: 0.55; }
+.v2-nav-btn.nav-teal:hover { opacity: 1; background: rgba(74, 144, 184, 0.12); border-color: rgba(74, 144, 184, 0.3); }
+.v2-nav-btn.nav-teal.active { opacity: 1; background: rgba(74, 144, 184, 0.18); border-color: var(--accent); box-shadow: 0 0 10px rgba(74, 144, 184, 0.25); }
+
+/* Uncolored nav buttons */
+.v2-nav-btn:not([class*="nav-"]).active,
+.v2-nav-btn:not(.nav-green):not(.nav-cyan):not(.nav-amber):not(.nav-red):not(.nav-rain):not(.nav-aurora):not(.nav-ice):not(.nav-teal).active {
+  color: var(--app-text-bright);
+  background: rgba(74, 144, 184, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(74, 144, 184, 0.2);
+}
+
+/* Action buttons in nav */
+.nav-action-btn { display: flex; align-items: center; justify-content: center; }
+.nav-action-btn svg { flex-shrink: 0; }
+
+/* ── Description overlay (above param panel) ─────────── */
+
+#descOverlay {
+  position: fixed;
+  left: 56px;
+  z-index: 61;
+  background: rgba(8,11,20,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  width: 240px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events: none;
+}
+
+#descOverlay.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+#descOverlay.border-green  { border-color: rgba(126,184,168,0.3); }
+#descOverlay.border-cyan   { border-color: rgba(34,209,238,0.3); }
+#descOverlay.border-amber  { border-color: rgba(196,168,77,0.3); }
+#descOverlay.border-red    { border-color: rgba(232,93,93,0.3); }
+#descOverlay.border-rain   { border-color: rgba(149,117,205,0.3); }
+#descOverlay.border-aurora { border-color: rgba(64,224,160,0.3); }
+#descOverlay.border-ice    { border-color: rgba(160,216,239,0.3); }
+#descOverlay.border-teal   { border-color: rgba(74,144,184,0.3); }
+#descOverlay.border-mod    { border-color: rgba(184,144,64,0.3); }
+
+.desc-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.desc-tag.tag-green  { color: var(--wind-accent); }
+.desc-tag.tag-cyan   { color: var(--water-accent); }
+.desc-tag.tag-amber  { color: var(--bird-accent); }
+.desc-tag.tag-red    { color: var(--thunder-accent); }
+.desc-tag.tag-rain   { color: var(--rain-accent); }
+.desc-tag.tag-aurora { color: var(--aurora-accent); }
+.desc-tag.tag-ice    { color: var(--ice-accent); }
+.desc-tag.tag-teal   { color: var(--accent); }
+.desc-tag.tag-mod    { color: #b89040; }
+
+#descOverlay h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--app-text-bright);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+#descOverlay p {
+  font-size: 0.8rem;
+  color: var(--app-text);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Floating param panel (V2-style replica) ──────────── */
+
+#floatPanel {
+  position: fixed;
+  left: 56px;
+  z-index: 60;
+  background: rgba(8,11,20,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  width: 240px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(74,144,184,0.15);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border) transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#floatPanel::-webkit-scrollbar { width: 4px; }
+#floatPanel::-webkit-scrollbar-thumb { background: var(--app-border); border-radius: 2px; }
+
+#floatPanel.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Panel color accents */
+#floatPanel.panel-green  { border-color: rgba(126,184,168,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(126,184,168,0.2); }
+#floatPanel.panel-cyan   { border-color: rgba(34,209,238,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(34,209,238,0.2); }
+#floatPanel.panel-amber  { border-color: rgba(196,168,77,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(196,168,77,0.2); }
+#floatPanel.panel-red    { border-color: rgba(232,93,93,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(232,93,93,0.2); }
+#floatPanel.panel-rain   { border-color: rgba(91,160,160,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(91,160,160,0.2); }
+#floatPanel.panel-aurora { border-color: rgba(64,224,160,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(64,224,160,0.2); }
+#floatPanel.panel-ice    { border-color: rgba(160,216,239,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(160,216,239,0.2); }
+#floatPanel.panel-teal   { border-color: rgba(74,144,184,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(74,144,184,0.2); }
+#floatPanel.panel-mod    { border-color: rgba(184,144,64,0.25); box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 1px rgba(184,144,64,0.2); }
+
+/* ── Panel content styling (verbatim from app) ────────── */
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.panel-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--app-text);
+}
+
+.panel-green .panel-title  { color: var(--wind-accent); }
+.panel-cyan .panel-title   { color: var(--water-accent); }
+.panel-amber .panel-title  { color: var(--bird-accent); }
+.panel-red .panel-title    { color: var(--thunder-accent); }
+.panel-rain .panel-title   { color: var(--rain-accent); }
+.panel-aurora .panel-title { color: var(--aurora-accent); }
+.panel-ice .panel-title    { color: var(--ice-accent); }
+.panel-teal .panel-title   { color: var(--accent); }
+.panel-mod .panel-title    { color: #b89040; }
+
+.engine-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface2);
+  color: var(--app-text-dim);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.engine-toggle.on {
+  background: rgba(0, 230, 118, 0.15);
+  border-color: var(--app-green);
+  color: var(--app-green);
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.2);
+}
+
+.engine-toggle.off {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: rgba(255, 68, 68, 0.3);
+  color: var(--app-red);
+}
+
+/* ── Slider rows (verbatim from app) ──────────────────── */
+
+.param-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.param-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 10px;
+  color: var(--app-text-dim);
+  letter-spacing: 0.3px;
+}
+
+.param-value {
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  color: var(--app-text);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── Range input styling (verbatim from app) ──────────── */
+
+#floatPanel input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    var(--slider-accent, var(--accent)) 0%,
+    var(--slider-accent, var(--accent)) var(--fill, 50%),
+    var(--app-surface2) var(--fill, 50%),
+    var(--app-surface2) 100%
+  );
+  border: none;
+  margin: 2px 0;
+}
+
+#floatPanel input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--app-text-bright);
+  border: 2px solid var(--slider-accent, var(--accent));
+  cursor: pointer;
+  transition: box-shadow 0.1s ease;
+}
+
+#floatPanel input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 6px var(--slider-glow, rgba(74,144,184,0.4));
+}
+
+#floatPanel input[type="range"]::-webkit-slider-thumb:active {
+  box-shadow: 0 0 10px var(--slider-glow, rgba(74,144,184,0.6));
+}
+
+#floatPanel input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--app-text-bright);
+  border: 2px solid var(--slider-accent, var(--accent));
+  cursor: pointer;
+}
+
+#floatPanel input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--app-surface2);
+}
+
+#floatPanel input[type="range"]::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--slider-accent, var(--accent));
+}
+
+/* ── Panel-colored slider fills ───────────────────────── */
+
+.panel-green  { --slider-accent: var(--wind-accent);    --slider-glow: rgba(126,184,168,0.3); }
+.panel-cyan   { --slider-accent: var(--water-accent);   --slider-glow: rgba(34,209,238,0.3); }
+.panel-amber  { --slider-accent: var(--bird-accent);    --slider-glow: rgba(196,168,77,0.3); }
+.panel-red    { --slider-accent: var(--thunder-accent);  --slider-glow: rgba(232,93,93,0.3); }
+.panel-rain   { --slider-accent: var(--rain-accent);    --slider-glow: rgba(149,117,205,0.3); }
+.panel-aurora { --slider-accent: var(--aurora-accent);   --slider-glow: rgba(64,224,160,0.3); }
+.panel-ice    { --slider-accent: var(--ice-accent);     --slider-glow: rgba(160,216,239,0.3); }
+.panel-teal   { --slider-accent: var(--accent);         --slider-glow: rgba(74,144,184,0.3); }
+.panel-mod    { --slider-accent: #b89040;               --slider-glow: rgba(184,144,64,0.3); }
+
+/* Panel-colored param labels */
+.panel-green  .param-label { color: var(--wind-accent); }
+.panel-cyan   .param-label { color: var(--water-accent); }
+.panel-amber  .param-label { color: var(--bird-accent); }
+.panel-red    .param-label { color: var(--thunder-accent); }
+.panel-rain   .param-label { color: var(--rain-accent); }
+.panel-aurora .param-label { color: var(--aurora-accent); }
+.panel-ice    .param-label { color: var(--ice-accent); }
+.panel-teal   .param-label { color: var(--accent); }
+.panel-mod    .param-label { color: #b89040; }
+
+.panel-green  .param-value { color: var(--wind-accent); opacity: 0.7; }
+.panel-cyan   .param-value { color: var(--water-accent); opacity: 0.7; }
+.panel-amber  .param-value { color: var(--bird-accent); opacity: 0.7; }
+.panel-red    .param-value { color: var(--thunder-accent); opacity: 0.7; }
+.panel-rain   .param-value { color: var(--rain-accent); opacity: 0.7; }
+.panel-aurora .param-value { color: var(--aurora-accent); opacity: 0.7; }
+.panel-ice    .param-value { color: var(--ice-accent); opacity: 0.7; }
+.panel-teal   .param-value { color: var(--accent); opacity: 0.7; }
+.panel-mod    .param-value { color: #b89040; opacity: 0.7; }
+
+/* ── Select / Dropdown styling (verbatim from app) ────── */
+
+.param-select {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  padding: 6px 28px 6px 10px;
+  background-color: var(--app-surface2);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%233d607a'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  color: var(--app-text);
+  font-size: 10px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.param-select:focus {
+  border-color: var(--accent);
+}
+
+.param-select option { background: #111c30; color: var(--app-text); }
+
+/* ── LFO Modulation (verbatim from app) ───────────────── */
+
+.lfo-block {
+  position: relative;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--app-border);
+  padding: 10px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+  --eng-accent: #b89040;
+  --eng-glow: rgba(184,144,64,0.18);
+  --eng-dim: rgba(184,144,64,0.08);
+}
+
+.lfo-block-label {
+  font-size: 8px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; opacity: 0.6; white-space: nowrap;
+}
+
+.lfo-block .lfo-top-row {
+  display: flex; align-items: center; gap: 6px;
+}
+
+.lfo-block .lfo-shape {
+  flex: 1; appearance: none; padding: 4px 8px; font-size: 11px;
+  border: 1px solid var(--app-border); background: #111c30; color: var(--app-text);
+  border-radius: 3px; cursor: pointer; outline: none;
+}
+
+.lfo-viz-canvas {
+  width: 100%; height: 32px; border: 1px solid var(--app-border);
+  border-radius: 2px; background: rgba(0,0,0,0.3); display: block;
+}
+
+.lfo-speed-row {
+  display: flex; align-items: flex-start; gap: 8px;
+}
+
+.lfo-speed-row .lfo-speed-wrap { flex: 1; min-width: 0; }
+
+.lfo-sync-btn {
+  padding: 2px 6px; font-size: 9px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.12); background: none;
+  color: var(--app-text-dim); border-radius: 3px; cursor: pointer; flex-shrink: 0;
+  transition: color .15s, border-color .15s, background .15s;
+  font-family: inherit;
+}
+
+.lfo-sync-btn.active {
+  color: var(--eng-accent); border-color: var(--eng-accent); background: var(--eng-dim);
+}
+
+.lfo-dest-btn {
+  width: 100%; padding: 5px 8px; font-size: 10px;
+  border: 1px dashed rgba(255,255,255,0.1); background: none;
+  color: var(--app-text); border-radius: 2px; text-align: left;
+  transition: border-color .15s; cursor: pointer;
+  font-family: inherit;
+}
+
+.lfo-dest-btn.assigned {
+  border-style: solid; border-color: var(--eng-accent); color: var(--eng-accent);
+}
+
+.lfo-add-btn {
+  width: 100%; padding: 6px; border-radius: 4px;
+  border: 1px dashed var(--app-border); background: none;
+  color: var(--app-text-dim); font-size: 10px; cursor: pointer;
+  margin-top: 6px; transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lfo-add-btn:hover {
+  border-color: var(--accent); color: var(--app-text);
+  background: rgba(74,144,184,0.08);
+}
+
+/* ── Subsection divider ───────────────────────────────── */
+
+.subsection-divider {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 10px 0 6px;
+}
+
+.subsection-divider::before { display: none; }
+
+.subsection-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(74,144,209,0.08);
+}
+
+.subsection-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* ── Toggle button ────────────────────────────────────── */
+
+.toggle-btn {
+  padding: 3px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: 3px;
+  background: var(--app-surface2);
+  color: var(--app-text-dim);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: inherit;
+}
+
+.toggle-btn.active {
+  background: rgba(74,144,209,.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Octave strip placeholder ─────────────────────────── */
+
+.octave-strip-placeholder {
+  position: relative;
+  width: 100%;
+  height: 32px;
+  border: 1px solid rgba(27,48,80,0.4);
+  border-radius: 3px;
+  background: #060a10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0;
+}
+
+.octave-strip-placeholder span {
+  font-size: 9px;
+  color: var(--app-text-dim);
+  letter-spacing: .06em;
+}
+
+/* ── Scroll sections (invisible spacers) ──────────────── */
+
+.scroll-section {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.scroll-section:first-child { height: 110vh; }
+.scroll-section:last-child { height: 60vh; }
+
+/* ── Intro overlay ────────────────────────────────────── */
+
+#introOverlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 40;
+  text-align: center;
+  max-width: 560px;
+  padding: 0 24px;
+  transition: opacity 0.6s;
+}
+
+#introOverlay.hidden { opacity: 0; pointer-events: none; }
+
+#introOverlay h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 300;
+  color: var(--app-text-bright);
+  letter-spacing: 0.05em;
+  margin-bottom: 14px;
+  line-height: 1.15;
+}
+
+#introOverlay h1 span {
+  background: linear-gradient(135deg, var(--aurora-accent), var(--water-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+#introOverlay p {
+  font-size: 1rem;
+  color: var(--app-text);
+  line-height: 1.7;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+#introOverlay .scroll-cue {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--app-text-dim);
+  opacity: 0.5;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+/* ── CTA footer ───────────────────────────────────────── */
+
+#ctaFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  text-align: center;
+  padding: 30px 24px 24px;
+  background: linear-gradient(transparent, rgba(6,8,15,0.95));
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s, transform 0.5s;
+  pointer-events: none;
+}
+
+#ctaFooter.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, var(--aurora-accent), var(--water-accent));
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 24px rgba(64,224,160,0.25);
+  transition: transform 0.2s;
+}
+.btn-primary:hover { transform: translateY(-2px); text-decoration: none; }
+.btn-primary svg { width: 16px; height: 16px; fill: currentColor; }
+
+#ctaFooter .cta-note {
+  font-size: 0.75rem;
+  color: var(--app-text-dim);
+  margin-top: 10px;
+}
+
+/* ── Step dots ────────────────────────────────────────── */
+
+#stepDots {
+  position: fixed;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--app-border);
+  transition: background 0.3s, transform 0.2s;
+}
+.step-dot.active { background: var(--accent); transform: scale(1.4); }
+
+/* ── Toolbar buttons (bottom of nav strip) ────────────── */
+
+.nav-spacer {
+  flex: 1;
+  min-height: 8px;
+}
+
+.tool-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--app-border);
+  background: rgba(13,20,36,0.7);
+  color: var(--app-text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.4s;
+  padding: 0;
+}
+
+.tool-btn:hover { border-color: var(--accent); color: var(--app-text); background: rgba(74,144,209,0.08); }
+
+.tool-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(74,144,209,0.15);
+  box-shadow: 0 0 12px rgba(74,144,209,0.2);
+}
+
+.tool-btn.gear { font-size: 15px; line-height: 1; }
+
+/* ── Responsive ───────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  #navStrip { width: 40px; padding: 4px 0; gap: 3px; }
+  .v2-nav-btn { width: 30px; height: 30px; font-size: 7px; }
+  .tool-btn { width: 24px; height: 24px; font-size: 8px; }
+  .tool-btn.gear { font-size: 12px; }
+  #descOverlay, #floatPanel { left: 46px; width: 210px; padding: 10px 12px; }
+  #stepDots { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #floatPanel { transition: none; }
+  #introOverlay { transition: none; }
+  .scroll-cue { animation: none; opacity: 0.5; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════ FIXED VIZ LAYER ═══════ -->
+<div id="vizLayer">
+  <canvas id="vizCanvas"></canvas>
+</div>
+
+<!-- ═══════ TOP NAV ═══════ -->
+<nav id="topNav">
+  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio" style="height:24px;width:auto"></a>
+  <a href="streams-index.html">Streams</a>
+  <a href="habitat-tutorial.html">Habitat</a>
+  <a href="#">OttoVerb</a>
+</nav>
+
+<!-- ═══════ LEFT NAV STRIP ═══════ -->
+<div id="navStrip">
+  <div class="v2-nav-btn nav-green" data-step="wind">WND</div>
+  <div class="v2-nav-btn nav-cyan" data-step="water">WTR</div>
+  <div class="v2-nav-btn nav-amber" data-step="bird">BRD</div>
+  <div class="v2-nav-btn nav-green" data-step="insect">INS</div>
+  <div class="v2-nav-btn nav-red" data-step="thunder">THN</div>
+  <div class="v2-nav-btn nav-rain" data-step="rain">RAN</div>
+  <div class="v2-nav-btn nav-aurora" data-step="aurora">AUR</div>
+  <div class="v2-nav-btn nav-ice" data-step="ice">ICE</div>
+  <div class="nav-spacer"></div>
+  <div class="v2-nav-btn" data-step="evo">EVO</div>
+  <div class="v2-nav-btn" data-step="scale">KEY</div>
+  <div class="v2-nav-btn nav-teal" data-step="mod">MOD</div>
+  <div class="v2-nav-btn nav-teal" data-step="delay">DLY</div>
+  <div class="v2-nav-btn" data-step="reverb">REV</div>
+  <div class="v2-nav-btn" data-step="output">OUT</div>
+  <div class="nav-spacer"></div>
+  <div class="tool-btn" data-step="help">?</div>
+  <div class="tool-btn" data-step="preset">PRE</div>
+  <div class="tool-btn" data-step="randomize">&#8635;</div>
+  <div class="tool-btn gear" data-step="settings">&#9881;</div>
+</div>
+
+<!-- ═══════ DESCRIPTION OVERLAY ═══════ -->
+<div id="descOverlay">
+  <div class="desc-tag" id="descTag"></div>
+  <div id="descBody"></div>
+</div>
+
+<!-- ═══════ FLOATING PARAM PANEL ═══════ -->
+<div id="floatPanel">
+  <div id="panelBody"></div>
+</div>
+
+<!-- ═══════ INTRO OVERLAY ═══════ -->
+<div id="introOverlay">
+  <h1>Explore <span>Habitat</span></h1>
+  <p>
+    Scroll through the immersive view to discover each engine of the generative drone synthesizer.
+    The left toolbar mirrors the real plugin interface &mdash; each button opens a
+    parameter panel that shapes your soundscape.
+  </p>
+  <div class="scroll-cue">Scroll to begin</div>
+</div>
+
+<!-- ═══════ CTA FOOTER ═══════ -->
+<div id="ctaFooter">
+  <a href="https://github.com/mattperich/habitat" class="btn-primary">
+    <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    Get Started on GitHub
+  </a>
+  <div class="cta-note">Habitat Generative Drone Synthesizer &mdash; Built by <a href="https://github.com/mattperich">Matt Perich</a> &middot; <a href="index.html">Home</a></div>
+</div>
+
+<!-- ═══════ STEP DOTS ═══════ -->
+<div id="stepDots"></div>
+
+<!-- ═══════ INVISIBLE SCROLL SECTIONS ═══════ -->
+<div class="scroll-section" data-step="intro"></div>
+<div class="scroll-section" data-step="wind"></div>
+<div class="scroll-section" data-step="water"></div>
+<div class="scroll-section" data-step="bird"></div>
+<div class="scroll-section" data-step="insect"></div>
+<div class="scroll-section" data-step="thunder"></div>
+<div class="scroll-section" data-step="rain"></div>
+<div class="scroll-section" data-step="aurora"></div>
+<div class="scroll-section" data-step="ice"></div>
+<div class="scroll-section" data-step="evo"></div>
+<div class="scroll-section" data-step="scale"></div>
+<div class="scroll-section" data-step="mod"></div>
+<div class="scroll-section" data-step="delay"></div>
+<div class="scroll-section" data-step="reverb"></div>
+<div class="scroll-section" data-step="output"></div>
+<div class="scroll-section" data-step="preset"></div>
+<div class="scroll-section" data-step="end"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// DOT GRID VISUALIZATION (spring physics with engine colors)
+// ══════════════════════════════════════════════════════════
+
+(function vizEngine() {
+  const canvas = document.getElementById('vizCanvas');
+  const ctx = canvas.getContext('2d');
+  const COLS = 100, ROWS = 60;
+  const N = COLS * ROWS;
+
+  // Dot state arrays
+  const homeX = new Float32Array(N);
+  const homeY = new Float32Array(N);
+  const posX  = new Float32Array(N);
+  const posY  = new Float32Array(N);
+  const velX  = new Float32Array(N);
+  const velY  = new Float32Array(N);
+  const dotR  = new Float32Array(N); // color R
+  const dotG  = new Float32Array(N); // color G
+  const dotB  = new Float32Array(N); // color B
+  const dotA  = new Float32Array(N); // alpha
+
+  let W = 0, H = 0;
+  let mx = -1e4, my = -1e4, mDown = false, pmx = 0, pmy = 0;
+  let activeColor = [74, 144, 209]; // default accent
+  let waveTime = 0;
+  let waveActive = false;
+
+  // Engine accent colors (RGB)
+  const ENGINE_COLORS = {
+    wind:    [126, 184, 168],
+    water:   [34, 209, 238],
+    bird:    [196, 168, 77],
+    insect:  [139, 195, 74],
+    thunder: [232, 93, 93],
+    rain:    [149, 117, 205],
+    aurora:  [64, 224, 160],
+    ice:     [160, 216, 239],
+    evo:     [74, 144, 209],
+    scale:   [74, 144, 209],
+    mod:     [184, 144, 64],
+    delay:   [74, 144, 184],
+    reverb:  [74, 144, 209],
+    output:  [74, 144, 209],
+    preset:  [74, 144, 209]
+  };
+
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
+    if (!W || !H) return;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    layoutGrid();
+  }
+
+  function layoutGrid() {
+    const spacingX = W / (COLS + 1);
+    const spacingY = H / (ROWS + 1);
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const i = r * COLS + c;
+        homeX[i] = (c + 1) * spacingX;
+        homeY[i] = (r + 1) * spacingY;
+        if (posX[i] === 0 && posY[i] === 0) {
+          posX[i] = homeX[i];
+          posY[i] = homeY[i];
+        }
+      }
+    }
+  }
+
+  // Initialize colors to a dim neutral
+  for (let i = 0; i < N; i++) {
+    dotR[i] = 30; dotG[i] = 48; dotB[i] = 70;
+    dotA[i] = 0.15 + Math.random() * 0.1;
+  }
+
+  function setEngineColor(name) {
+    const c = ENGINE_COLORS[name] || [74, 144, 209];
+    activeColor = c;
+    waveActive = true;
+    waveTime = 0;
+  }
+
+  function clearEngineColor() {
+    activeColor = [30, 48, 70];
+    waveActive = false;
+    // Fade back to neutral
+    for (let i = 0; i < N; i++) {
+      dotA[i] = 0.15 + Math.random() * 0.1;
+    }
+  }
+
+  function physics(dt) {
+    waveTime += dt;
+    const spring = 0.02;
+    const damp = 0.92;
+    const pushR = 80;
+    const pushStr = 2.5;
+
+    for (let i = 0; i < N; i++) {
+      // Spring to home
+      const dx = homeX[i] - posX[i];
+      const dy = homeY[i] - posY[i];
+      velX[i] += dx * spring;
+      velY[i] += dy * spring;
+
+      // Wave motion from engine
+      if (waveActive) {
+        const row = (i / COLS) | 0;
+        const col = i % COLS;
+        const wx = Math.sin(waveTime * 1.2 + col * 0.08 + row * 0.03) * 0.15;
+        const wy = Math.cos(waveTime * 0.9 + row * 0.1 + col * 0.04) * 0.12;
+        velX[i] += wx;
+        velY[i] += wy;
+
+        // Gradually color dots
+        const tgt = activeColor;
+        dotR[i] += (tgt[0] - dotR[i]) * 0.03;
+        dotG[i] += (tgt[1] - dotG[i]) * 0.03;
+        dotB[i] += (tgt[2] - dotB[i]) * 0.03;
+        const tgtA = 0.25 + 0.15 * Math.sin(waveTime * 0.8 + i * 0.01);
+        dotA[i] += (tgtA - dotA[i]) * 0.05;
+      } else {
+        // Fade to neutral
+        dotR[i] += (30 - dotR[i]) * 0.02;
+        dotG[i] += (48 - dotG[i]) * 0.02;
+        dotB[i] += (70 - dotB[i]) * 0.02;
+        dotA[i] += (0.15 - dotA[i]) * 0.02;
+      }
+
+      // Mouse push
+      if (mDown) {
+        const mdx = posX[i] - mx;
+        const mdy = posY[i] - my;
+        const md = Math.sqrt(mdx * mdx + mdy * mdy);
+        if (md < pushR && md > 1) {
+          const f = (1 - md / pushR) * pushStr;
+          velX[i] += (mdx / md) * f;
+          velY[i] += (mdy / md) * f;
+          dotA[i] = Math.min(0.8, dotA[i] + f * 0.05);
+        }
+      }
+
+      velX[i] *= damp;
+      velY[i] *= damp;
+      posX[i] += velX[i];
+      posY[i] += velY[i];
+    }
+  }
+
+  function render() {
+    if (!W || !H) return;
+    // Dark gradient background
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#060a10');
+    grad.addColorStop(1, '#0a1220');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    for (let i = 0; i < N; i++) {
+      const a = dotA[i];
+      if (a < 0.01) continue;
+      const r = Math.round(dotR[i]);
+      const g = Math.round(dotG[i]);
+      const b = Math.round(dotB[i]);
+      ctx.fillStyle = `rgba(${r},${g},${b},${a.toFixed(3)})`;
+      ctx.fillRect(posX[i] - 1, posY[i] - 1, 2, 2);
+    }
+
+    // Mouse cursor indicator
+    if (mDown) {
+      ctx.beginPath();
+      ctx.arc(mx, my, 80, 0, 6.28);
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  // Mouse interaction
+  canvas.addEventListener('mousedown', e => {
+    mDown = true;
+    const r = canvas.getBoundingClientRect();
+    mx = e.clientX - r.left; my = e.clientY - r.top;
+    pmx = mx; pmy = my;
+  });
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    pmx = mx; pmy = my;
+    mx = e.clientX - r.left; my = e.clientY - r.top;
+  });
+  canvas.addEventListener('mouseup', () => { mDown = false; mx = my = -1e4; });
+  canvas.addEventListener('mouseleave', () => { mDown = false; mx = my = -1e4; });
+
+  // Touch
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault(); mDown = true;
+    const t = e.touches[0], r = canvas.getBoundingClientRect();
+    mx = t.clientX - r.left; my = t.clientY - r.top; pmx = mx; pmy = my;
+  }, { passive: false });
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const t = e.touches[0], r = canvas.getBoundingClientRect();
+    pmx = mx; pmy = my; mx = t.clientX - r.left; my = t.clientY - r.top;
+  }, { passive: false });
+  canvas.addEventListener('touchend', () => { mDown = false; mx = my = -1e4; });
+
+  let lastT = performance.now();
+  function tick(t) {
+    const dt = Math.min(0.05, (t - lastT) / 1000);
+    lastT = t;
+    if (dt > 0) { physics(dt); render(); }
+    requestAnimationFrame(tick);
+  }
+
+  resize();
+  requestAnimationFrame(tick);
+  window.addEventListener('resize', resize);
+
+  // Expose to tutorial controller
+  window._vizSetEngine = setEngineColor;
+  window._vizClear = clearEngineColor;
+})();
+
+
+// ══════════════════════════════════════════════════════════
+// TUTORIAL CONTROLLER
+// ══════════════════════════════════════════════════════════
+
+(function tutorial() {
+
+  // ── Helpers for V2-style param HTML ──
+  function P(label, value, fill) {
+    return `<div class="param-row"><div class="param-label"><span>${label}</span><span class="param-value">${value}</span></div><input type="range" min="0" max="1000" value="${fill * 10}" style="--fill:${fill}%"></div>`;
+  }
+  function D(label) {
+    return `<div class="subsection-divider"><span class="subsection-label">${label}</span></div>`;
+  }
+  function T(label, on) {
+    return `<button class="engine-toggle ${on ? 'on' : 'off'}">${on ? '\u25CF' : '\u25CB'}</button>`;
+  }
+  function S(opts, sel) {
+    return `<select class="param-select">${opts.map((o, i) => `<option${i === sel ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
+  }
+  function B(label) {
+    return `<button class="lfo-add-btn">${label}</button>`;
+  }
+
+  // ── LFO animation helpers ──
+  let _lfoPhase = 0;
+  let _lfoLastT = 0;
+  let _lfoAnimId = 0;
+
+  function lfoSine(phase) { return Math.sin(2 * Math.PI * phase); }
+
+  function drawLfoCanvas(canvas, mode, phase, hz) {
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width, h = rect.height;
+    if (w < 2 || h < 2) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(w * dpr), H = Math.round(h * dpr);
+    if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const accent = '#b89040';
+    const pad = 3, drawH = h - pad * 2, cy = h / 2;
+
+    ctx.strokeStyle = accent; ctx.lineWidth = 0.5; ctx.globalAlpha = 0.15;
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+
+    const displaySec = Math.max(1.5, 3 / Math.max(0.1, hz));
+
+    ctx.fillStyle = accent; ctx.globalAlpha = 0.15;
+    ctx.beginPath(); ctx.moveTo(0, cy);
+    for (let i = 0; i < w; i++) {
+      const t = (1 - i / w) * displaySec;
+      const p = phase - hz * t;
+      const normP = p - Math.floor(p);
+      const v = (lfoSine(normP) + 1) * 0.5;
+      ctx.lineTo(i, pad + (1 - v) * 0.5 * drawH);
+    }
+    ctx.lineTo(w, cy); ctx.closePath(); ctx.fill();
+
+    ctx.strokeStyle = accent; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.8;
+    ctx.beginPath();
+    for (let i = 0; i < w; i++) {
+      const t = (1 - i / w) * displaySec;
+      const p = phase - hz * t;
+      const normP = p - Math.floor(p);
+      const v = (lfoSine(normP) + 1) * 0.5;
+      const y = pad + (1 - v) * 0.5 * drawH;
+      if (i === 0) ctx.moveTo(i, y); else ctx.lineTo(i, y);
+    }
+    ctx.stroke();
+
+    const currentV = (lfoSine(phase) + 1) * 0.5;
+    const vy = pad + (1 - currentV) * 0.5 * drawH;
+    ctx.fillStyle = '#fff'; ctx.globalAlpha = 1.0;
+    ctx.beginPath(); ctx.arc(w - 2, vy, 3, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = accent; ctx.globalAlpha = 0.5;
+    ctx.beginPath(); ctx.arc(w - 2, vy, 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function startLfoAnim() {
+    if (_lfoAnimId) return;
+    _lfoLastT = performance.now();
+    function loop(t) {
+      const dt = Math.min(0.05, (t - _lfoLastT) / 1000);
+      _lfoLastT = t;
+      if (dt > 0) _lfoPhase += 0.8 * dt;
+      drawLfoCanvas(document.getElementById('hab-lfo-1'), 'sine', _lfoPhase, 0.8);
+      drawLfoCanvas(document.getElementById('hab-lfo-2'), 'sine', _lfoPhase * 1.3, 0.5);
+      _lfoAnimId = requestAnimationFrame(loop);
+    }
+    _lfoAnimId = requestAnimationFrame(loop);
+  }
+
+  function stopLfoAnim() {
+    if (_lfoAnimId) { cancelAnimationFrame(_lfoAnimId); _lfoAnimId = 0; }
+  }
+
+  // ── Panel content per step ──
+  const STEPS = {
+    wind: {
+      title: 'Wind', tagClass: 'tag-green', borderClass: 'border-green', panelClass: 'panel-green',
+      desc: `<h3>Wind Engine</h3><p>Spectrally shaped noise with gust modulation and stereo width. Filtered white noise creates realistic wind textures.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">WIND</span>${T('on', true)}</div>
+        ${P('Level','15%',15)}
+        ${P('Filter Freq','800 Hz',10)}
+        ${P('Filter Q','1.5',18)}
+        ${P('Gust Rate','0.15 Hz',7)}
+        ${P('Gust Depth','25%',25)}
+        ${P('Spectral Tilt','50%',50)}
+        ${P('Stereo Width','60%',60)}`
+    },
+    water: {
+      title: 'Water', tagClass: 'tag-cyan', borderClass: 'border-cyan', panelClass: 'panel-cyan',
+      desc: `<h3>Water Engine</h3><p>Physical modeling of flowing water with turbulence and resonant body. Generates babbling brooks to rushing rivers.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">WATER</span>${T('on', true)}</div>
+        ${P('Level','35%',35)}
+        ${P('Flow Rate','20%',20)}
+        ${P('Turbulence','30%',30)}
+        ${P('Resonance','3.0',24)}
+        ${P('Body Size','50%',50)}
+        ${P('Stereo Width','70%',70)}`
+    },
+    bird: {
+      title: 'Bird', tagClass: 'tag-amber', borderClass: 'border-amber', panelClass: 'panel-amber',
+      desc: `<h3>Bird Engine</h3><p>Procedural birdsong with variable call rates and pitch ranges. Simulates individual calls to full flock choruses.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">BIRD</span>${T('on', true)}</div>
+        ${P('Level','35%',35)}
+        ${P('Call Rate','0.08 Hz',1)}
+        ${P('Pitch Range','50%',50)}
+        ${P('Chirp Speed','15%',15)}
+        ${P('Flock Size','2',7)}
+        ${P('Stereo Width','80%',80)}`
+    },
+    insect: {
+      title: 'Insect', tagClass: 'tag-green', borderClass: 'border-green', panelClass: 'panel-green',
+      desc: `<h3>Insect Engine</h3><p>Swarm synthesis with pulsating buzz patterns. Layered oscillators create everything from lone crickets to dense cicada fields.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">INSECT</span>${T('on', true)}</div>
+        ${P('Level','30%',30)}
+        ${P('Swarm Density','4',10)}
+        ${P('Buzz Freq','440 Hz',9)}
+        ${P('Pulse Rate','0.8 Hz',2)}
+        ${P('Chorus Depth','30%',30)}
+        ${P('Stereo Width','60%',60)}`
+    },
+    thunder: {
+      title: 'Thunder', tagClass: 'tag-red', borderClass: 'border-red', panelClass: 'panel-red',
+      desc: `<h3>Thunder Engine</h3><p>Storm simulation with low-frequency rumble and transient cracks. Distance modeling affects arrival time and spectral filtering.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">THUNDER</span>${T('on', true)}</div>
+        ${P('Level','30%',30)}
+        ${P('Storm Rate','0.02 Hz',1)}
+        ${P('Rumble Depth','50%',50)}
+        ${P('Crack Brightness','50%',50)}
+        ${P('Distance','60%',60)}
+        ${P('Stereo Width','50%',50)}`
+    },
+    rain: {
+      title: 'Rain', tagClass: 'tag-rain', borderClass: 'border-rain', panelClass: 'panel-rain',
+      desc: `<h3>Rain Engine</h3><p>Stochastic raindrop synthesis with surface interaction modeling. From light drizzle to heavy downpour with splash dynamics.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">RAIN</span>${T('on', true)}</div>
+        ${P('Level','30%',30)}
+        ${P('Density','8',1)}
+        ${P('Drop Size','50%',50)}
+        ${P('Surface','50%',50)}
+        ${P('Splash','30%',30)}
+        ${P('Stereo Width','70%',70)}`
+    },
+    aurora: {
+      title: 'Aurora', tagClass: 'tag-aurora', borderClass: 'border-aurora', panelClass: 'panel-aurora',
+      desc: `<h3>Aurora Engine</h3><p>Ethereal pad synthesis with slow spectral drift and shimmer. Creates luminous, slowly evolving harmonic textures.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">AURORA</span>${T('on', true)}</div>
+        ${P('Level','20%',20)}
+        ${P('Density','3',25)}
+        ${P('Drift Rate','0.02 Hz',4)}
+        ${P('Shimmer','40%',40)}
+        ${P('Brightness','50%',50)}
+        ${P('Stereo Width','80%',80)}`
+    },
+    ice: {
+      title: 'Ice', tagClass: 'tag-ice', borderClass: 'border-ice', panelClass: 'panel-ice',
+      desc: `<h3>Ice Engine</h3><p>Cracking and creaking ice textures with resonant stress modeling. Physical simulation of ice sheets under thermal stress.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">ICE</span>${T('on', true)}</div>
+        ${P('Level','20%',20)}
+        ${P('Crack Rate','0.1 Hz',5)}
+        ${P('Thickness','50%',50)}
+        ${P('Resonance','4.0',33)}
+        ${P('Stress','30%',30)}
+        ${P('Stereo Width','60%',60)}`
+    },
+    evo: {
+      title: 'Evolution', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Evolution</h3><p>Global modulation that slowly morphs all engine parameters over time. Controls how the entire soundscape breathes and transforms.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">EVOLUTION</span></div>
+        ${P('Rate','30%',30)}
+        ${P('Density','40%',40)}
+        ${P('Complexity','30%',30)}
+        ${P('Warmth','60%',60)}
+        ${P('Drift','20%',20)}`
+    },
+    scale: {
+      title: 'Scale', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Scale &amp; Key</h3><p>Constrain harmonic content to musical scales. Lock pitched engines to specific intervals for tonal coherence.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">SCALE</span></div>
+        ${D('Root')}
+        ${S(['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'], 0)}
+        <div style="margin-top:6px">
+          <button class="toggle-btn active" style="width:100%;text-align:center">SCALE LOCK</button>
+        </div>
+        ${D('Octave Range')}
+        <div class="octave-strip-placeholder"><span>Octave selection</span></div>
+        ${D('Preset')}
+        ${S(['Chromatic','Major','Natural Minor','Harmonic Minor','Melodic Minor','Dorian','Phrygian','Lydian','Mixolydian','Aeolian','Locrian','Pentatonic Major','Pentatonic Minor','Blues','Whole Tone','Diminished','Raga Bhairav','Raga Yaman','Maqam Hijaz','Maqam Bayati','Pelog','Slendro','Hirajoshi','In Sen','Yo','Custom'], 1)}
+        <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font-size:10px;color:var(--app-text-dim)">Notes: 7</span>
+          <button class="toggle-btn" style="font-size:9px;padding:2px 8px">Equal</button>
+        </div>`
+    },
+    mod: {
+      title: 'Modulation', tagClass: 'tag-mod', borderClass: 'border-mod', panelClass: 'panel-mod',
+      desc: `<h3>LFO Modulation</h3><p>Route low-frequency oscillators to any parameter. Multiple shapes and sync modes for complex evolving textures.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">MODULATION</span></div>
+        <div class="lfo-block">
+          <div class="lfo-top-row">
+            <div class="lfo-block-label">LFO 1</div>
+            <select class="param-select" style="flex:1;padding:3px 20px 3px 8px;font-size:10px;border-radius:3px;background-position:right 7px center;width:auto"><option selected>Sine</option><option>Tri</option><option>Square</option><option>Saw</option><option>S&amp;H</option></select>
+          </div>
+          <canvas class="lfo-viz-canvas" id="hab-lfo-1"></canvas>
+          ${P('Speed','0.8 Hz',16)}
+          <button class="lfo-sync-btn">Sync</button>
+          <button class="lfo-dest-btn assigned">Dest: Wind Level</button>
+        </div>
+        <div class="lfo-block">
+          <div class="lfo-top-row">
+            <div class="lfo-block-label">LFO 2</div>
+            <select class="param-select" style="flex:1;padding:3px 20px 3px 8px;font-size:10px;border-radius:3px;background-position:right 7px center;width:auto"><option selected>Sine</option><option>Tri</option><option>Square</option><option>Saw</option><option>S&amp;H</option></select>
+          </div>
+          <canvas class="lfo-viz-canvas" id="hab-lfo-2"></canvas>
+          ${P('Speed','0.5 Hz',10)}
+          <button class="lfo-sync-btn">Sync</button>
+          <button class="lfo-dest-btn assigned">Dest: Aurora Shimmer</button>
+        </div>
+        ${B('+ Add LFO')}`
+    },
+    delay: {
+      title: 'Delay', tagClass: 'tag-teal', borderClass: 'border-teal', panelClass: 'panel-teal',
+      desc: `<h3>Delay</h3><p>Three time ranges with digital, analog, and tape character. Filtered feedback with high-pass and low-pass shaping.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">DELAY</span></div>
+        ${D('Range')}
+        ${S(['Flange','Chorus','Delay'], 2)}
+        ${D('Character')}
+        ${S(['Digital','Analog','Tape'], 0)}
+        ${P('Time','40%',40)}
+        ${P('Feedback','35%',35)}
+        ${P('LP','100% (20 kHz)',100)}
+        ${P('HP','0% (20 Hz)',0)}
+        ${P('Mix','20%',20)}`
+    },
+    reverb: {
+      title: 'Reverb', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Reverb</h3><p>Multi-algorithm reverb with 18 presets from tight rooms to infinite washes. Full control over decay, modulation, and spectral shaping.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">REVERB</span></div>
+        ${D('Preset')}
+        ${S(['Plate-Tight Room','Grand Hall','Shimmer Cathedral','Living Room','Concert Hall','Cathedral','FDN Dense Room','Lush Hall','Infinite Wash','Silk','Deep Cavern','Stochastic','Chorus Swirl','Dark Grit','Phase Drift','Lo-Fi Tape','Clean Reference','Blackhole'], 1)}
+        ${P('Mix','65%',65)}
+        ${P('Decay','15% (18s)',15)}
+        ${P('Damping','60%',60)}
+        ${P('Pre-Delay','2% (20 ms)',2)}
+        ${P('Mod Depth','35%',35)}
+        ${P('Hi Cut','100%',100)}
+        ${P('Lo Cut','0%',0)}
+        ${P('Width','50%',50)}
+        ${P('Size','85%',85)}
+        ${P('Diffusion','80%',80)}
+        ${P('Mod Rate','12%',12)}
+        ${P('Compression','0%',0)}
+        <div style="margin-top:6px">
+          <button class="toggle-btn" style="width:100%;text-align:center">FREEZE</button>
+        </div>`
+    },
+    output: {
+      title: 'Output', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Output</h3><p>Final signal chain with compression, drive, tone shaping, and level control. Shape the overall character of your drone.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">OUTPUT</span></div>
+        ${P('Compression','0%',0)}
+        ${P('Drive','0%',0)}
+        ${P('Tone','50%',50)}
+        ${P('Mid','50%',50)}
+        ${P('Output Level','50%',50)}
+        ${P('Master Output','35%',35)}`
+    },
+    preset: {
+      title: 'Presets', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Save &amp; Recall</h3><p>Save, load, and randomize entire soundscapes. The preset system captures all engine states, modulation routings, and effect settings.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">PRESETS</span></div>
+        ${D('Preset Browser')}
+        <div style="font-size:10px;color:var(--app-text-dim);line-height:1.5;margin-top:2px">
+          <b>Save</b> stores the current soundscape. <b>Load</b> recalls a saved state. <b>Randomize</b> generates a new combination of engine parameters.
+        </div>
+        ${D("What's Saved")}
+        <div style="display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--app-text-dim);font-family:'JetBrains Mono',monospace">
+          <span>&#10003; All engine levels &amp; parameters</span>
+          <span>&#10003; Evolution settings</span>
+          <span>&#10003; Scale &amp; key configuration</span>
+          <span>&#10003; LFO routings &amp; shapes</span>
+          <span>&#10003; Delay &amp; reverb settings</span>
+          <span>&#10003; Output chain state</span>
+        </div>
+        ${D('Import / Export')}
+        <div style="display:flex;gap:4px;margin:4px 0">
+          <button class="toggle-btn">Export</button>
+          <button class="toggle-btn">Import</button>
+        </div>
+        <div style="font-size:10px;color:var(--app-text-dim)">Share .habitat files containing the full soundscape state.</div>`
+    }
+  };
+
+  const STEP_ORDER = ['intro','wind','water','bird','insect','thunder','rain','aurora','ice','evo','scale','mod','delay','reverb','output','preset','end'];
+  const panel = document.getElementById('floatPanel');
+  const panelBody = document.getElementById('panelBody');
+  const descEl = document.getElementById('descOverlay');
+  const descTag = document.getElementById('descTag');
+  const descBody = document.getElementById('descBody');
+  const introOverlay = document.getElementById('introOverlay');
+  const ctaFooter = document.getElementById('ctaFooter');
+  const navBtns = document.querySelectorAll('.v2-nav-btn');
+  const toolBtns = document.querySelectorAll('.tool-btn');
+  const allStepBtns = document.querySelectorAll('[data-step]');
+
+  let activeStep = 'intro';
+
+  function positionOverlays(stepName, navOverride) {
+    const target = navOverride || stepName;
+    const btn = document.querySelector(`.v2-nav-btn[data-step="${target}"]`) ||
+                document.querySelector(`.tool-btn[data-step="${target}"]`);
+    if (!btn) return;
+    const btnRect = btn.getBoundingClientRect();
+    const descH = descEl.offsetHeight || 80;
+    const panelH = panel.offsetHeight || 200;
+    const gap = 8;
+    const totalH = descH + gap + panelH;
+
+    let top = btnRect.top + btnRect.height / 2 - totalH / 2;
+    top = Math.max(10, Math.min(window.innerHeight - totalH - 10, top));
+
+    descEl.style.top = top + 'px';
+    panel.style.top = (top + descH + gap) + 'px';
+  }
+
+  function setStep(stepName) {
+    if (stepName === activeStep) return;
+    activeStep = stepName;
+
+    // Stop LFO animation on step change
+    stopLfoAnim();
+
+    // Intro overlay
+    introOverlay.classList.toggle('hidden', stepName !== 'intro');
+
+    // CTA footer
+    ctaFooter.classList.toggle('visible', stepName === 'end');
+
+    // Panel + description content
+    const data = STEPS[stepName];
+    const navTarget = (data && data.navStep) || stepName;
+
+    // Nav + toolbar buttons
+    navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.step === navTarget));
+    toolBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.step === navTarget));
+
+    if (data) {
+      // Description overlay
+      descTag.textContent = data.title;
+      descTag.className = 'desc-tag' + (data.tagClass ? ' ' + data.tagClass : '');
+      descBody.innerHTML = data.desc;
+      descEl.className = 'visible' + (data.borderClass ? ' ' + data.borderClass : '');
+
+      // Parameter panel
+      panelBody.innerHTML = data.html;
+      panel.className = 'visible' + (data.panelClass ? ' ' + data.panelClass : '');
+
+      // Position next frame
+      requestAnimationFrame(() => positionOverlays(stepName, navTarget));
+
+      // Start LFO animation for mod step
+      if (stepName === 'mod') {
+        requestAnimationFrame(() => startLfoAnim());
+      }
+
+      // Update visualization color
+      if (window._vizSetEngine) window._vizSetEngine(stepName);
+    } else {
+      // intro or end -- hide both overlays
+      panel.className = '';
+      descEl.className = '';
+      if (window._vizClear) window._vizClear();
+    }
+
+    // Update step dots
+    const dotIdx = STEP_ORDER.indexOf(stepName);
+    document.querySelectorAll('.step-dot').forEach((d, i) => d.classList.toggle('active', i === dotIdx));
+  }
+
+  // ── Scroll-driven step detection ──
+  const sections = document.querySelectorAll('.scroll-section');
+  const obs = new IntersectionObserver(entries => {
+    let best = null, bestRatio = 0;
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio > bestRatio) {
+        best = e.target;
+        bestRatio = e.intersectionRatio;
+      }
+    });
+    if (best) setStep(best.dataset.step);
+  }, { threshold: [0, 0.3, 0.5, 0.7, 1], rootMargin: '-40% 0px -40% 0px' });
+
+  sections.forEach(s => obs.observe(s));
+
+  // ── Step dots ──
+  const dotsEl = document.getElementById('stepDots');
+  STEP_ORDER.forEach(() => {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot';
+    dotsEl.appendChild(dot);
+  });
+
+  // ── Click nav/toolbar buttons to jump to section ──
+  allStepBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const step = btn.dataset.step;
+      const section = document.querySelector(`.scroll-section[data-step="${step}"]`);
+      if (section) {
+        activeStep = '';
+        setStep(step);
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+
+  // Set initial state
+  setStep('intro');
+})();
+</script>
+</body>
+</html>

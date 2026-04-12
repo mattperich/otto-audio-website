@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habitat — Generative Drone Synthesizer</title>
+<meta name="description" content="Habitat is a generative drone synthesizer with eight nature-modeled engines, real-time visualization, scale systems, and LFO modulation. macOS, iPad, AU & VST3.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ── Hero ─────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 55%, transparent 0%, var(--bg) 65%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 24px;
+  max-width: 800px;
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  line-height: 1.05;
+  color: var(--text-heading);
+  margin-bottom: 20px;
+}
+
+.hero h1 span {
+  background: linear-gradient(135deg, #7eb8a8, #40e0a0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: var(--text);
+  font-weight: 300;
+  max-width: 600px;
+  margin: 0 auto 28px;
+  line-height: 1.7;
+}
+
+/* ── Engine Grid ─────────────────────────────────────────── */
+
+.engine-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 48px;
+}
+
+.engine-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 20px;
+  transition: border-color 0.3s, transform 0.2s;
+}
+
+.engine-card:hover {
+  transform: translateY(-3px);
+}
+
+.engine-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-bottom: 14px;
+}
+
+.engine-card h3 {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-heading);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.engine-card p {
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* ── Features Grid ───────────────────────────────────────── */
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+/* ── Specs ────────────────────────────────────────────── */
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.spec { text-align: center; }
+
+.spec-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  background: linear-gradient(135deg, #7eb8a8, #40e0a0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.spec-label { font-size: 0.85rem; color: var(--text); margin-top: 4px; }
+
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .engine-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .engine-grid { grid-template-columns: 1fr; }
+  .features { grid-template-columns: 1fr; }
+  .specs-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio"></a>
+  <div class="nav-links">
+    <a href="streams-index.html">Streams</a>
+    <a href="habitat-index.html" class="active">Habitat</a>
+    <a href="#">OttoVerb</a>
+  </div>
+</nav>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <canvas class="hero-canvas" id="heroCanvas"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1><span>Habitat</span></h1>
+    <p class="hero-sub">
+      Generative drone synthesizer. Eight engines modeled on the natural world.
+      macOS, iPad, AU &amp; VST3.
+    </p>
+    <a href="https://github.com/mattperich/habitat" class="btn-primary">
+      <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+  </div>
+</div>
+
+<!-- ═══════ ENGINES ═══════ -->
+<section id="engines">
+  <div class="reveal">
+    <div class="section-label">Engines</div>
+    <h2 class="section-title">Eight sound sources</h2>
+    <p class="section-desc">
+      Each engine generates a different class of natural sound. Layer and blend them to build environments.
+    </p>
+  </div>
+  <div class="engine-grid reveal">
+    <div class="engine-card" style="border-color: rgba(126,184,168,0.15)">
+      <div class="engine-dot" style="background:#7eb8a8"></div>
+      <h3>Wind</h3>
+      <p>Filtered noise with spectral shaping, gust modulation, and variable tilt.</p>
+    </div>
+    <div class="engine-card" style="border-color: rgba(34,209,238,0.15)">
+      <div class="engine-dot" style="background:#22d1ee"></div>
+      <h3>Water</h3>
+      <p>Flow and turbulence modeling with resonant body size and ripple physics.</p>
+    </div>
+    <div class="engine-card" style="border-color: rgba(196,168,77,0.15)">
+      <div class="engine-dot" style="background:#c4a84d"></div>
+      <h3>Birds</h3>
+      <p>Synthesized calls with pitch variation, chirp speed, and flock density.</p>
+    </div>
+    <div class="engine-card" style="border-color: rgba(139,195,74,0.15)">
+      <div class="engine-dot" style="background:#8bc34a"></div>
+      <h3>Insects</h3>
+      <p>Swarm synthesis with buzz frequency, pulse rate, and chorus detuning.</p>
+    </div>
+    <div class="engine-card" style="border-color: rgba(232,93,93,0.15)">
+      <div class="engine-dot" style="background:#e85d5d"></div>
+      <h3>Thunder</h3>
+      <p>Storm modeling with rumble depth, crack transients, and distance simulation.</p>
+    </div>
+    <div class="engine-card" style="border-color: rgba(149,117,205,0.15)">
+      <div class="engine-dot" style="background:#9575cd"></div>
+      <h3>Rain</h3>
+      <p>Stochastic drop generation with variable density, size, surface, and splash.</p>
+    </div>
+    <div class="engine-card" style="border-color: rgba(64,224,160,0.15)">
+      <div class="engine-dot" style="background:#40e0a0"></div>
+      <h3>Aurora</h3>
+      <p>Harmonic drone layers with slow drift, shimmer modulation, and brightness.</p>
+    </div>
+    <div class="engine-card" style="border-color: rgba(160,216,239,0.15)">
+      <div class="engine-dot" style="background:#a0d8ef"></div>
+      <h3>Ice</h3>
+      <p>Cracking and resonant stress modeling with thickness and decay control.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ EFFECTS ═══════ -->
+<section id="effects">
+  <div class="reveal">
+    <div class="section-label">Processing</div>
+    <h2 class="section-title">Effects chain</h2>
+    <p class="section-desc">
+      Delay, reverb, and character shaping applied to the combined engine output.
+    </p>
+  </div>
+  <div class="features reveal">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(74,144,209,0.1);color:var(--accent)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h3>Delay</h3>
+      <p>Flange, chorus, and delay ranges with digital, analog, and tape character modes. Filtered feedback with high-pass and low-pass control.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(74,144,209,0.1);color:var(--accent)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" stroke-dasharray="3 2"/><circle cx="12" cy="12" r="2"/></svg>
+      </div>
+      <h3>Reverb</h3>
+      <p>18 algorithmic presets spanning plate, hall, cathedral, shimmer, and infinite wash. Full parameter control with freeze mode.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(74,144,209,0.1);color:var(--accent)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4"/><path d="M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83"/><path d="M2 12h4m12 0h4"/></svg>
+      </div>
+      <h3>Character</h3>
+      <p>Drive, compression, tone, and mid shaping at the end of the signal chain.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ EVOLUTION ═══════ -->
+<section id="evolution">
+  <div class="reveal">
+    <div class="section-label">Evolution</div>
+    <h2 class="section-title">Slow drift</h2>
+    <p class="section-desc">
+      Autonomous parameter evolution with configurable rate, density, complexity, warmth, and drift.
+      Engines gradually shift over time, creating slowly transforming soundscapes without manual input.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════ SPECS ═══════ -->
+<section id="specs">
+  <div class="reveal">
+    <div class="section-label">Architecture</div>
+    <h2 class="section-title">Specs</h2>
+  </div>
+  <div class="specs-grid reveal">
+    <div class="spec"><div class="spec-value">8</div><div class="spec-label">Sound engines</div></div>
+    <div class="spec"><div class="spec-value">&lt;5ms</div><div class="spec-label">Latency</div></div>
+    <div class="spec"><div class="spec-value">60fps</div><div class="spec-label">Visualization</div></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <p>Otto Audio &mdash; <a href="https://github.com/mattperich">Matt Perich</a> &middot; <a href="habitat-tutorial.html">Tutorial</a></p>
+</footer>
+
+<!-- ═══════ SCRIPTS ═══════ -->
+<script>
+// ── Hero dot grid canvas ──
+(function() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  let W, H;
+
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const COLS = 120, ROWS = 75;
+  const ENGINE_COLORS = [
+    [126,184,168], [34,209,238], [196,168,77], [139,195,74],
+    [232,93,93], [149,117,205], [64,224,160], [160,216,239]
+  ];
+
+  const N = COLS * ROWS;
+  const hx = new Float32Array(N), hy = new Float32Array(N);
+  const dx = new Float32Array(N), dy = new Float32Array(N);
+  const vx = new Float32Array(N), vy = new Float32Array(N);
+  const cr = new Uint8Array(N), cg = new Uint8Array(N), cb = new Uint8Array(N);
+  const br = new Float32Array(N);
+
+  function init() {
+    const gapX = W / (COLS + 1), gapY = H / (ROWS + 1);
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const i = r * COLS + c;
+        hx[i] = dx[i] = (c + 1) * gapX;
+        hy[i] = dy[i] = (r + 1) * gapY;
+        vx[i] = vy[i] = 0;
+        const eng = ENGINE_COLORS[Math.floor(Math.random() * ENGINE_COLORS.length)];
+        cr[i] = eng[0]; cg[i] = eng[1]; cb[i] = eng[2];
+        br[i] = 0.08 + Math.random() * 0.06;
+      }
+    }
+  }
+
+  let t = 0;
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.003;
+
+    for (let i = 0; i < N; i++) {
+      const wave = Math.sin(hx[i] * 0.008 + t) * Math.cos(hy[i] * 0.006 + t * 0.7);
+      const push = wave * 2;
+      vx[i] += (hx[i] - dx[i]) * 0.02 + push * 0.3;
+      vy[i] += (hy[i] - dy[i]) * 0.02 + push * 0.2;
+      vx[i] *= 0.93; vy[i] *= 0.93;
+      dx[i] += vx[i]; dy[i] += vy[i];
+
+      const a = br[i] + Math.abs(wave) * 0.15;
+      ctx.fillStyle = `rgba(${cr[i]},${cg[i]},${cb[i]},${a})`;
+      ctx.fillRect(dx[i] - 0.6, dy[i] - 0.6, 1.2, 1.2);
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  resize();
+  init();
+  window.addEventListener('resize', () => { resize(); init(); });
+  frame();
+})();
+
+// ── Scroll reveal ──
+(function() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+</script>
+</body>
+</html>
