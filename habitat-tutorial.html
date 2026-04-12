@@ -937,231 +937,290 @@
 
 <script>
 // ══════════════════════════════════════════════════════════
-// DOT GRID VISUALIZATION (spring physics with engine colors)
+// DOT GRID VISUALIZATION (exact Habitat app simulation)
 // ══════════════════════════════════════════════════════════
 
 (function vizEngine() {
   const canvas = document.getElementById('vizCanvas');
   const ctx = canvas.getContext('2d');
-  const COLS = 100, ROWS = 60;
-  const N = COLS * ROWS;
+  const COLS = 140, ROWS = 88, N = COLS * ROWS;
+  const SPRING = 0.02, DAMP = 0.93, DIM_A = 0.12, MAX_A = 0.95;
 
-  // Dot state arrays
-  const homeX = new Float32Array(N);
-  const homeY = new Float32Array(N);
-  const posX  = new Float32Array(N);
-  const posY  = new Float32Array(N);
-  const velX  = new Float32Array(N);
-  const velY  = new Float32Array(N);
-  const dotR  = new Float32Array(N); // color R
-  const dotG  = new Float32Array(N); // color G
-  const dotB  = new Float32Array(N); // color B
-  const dotA  = new Float32Array(N); // alpha
+  const hX = new Float32Array(N), hY = new Float32Array(N);
+  const pX = new Float32Array(N), pY = new Float32Array(N);
+  const vX = new Float32Array(N), vY = new Float32Array(N);
+  const cR = new Float32Array(N), cG = new Float32Array(N), cB = new Float32Array(N);
+  const br = new Float32Array(N);
 
-  let W = 0, H = 0;
-  let mx = -1e4, my = -1e4, mDown = false, pmx = 0, pmy = 0;
-  let activeColor = [74, 144, 209]; // default accent
-  let waveTime = 0;
-  let waveActive = false;
+  let W = 0, H = 0, mx = -1e4, my = -1e4, mDown = false, now = 0, mode = 'habitat';
 
-  // Engine accent colors (RGB)
-  const ENGINE_COLORS = {
-    wind:    [126, 184, 168],
-    water:   [34, 209, 238],
-    bird:    [196, 168, 77],
-    insect:  [139, 195, 74],
-    thunder: [232, 93, 93],
-    rain:    [149, 117, 205],
-    aurora:  [64, 224, 160],
-    ice:     [160, 216, 239],
-    evo:     [74, 144, 209],
-    scale:   [74, 144, 209],
-    mod:     [184, 144, 64],
-    delay:   [74, 144, 184],
-    reverb:  [74, 144, 209],
-    output:  [74, 144, 209],
-    preset:  [74, 144, 209]
+  const EC = {
+    wind:{r:.49,g:.72,b:.66}, water:{r:.29,g:.56,b:.76}, bird:{r:.77,g:.66,b:.30},
+    insect:{r:.55,g:.76,b:.29}, thunder:{r:.58,g:.46,b:.80}, rain:{r:.43,g:.56,b:.72},
+    aurora:{r:.25,g:.88,b:.63}, ice:{r:.63,g:.85,b:.94}
   };
+  const ENGINES = Object.keys(EC);
 
-  function resize() {
-    const dpr = Math.min(devicePixelRatio || 1, 2);
-    const r = canvas.getBoundingClientRect();
-    W = r.width; H = r.height;
-    if (!W || !H) return;
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    layoutGrid();
+  for (let i=0;i<N;i++){cR[i]=.5;cG[i]=.6;cB[i]=.7;br[i]=DIM_A;}
+
+  function blend(i,c,a){a=Math.min(a,1)*.3;cR[i]+=(c.r-cR[i])*a;cG[i]+=(c.g-cG[i])*a;cB[i]+=(c.b-cB[i])*a;}
+  function impulse(cx,cy,rad,str,c){
+    for(let i=0;i<N;i++){const dx=pX[i]-cx,dy=pY[i]-cy,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<rad&&d>.5){const t=1-d/rad;vX[i]+=dx/d*t*str;vY[i]+=dy/d*t*str;blend(i,c,t*.4);}}
   }
 
-  function layoutGrid() {
-    const spacingX = W / (COLS + 1);
-    const spacingY = H / (ROWS + 1);
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const i = r * COLS + c;
-        homeX[i] = (c + 1) * spacingX;
-        homeY[i] = (r + 1) * spacingY;
-        if (posX[i] === 0 && posY[i] === 0) {
-          posX[i] = homeX[i];
-          posY[i] = homeY[i];
-        }
-      }
-    }
+  // ── WIND: sweeping gust bands ──
+  let gusts=[], gustAcc=0;
+  function simWind(dt,lvl) {
+    const c=EC.wind;
+    gustAcc+=dt*2*lvl;
+    while(gustAcc>1){gustAcc--;gusts.push({p:-.05,spd:.5+Math.random()*.8,w:.08+Math.random()*.12,str:lvl*(.6+Math.random()*.4)});}
+    for(const g of gusts){
+      g.p+=g.spd*dt;
+      for(let i=0;i<N;i++){const nx=pX[i]/W;if(Math.abs(nx-g.p)<g.w){
+        const t=1-Math.abs(nx-g.p)/g.w,f=t*t*g.str*.5;
+        vX[i]+=f;vY[i]+=f*.2*(Math.random()-.5);blend(i,c,t*lvl*.4);}}}
+    gusts=gusts.filter(g=>g.p<1.15);
+    for(let i=0;i<N;i++){vX[i]+=lvl*.06*(Math.random()-.5);vY[i]+=lvl*.03*(Math.random()-.5);}
   }
 
-  // Initialize colors to a dim neutral
-  for (let i = 0; i < N; i++) {
-    dotR[i] = 30; dotG[i] = 48; dotB[i] = 70;
-    dotA[i] = 0.15 + Math.random() * 0.1;
+  // ── WATER: meandering stream with concentric ripples ──
+  let waterPts=[];
+  function initWater(){waterPts=[];for(let t=0;t<5;t++)waterPts.push({bx:.1+t*.2,by:.35+Math.sin(t*.628)*.15,px:Math.random()*6.28,py:Math.random()*6.28,rp:Math.random()});}
+  function simWater(dt,lvl) {
+    const c=EC.water,rad=60+lvl*50;
+    for(const wp of waterPts){
+      const wx=(wp.bx+Math.sin(now*.00003+wp.px)*.04)*W;
+      const wy=(wp.by+Math.cos(now*.00004+wp.py)*.03)*H;
+      wp.rp+=dt*.65; if(wp.rp>1)wp.rp-=1;
+      for(let r=0;r<3;r++){const rr=((wp.rp+r/3)%1)*rad*.9;
+        for(let i=0;i<N;i++){const dx=pX[i]-wx,dy=pY[i]-wy,d=Math.sqrt(dx*dx+dy*dy);
+          if(Math.abs(d-rr)<14&&d>.5){const t=1-Math.abs(d-rr)/14,f=t*.5*lvl;vX[i]+=dx/d*f;vY[i]+=dy/d*f;blend(i,c,t*lvl*.5);}}}}
+    for(let i=0;i<N;i++)vX[i]+=lvl*.04;
   }
 
-  function setEngineColor(name) {
-    const c = ENGINE_COLORS[name] || [74, 144, 209];
-    activeColor = c;
-    waveActive = true;
-    waveTime = 0;
+  // ── BIRD: orbiting flock murmurations ──
+  let flocks=[];
+  function spawnFlock(){const s=Math.random()<.5?-.05:1.05;
+    flocks.push({x:s*W,y:Math.random()*H,tx:(1.05-s)*W,ty:Math.random()*H,prog:0,spd:.02+Math.random()*.015,rad:50+Math.random()*50});}
+  function simBird(dt,lvl) {
+    const c=EC.bird;
+    if(flocks.length<3)spawnFlock();
+    for(const f of flocks){
+      f.prog+=f.spd*dt;
+      f.x+=(f.tx-f.x)*.003;f.y+=(f.ty-f.y)*.003;
+      for(let i=0;i<N;i++){const dx=pX[i]-f.x,dy=pY[i]-f.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<f.rad&&d>1){const t=1-d/f.rad,orb=t*lvl*1.5;
+          vX[i]+=(-dy/d)*orb*.35;vY[i]+=(dx/d)*orb*.35;blend(i,c,t*lvl*.7);}}}
+    flocks=flocks.filter(f=>f.prog<1);
   }
 
-  function clearEngineColor() {
-    activeColor = [30, 48, 70];
-    waveActive = false;
-    // Fade back to neutral
-    for (let i = 0; i < N; i++) {
-      dotA[i] = 0.15 + Math.random() * 0.1;
-    }
+  // ── INSECT: pulsing buzzing swarm clusters ──
+  let swarms=[];
+  function spawnSwarm(){swarms.push({x:(0.15+Math.random()*.7)*W,y:(0.15+Math.random()*.7)*H,rad:30+Math.random()*40,age:0,life:6000+Math.random()*8000,ph:Math.random()*6.28});}
+  function simInsect(dt,lvl) {
+    const c=EC.insect;
+    if(swarms.length<3)spawnSwarm();
+    for(const s of swarms){
+      s.age+=dt*1000;s.ph+=dt*6;
+      const env=s.age<1500?s.age/1500:s.age>s.life-1500?Math.max(0,(s.life-s.age)/1500):1;
+      const pulse=.5+.5*Math.sin(s.ph);
+      const er=s.rad*(.7+env*.3);
+      for(let i=0;i<N;i++){const dx=pX[i]-s.x,dy=pY[i]-s.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<er&&d>.5){const t=1-d/er,f=t*lvl*2*pulse*env;
+          vX[i]+=(Math.random()-.5)*f;vY[i]+=(Math.random()-.5)*f;blend(i,c,t*lvl*.6*env*(.5+pulse*.5));}}}
+    swarms=swarms.filter(s=>s.age<s.life);
+  }
+
+  // ── THUNDER: storm fronts + expanding shockwave rings ──
+  let fronts=[],shocks=[];
+  function simThunder(dt,lvl) {
+    const c=EC.thunder;
+    if(!fronts.length)fronts.push({p:-.1,spd:.04+Math.random()*.03,w:.08+Math.random()*.06,ct:0,ci:1500+Math.random()*2500});
+    for(const f of fronts){
+      f.p+=f.spd*dt;f.ct+=dt*1000;
+      for(let i=0;i<N;i++){const nx=pX[i]/W;
+        if(nx<f.p){const bh=f.p-nx;if(bh<.15){const t=1-bh/.15;
+          vX[i]+=(Math.random()-.5)*t*lvl*.5;vY[i]+=(Math.random()-.5)*t*lvl*.5;blend(i,c,t*lvl*.08);}}
+        if(Math.abs(nx-f.p)<f.w){const t=1-Math.abs(nx-f.p)/f.w;
+          vX[i]+=(Math.random()-.5)*t*lvl*.7;vY[i]+=(Math.random()-.5)*t*lvl*.7;blend(i,c,t*lvl*.2);}}
+      if(f.ct>=f.ci&&shocks.length<6){shocks.push({x:f.p*W,y:(.2+Math.random()*.6)*H,r:0,e:lvl*4,mr:250});f.ct=0;}}
+    fronts=fronts.filter(f=>f.p<1.2);
+    for(const s of shocks){
+      s.r+=8;s.e*=.965;
+      for(let i=0;i<N;i++){const dx=pX[i]-s.x,dy=pY[i]-s.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(Math.abs(d-s.r)<45&&d>.5){const t=1-Math.abs(d-s.r)/45,f=s.e*t*2.5;
+          vX[i]+=dx/d*f;vY[i]+=dy/d*f;blend(i,c,f*.4);}}}
+    shocks=shocks.filter(s=>s.r<s.mr&&s.e>.01);
+  }
+
+  // ── RAIN: sweeping diagonal bands with drop impacts ──
+  let rBands=[],rainDropAcc=0;
+  function simRain(dt,lvl) {
+    const c=EC.rain;
+    if(rBands.length<3)rBands.push({a:.3+Math.random()*.8,p:-.2,spd:.06+Math.random()*.04,w:.2+Math.random()*.15});
+    for(const b of rBands){b.p+=b.spd*dt;}
+    rBands=rBands.filter(b=>b.p<1.3);
+    rainDropAcc+=dt*40*lvl;
+    while(rainDropAcc>1){rainDropAcc--;impulse(Math.random()*W,Math.random()*H,15+lvl*12,.4*lvl,c);}
+    // Gentle downward drift
+    for(let i=0;i<N;i++){vY[i]+=lvl*.04;vX[i]+=lvl*.01*(Math.random()-.5);}
+  }
+
+  // ── AURORA: vertical curtain bands with vertical shimmer ──
+  let curtains=[];
+  function simAurora(dt,lvl) {
+    const c=EC.aurora;
+    while(curtains.length<4)curtains.push({x:.1+Math.random()*.8,w:.06+Math.random()*.12,spd:(Math.random()-.5)*.03,sp:Math.random()*6.28,ss:1+Math.random()*2,int:.5+Math.random()*.5});
+    for(const cu of curtains){
+      cu.sp+=cu.ss*dt;cu.x+=cu.spd*dt+Math.sin(cu.sp)*.0002;
+      if(cu.x<-.1)cu.x=1.1;if(cu.x>1.1)cu.x=-.1;
+      const cx=cu.x*W,cw=cu.w*W;
+      for(let i=0;i<N;i++){const dx=Math.abs(pX[i]-cx);if(dx<cw){
+        const t=1-dx/cw,yf=pY[i]/H,sh=.5+.5*Math.sin(yf*8+cu.sp*2);
+        const f=t*t*lvl*cu.int*sh*.5;
+        vY[i]-=f*.4;vX[i]+=Math.sin(cu.sp)*t*lvl*.25;
+        blend(i,c,t*sh*lvl*.6);}}}
+  }
+
+  // ── ICE: directional crack waves + radial stress pulse ──
+  let iceCracks=[],iceAcc=0;
+  function simIce(dt,lvl) {
+    const c=EC.ice;
+    iceAcc+=dt*3*lvl;
+    while(iceAcc>1&&iceCracks.length<5){iceAcc--;iceCracks.push({p:-.05,spd:3+Math.random()*4,a:Math.random()*6.28,w:.03+.5*.06,int:.8+Math.random()*.4});}
+    for(const cr of iceCracks){
+      cr.p+=cr.spd*dt;
+      const ca=Math.cos(cr.a),sa=Math.sin(cr.a);
+      for(let i=0;i<N;i++){const proj=(pX[i]/W)*ca+(pY[i]/H)*sa;
+        if(Math.abs(proj-cr.p)<cr.w){const t=1-Math.abs(proj-cr.p)/cr.w,f=t*cr.int*lvl*3;
+          vX[i]+=(-sa)*f*.4+(Math.random()-.5)*f*.6;vY[i]+=(ca)*f*.4+(Math.random()-.5)*f*.6;blend(i,c,t*lvl*.7);}}}
+    iceCracks=iceCracks.filter(cr=>cr.p<1.3);
+    const sp=Math.sin(now*.0003)*lvl*.4;
+    const md=Math.sqrt(W*W+H*H)*.5;
+    for(let i=0;i<N;i++){const dx=pX[i]-W/2,dy=pY[i]-H/2,d=Math.sqrt(dx*dx+dy*dy);
+      if(d>.5&&d<md){const f=sp*.15*(1-d/md);vX[i]+=dx/d*f;vY[i]+=dy/d*f;blend(i,c,Math.abs(sp)*.2*(1-d/md));}}
+  }
+
+  // ── HABITAT MODE: all engines at low intensity simultaneously ──
+  let habWaterPts=[];
+  function initHabWater(){habWaterPts=[];for(let t=0;t<3;t++)habWaterPts.push({bx:.15+t*.3,by:.4+Math.sin(t)*.12,px:Math.random()*6.28,py:Math.random()*6.28,rp:Math.random()});}
+  let habGusts=[],habGustAcc=0,habFlocks=[],habSwarms=[],habShocks=[],habCurtains=[];
+  function simHabitat(dt) {
+    const lo=.25;
+    // Wind gusts (gentle)
+    habGustAcc+=dt*.8;
+    while(habGustAcc>1){habGustAcc--;habGusts.push({p:-.05,spd:.4+Math.random()*.5,w:.1+Math.random()*.15,str:lo*(.5+Math.random()*.5)});}
+    for(const g of habGusts){g.p+=g.spd*dt;
+      for(let i=0;i<N;i++){const nx=pX[i]/W;if(Math.abs(nx-g.p)<g.w){const t=1-Math.abs(nx-g.p)/g.w;
+        vX[i]+=t*t*g.str*.3;blend(i,EC.wind,t*lo*.25);}}}
+    habGusts=habGusts.filter(g=>g.p<1.15);
+    for(let i=0;i<N;i++){vX[i]+=lo*.04*(Math.random()-.5);vY[i]+=lo*.02*(Math.random()-.5);}
+
+    // Water ripples (gentle)
+    for(const wp of habWaterPts){
+      const wx=(wp.bx+Math.sin(now*.00003+wp.px)*.04)*W,wy=(wp.by+Math.cos(now*.00004+wp.py)*.03)*H;
+      wp.rp+=dt*.4;if(wp.rp>1)wp.rp-=1;
+      for(let r=0;r<2;r++){const rr=((wp.rp+r/2)%1)*50;
+        for(let i=0;i<N;i++){const dx=pX[i]-wx,dy=pY[i]-wy,d=Math.sqrt(dx*dx+dy*dy);
+          if(Math.abs(d-rr)<10&&d>.5){const t=1-Math.abs(d-rr)/10;vX[i]+=dx/d*t*.3*lo;vY[i]+=dy/d*t*.3*lo;blend(i,EC.water,t*lo*.3);}}}}
+
+    // Bird flocks (occasional)
+    if(habFlocks.length<2&&Math.random()<dt*.3){const s=Math.random()<.5?-.05:1.05;
+      habFlocks.push({x:s*W,y:Math.random()*H,tx:(1.05-s)*W,ty:Math.random()*H,prog:0,spd:.015+Math.random()*.01,rad:35+Math.random()*30});}
+    for(const f of habFlocks){f.prog+=f.spd*dt;f.x+=(f.tx-f.x)*.002;f.y+=(f.ty-f.y)*.002;
+      for(let i=0;i<N;i++){const dx=pX[i]-f.x,dy=pY[i]-f.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<f.rad&&d>1){const t=1-d/f.rad;vX[i]+=(-dy/d)*t*lo*.8;vY[i]+=(dx/d)*t*lo*.8;blend(i,EC.bird,t*lo*.5);}}}
+    habFlocks=habFlocks.filter(f=>f.prog<1);
+
+    // Insect swarms (occasional)
+    if(habSwarms.length<2&&Math.random()<dt*.2)habSwarms.push({x:(.2+Math.random()*.6)*W,y:(.2+Math.random()*.6)*H,rad:25+Math.random()*30,age:0,life:5000+Math.random()*6000,ph:Math.random()*6.28});
+    for(const s of habSwarms){s.age+=dt*1000;s.ph+=dt*5;
+      const env=s.age<1500?s.age/1500:s.age>s.life-1500?Math.max(0,(s.life-s.age)/1500):1;
+      const pulse=.5+.5*Math.sin(s.ph),er=s.rad*(.7+env*.3);
+      for(let i=0;i<N;i++){const dx=pX[i]-s.x,dy=pY[i]-s.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<er&&d>.5){const t=1-d/er;vX[i]+=(Math.random()-.5)*t*lo*pulse*env;vY[i]+=(Math.random()-.5)*t*lo*pulse*env;blend(i,EC.insect,t*lo*.4*env);}}}
+    habSwarms=habSwarms.filter(s=>s.age<s.life);
+
+    // Thunder shockwaves (rare)
+    if(habShocks.length<2&&Math.random()<dt*.08)habShocks.push({x:Math.random()*W,y:Math.random()*H,r:0,e:1.5,mr:180});
+    for(const s of habShocks){s.r+=5;s.e*=.97;
+      for(let i=0;i<N;i++){const dx=pX[i]-s.x,dy=pY[i]-s.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(Math.abs(d-s.r)<35&&d>.5){const t=1-Math.abs(d-s.r)/35;vX[i]+=dx/d*s.e*t*1.5;vY[i]+=dy/d*s.e*t*1.5;blend(i,EC.thunder,s.e*t*.3);}}}
+    habShocks=habShocks.filter(s=>s.r<s.mr&&s.e>.01);
+
+    // Aurora shimmer (constant gentle)
+    while(habCurtains.length<2)habCurtains.push({x:.2+Math.random()*.6,w:.08+Math.random()*.1,spd:(Math.random()-.5)*.02,sp:Math.random()*6.28,ss:1+Math.random()});
+    for(const cu of habCurtains){cu.sp+=cu.ss*dt;cu.x+=cu.spd*dt;if(cu.x<-.1)cu.x=1.1;if(cu.x>1.1)cu.x=-.1;
+      const cx=cu.x*W,cw=cu.w*W;
+      for(let i=0;i<N;i++){const dx=Math.abs(pX[i]-cx);if(dx<cw){const t=1-dx/cw,sh=.5+.5*Math.sin(pY[i]/H*6+cu.sp*2);
+        vY[i]-=t*t*lo*sh*.15;blend(i,EC.aurora,t*sh*lo*.3);}}}
+
+    // Rain drops (occasional)
+    if(Math.random()<dt*8*lo)impulse(Math.random()*W,Math.random()*H,18,.25*lo,EC.rain);
+
+    // Ice stress (subtle)
+    const sp=Math.sin(now*.0002)*lo*.2;
+    if(Math.abs(sp)>.02){const md=Math.sqrt(W*W+H*H)*.5;
+      for(let i=0;i<N;i++){const dx=pX[i]-W/2,dy=pY[i]-H/2,d=Math.sqrt(dx*dx+dy*dy);
+        if(d>.5)blend(i,EC.ice,Math.abs(sp)*.08*(1-d/md));}}
   }
 
   function physics(dt) {
-    waveTime += dt;
-    const spring = 0.02;
-    const damp = 0.92;
-    const pushR = 80;
-    const pushStr = 2.5;
+    if(ENGINES.includes(mode)){
+      switch(mode){
+        case'wind':simWind(dt,.7);break;case'water':simWater(dt,.6);break;
+        case'bird':simBird(dt,.6);break;case'insect':simInsect(dt,.6);break;
+        case'thunder':simThunder(dt,.6);break;case'rain':simRain(dt,.6);break;
+        case'aurora':simAurora(dt,.6);break;case'ice':simIce(dt,.6);break;}
+    } else {
+      simHabitat(dt);
+      if(mode==='mod'){for(let i=0;i<N;i++)blend(i,{r:.72,g:.56,b:.25},.006);}
+      else if(mode==='delay'||mode==='reverb'){for(let i=0;i<N;i++)blend(i,{r:.29,g:.56,b:.82},.006);}
+    }
 
-    for (let i = 0; i < N; i++) {
-      // Spring to home
-      const dx = homeX[i] - posX[i];
-      const dy = homeY[i] - posY[i];
-      velX[i] += dx * spring;
-      velY[i] += dy * spring;
-
-      // Wave motion from engine
-      if (waveActive) {
-        const row = (i / COLS) | 0;
-        const col = i % COLS;
-        const wx = Math.sin(waveTime * 1.2 + col * 0.08 + row * 0.03) * 0.15;
-        const wy = Math.cos(waveTime * 0.9 + row * 0.1 + col * 0.04) * 0.12;
-        velX[i] += wx;
-        velY[i] += wy;
-
-        // Gradually color dots
-        const tgt = activeColor;
-        dotR[i] += (tgt[0] - dotR[i]) * 0.03;
-        dotG[i] += (tgt[1] - dotG[i]) * 0.03;
-        dotB[i] += (tgt[2] - dotB[i]) * 0.03;
-        const tgtA = 0.25 + 0.15 * Math.sin(waveTime * 0.8 + i * 0.01);
-        dotA[i] += (tgtA - dotA[i]) * 0.05;
-      } else {
-        // Fade to neutral
-        dotR[i] += (30 - dotR[i]) * 0.02;
-        dotG[i] += (48 - dotG[i]) * 0.02;
-        dotB[i] += (70 - dotB[i]) * 0.02;
-        dotA[i] += (0.15 - dotA[i]) * 0.02;
-      }
-
-      // Mouse push
-      if (mDown) {
-        const mdx = posX[i] - mx;
-        const mdy = posY[i] - my;
-        const md = Math.sqrt(mdx * mdx + mdy * mdy);
-        if (md < pushR && md > 1) {
-          const f = (1 - md / pushR) * pushStr;
-          velX[i] += (mdx / md) * f;
-          velY[i] += (mdy / md) * f;
-          dotA[i] = Math.min(0.8, dotA[i] + f * 0.05);
-        }
-      }
-
-      velX[i] *= damp;
-      velY[i] *= damp;
-      posX[i] += velX[i];
-      posY[i] += velY[i];
+    for(let i=0;i<N;i++){
+      vX[i]+=(hX[i]-pX[i])*SPRING;vY[i]+=(hY[i]-pY[i])*SPRING;
+      if(mDown){const dx=pX[i]-mx,dy=pY[i]-my,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<120&&d>1){const f=(1-d/120)*2.5;vX[i]+=dx/d*f;vY[i]+=dy/d*f;}}
+      vX[i]*=DAMP;vY[i]*=DAMP;pX[i]+=vX[i];pY[i]+=vY[i];
+      const disp=Math.sqrt((hX[i]-pX[i])**2+(hY[i]-pY[i])**2);
+      br[i]=Math.min(MAX_A,DIM_A+disp*.08);
+      cR[i]+=(.5-cR[i])*.02;cG[i]+=(.6-cG[i])*.02;cB[i]+=(.7-cB[i])*.02;
     }
   }
 
-  function render() {
-    if (!W || !H) return;
-    // Dark gradient background
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#060a10');
-    grad.addColorStop(1, '#0a1220');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
-    for (let i = 0; i < N; i++) {
-      const a = dotA[i];
-      if (a < 0.01) continue;
-      const r = Math.round(dotR[i]);
-      const g = Math.round(dotG[i]);
-      const b = Math.round(dotB[i]);
-      ctx.fillStyle = `rgba(${r},${g},${b},${a.toFixed(3)})`;
-      ctx.fillRect(posX[i] - 1, posY[i] - 1, 2, 2);
-    }
-
-    // Mouse cursor indicator
-    if (mDown) {
-      ctx.beginPath();
-      ctx.arc(mx, my, 80, 0, 6.28);
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
+  function render(){
+    if(!W||!H)return;ctx.fillStyle='#06080f';ctx.fillRect(0,0,W,H);
+    for(let i=0;i<N;i++){const a=br[i];if(a<.005)continue;
+      ctx.fillStyle=`rgba(${Math.floor(cR[i]*255)},${Math.floor(cG[i]*255)},${Math.floor(cB[i]*255)},${(Math.floor(a*50)/50)})`;
+      ctx.fillRect(pX[i]-1.2,pY[i]-1.2,2.4,2.4);}
+    if(mDown){ctx.beginPath();ctx.arc(mx,my,120,0,6.28);ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.stroke();}
   }
 
-  // Mouse interaction
-  canvas.addEventListener('mousedown', e => {
-    mDown = true;
-    const r = canvas.getBoundingClientRect();
-    mx = e.clientX - r.left; my = e.clientY - r.top;
-    pmx = mx; pmy = my;
-  });
-  canvas.addEventListener('mousemove', e => {
-    const r = canvas.getBoundingClientRect();
-    pmx = mx; pmy = my;
-    mx = e.clientX - r.left; my = e.clientY - r.top;
-  });
-  canvas.addEventListener('mouseup', () => { mDown = false; mx = my = -1e4; });
-  canvas.addEventListener('mouseleave', () => { mDown = false; mx = my = -1e4; });
+  function resize(){const dpr=Math.min(devicePixelRatio||1,2),r=canvas.getBoundingClientRect();
+    W=r.width;H=r.height;if(!W||!H)return;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+    const sx=W/(COLS+1),sy=H/(ROWS+1);
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const i=r*COLS+c;hX[i]=(c+1)*sx;hY[i]=(r+1)*sy;if(!pX[i]&&!pY[i]){pX[i]=hX[i];pY[i]=hY[i];}}}
 
-  // Touch
-  canvas.addEventListener('touchstart', e => {
-    e.preventDefault(); mDown = true;
-    const t = e.touches[0], r = canvas.getBoundingClientRect();
-    mx = t.clientX - r.left; my = t.clientY - r.top; pmx = mx; pmy = my;
-  }, { passive: false });
-  canvas.addEventListener('touchmove', e => {
-    e.preventDefault();
-    const t = e.touches[0], r = canvas.getBoundingClientRect();
-    pmx = mx; pmy = my; mx = t.clientX - r.left; my = t.clientY - r.top;
-  }, { passive: false });
-  canvas.addEventListener('touchend', () => { mDown = false; mx = my = -1e4; });
+  canvas.addEventListener('mousedown',e=>{mDown=true;const r=canvas.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;});
+  canvas.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;});
+  canvas.addEventListener('mouseup',()=>{mDown=false;mx=my=-1e4;});
+  canvas.addEventListener('mouseleave',()=>{mDown=false;mx=my=-1e4;});
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();mDown=true;const t=e.touches[0],r=canvas.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;},{passive:false});
+  canvas.addEventListener('touchend',()=>{mDown=false;mx=my=-1e4;});
 
-  let lastT = performance.now();
-  function tick(t) {
-    const dt = Math.min(0.05, (t - lastT) / 1000);
-    lastT = t;
-    if (dt > 0) { physics(dt); render(); }
-    requestAnimationFrame(tick);
-  }
+  let lastT=performance.now();
+  function tick(t){const dt=Math.min(.05,(t-lastT)/1000);lastT=t;now=t;if(dt>0){physics(dt);render();}requestAnimationFrame(tick);}
+  resize();initWater();initHabWater();requestAnimationFrame(tick);
+  window.addEventListener('resize',()=>{resize();initWater();initHabWater();});
 
-  resize();
-  requestAnimationFrame(tick);
-  window.addEventListener('resize', resize);
-
-  // Expose to tutorial controller
-  window._vizSetEngine = setEngineColor;
-  window._vizClear = clearEngineColor;
+  window._vizSetEngine=function(name){
+    if(ENGINES.includes(name)){mode=name;gusts=[];gustAcc=0;flocks=[];swarms=[];fronts=[];shocks=[];rBands=[];rainDropAcc=0;curtains=[];iceCracks=[];iceAcc=0;}
+    else if(name==='intro'||name==='end')mode='habitat';
+    else mode=name;};
+  window._vizClear=function(){mode='habitat';};
 })();
 
 
