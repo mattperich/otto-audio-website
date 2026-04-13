@@ -340,27 +340,27 @@ const ENGINE_COLORS = {
   const EC=ENGINE_COLORS;
   for(let i=0;i<NH;i++){cR[i]=.5;cG[i]=.6;cB[i]=.7;br[i]=DIM;}
   function bl(i,c,a){a=Math.min(a,1)*.3;cR[i]+=(c.r-cR[i])*a;cG[i]+=(c.g-cG[i])*a;cB[i]+=(c.b-cB[i])*a;}
-  function imp(cx,cy,rad,str,c){for(let i=0;i<NH;i++){const dx=pX[i]-cx,dy=pY[i]-cy,d=Math.sqrt(dx*dx+dy*dy);if(d<rad&&d>.5){const t=1-d/rad;vX[i]+=dx/d*t*str;vY[i]+=dy/d*t*str;bl(i,c,t*.4);}}}
+  function imp(cx,cy,rad,str,c){const r2=rad*rad;for(let i=0;i<NH;i++){const dx=pX[i]-cx,dy=pY[i]-cy,d2=dx*dx+dy*dy;if(d2<r2&&d2>.25){const d=Math.sqrt(d2),t=1-d/rad;vX[i]+=dx/d*t*str;vY[i]+=dy/d*t*str;bl(i,c,t*.4);}}}
 
   let gu=[],ga=0,fl=[],sw=[],sh=[],cu=[],wp=[];
   function initW(){wp=[];for(let t=0;t<3;t++)wp.push({bx:.15+t*.3,by:.4+Math.sin(t)*.12,px:Math.random()*6.28,py:Math.random()*6.28,rp:Math.random()});}
 
   function sim(dt){
     const lo=.5;
-    ga+=dt*1.2;while(ga>1){ga--;gu.push({p:-.05,spd:.4+Math.random()*.5,w:.1+Math.random()*.15,str:lo*(.5+Math.random()*.5)});}
+    ga+=dt*1.2;while(ga>1&&gu.length<20){ga--;gu.push({p:-.05,spd:.4+Math.random()*.5,w:.1+Math.random()*.15,str:lo*(.5+Math.random()*.5)});}
     for(const g of gu){g.p+=g.spd*dt;for(let i=0;i<NH;i++){const nx=pX[i]/W;if(Math.abs(nx-g.p)<g.w){const t=1-Math.abs(nx-g.p)/g.w;vX[i]+=t*t*g.str*.3;bl(i,EC.wind,t*lo*.25);}}}
     gu=gu.filter(g=>g.p<1.15);
     for(let i=0;i<NH;i++){vX[i]+=lo*.04*(Math.random()-.5);vY[i]+=lo*.02*(Math.random()-.5);}
     for(const w of wp){const wx=(w.bx+Math.sin(now*.00003+w.px)*.04)*W,wy=(w.by+Math.cos(now*.00004+w.py)*.03)*H;w.rp+=dt*.4;if(w.rp>1)w.rp-=1;
       for(let r=0;r<3;r++){const rr=((w.rp+r/3)%1)*60;for(let i=0;i<NH;i++){const dx=pX[i]-wx,dy=pY[i]-wy,d=Math.sqrt(dx*dx+dy*dy);if(Math.abs(d-rr)<12&&d>.5){const t=1-Math.abs(d-rr)/12;vX[i]+=dx/d*t*.4*lo;vY[i]+=dy/d*t*.4*lo;bl(i,EC.water,t*lo*.4);}}}}
-    if(fl.length<3&&Math.random()<dt*.5){const s=Math.random()<.5?-.05:1.05;fl.push({x:s*W,y:Math.random()*H,tx:(1.05-s)*W,ty:Math.random()*H,prog:0,spd:.015+Math.random()*.01,rad:35+Math.random()*30});}
-    for(const f of fl){f.prog+=f.spd*dt;f.x+=(f.tx-f.x)*.002;f.y+=(f.ty-f.y)*.002;for(let i=0;i<NH;i++){const dx=pX[i]-f.x,dy=pY[i]-f.y,d=Math.sqrt(dx*dx+dy*dy);if(d<f.rad&&d>1){const t=1-d/f.rad;vX[i]+=(-dy/d)*t*lo*.8;vY[i]+=(dx/d)*t*lo*.8;bl(i,EC.bird,t*lo*.5);}}}
+    if(fl.length<6&&Math.random()<dt*.5){const s=Math.random()<.5?-.05:1.05;fl.push({x:s*W,y:Math.random()*H,tx:(1.05-s)*W,ty:Math.random()*H,prog:0,spd:.015+Math.random()*.01,rad:35+Math.random()*30});}
+    for(const f of fl){f.prog+=f.spd*dt;f.x+=(f.tx-f.x)*.002;f.y+=(f.ty-f.y)*.002;const fr2=f.rad*f.rad;for(let i=0;i<NH;i++){const dx=pX[i]-f.x,dy=pY[i]-f.y,d2=dx*dx+dy*dy;if(d2<fr2&&d2>1){const d=Math.sqrt(d2),t=1-d/f.rad;vX[i]+=(-dy/d)*t*lo*.8;vY[i]+=(dx/d)*t*lo*.8;bl(i,EC.bird,t*lo*.5);}}}
     fl=fl.filter(f=>f.prog<1);
-    if(sw.length<3&&Math.random()<dt*.4)sw.push({x:(.2+Math.random()*.6)*W,y:(.2+Math.random()*.6)*H,rad:25+Math.random()*30,age:0,life:5000+Math.random()*6000,ph:Math.random()*6.28});
+    if(sw.length<6&&Math.random()<dt*.4)sw.push({x:(.2+Math.random()*.6)*W,y:(.2+Math.random()*.6)*H,rad:25+Math.random()*30,age:0,life:5000+Math.random()*6000,ph:Math.random()*6.28});
     for(const s of sw){s.age+=dt*1000;s.ph+=dt*5;const env=s.age<1500?s.age/1500:s.age>s.life-1500?Math.max(0,(s.life-s.age)/1500):1;const pulse=.5+.5*Math.sin(s.ph),er=s.rad*(.7+env*.3);
-      for(let i=0;i<NH;i++){const dx=pX[i]-s.x,dy=pY[i]-s.y,d=Math.sqrt(dx*dx+dy*dy);if(d<er&&d>.5){const t=1-d/er;vX[i]+=(Math.random()-.5)*t*lo*pulse*env;vY[i]+=(Math.random()-.5)*t*lo*pulse*env;bl(i,EC.insect,t*lo*.4*env);}}}
+      const er2=er*er;for(let i=0;i<NH;i++){const dx=pX[i]-s.x,dy=pY[i]-s.y,d2=dx*dx+dy*dy;if(d2<er2&&d2>.25){const t=1-Math.sqrt(d2)/er;vX[i]+=(Math.random()-.5)*t*lo*pulse*env;vY[i]+=(Math.random()-.5)*t*lo*pulse*env;bl(i,EC.insect,t*lo*.4*env);}}}
     sw=sw.filter(s=>s.age<s.life);
-    if(sh.length<3&&Math.random()<dt*.15)sh.push({x:Math.random()*W,y:Math.random()*H,r:0,e:1.5,mr:180});
+    if(sh.length<8&&Math.random()<dt*.15)sh.push({x:Math.random()*W,y:Math.random()*H,r:0,e:1.5,mr:180});
     for(const s of sh){s.r+=5;s.e*=.97;for(let i=0;i<NH;i++){const dx=pX[i]-s.x,dy=pY[i]-s.y,d=Math.sqrt(dx*dx+dy*dy);if(Math.abs(d-s.r)<35&&d>.5){const t=1-Math.abs(d-s.r)/35;vX[i]+=dx/d*s.e*t*1.5;vY[i]+=dy/d*s.e*t*1.5;bl(i,EC.thunder,s.e*t*.3);}}}
     sh=sh.filter(s=>s.r<s.mr&&s.e>.01);
     while(cu.length<2)cu.push({x:.2+Math.random()*.6,w:.08+Math.random()*.1,spd:(Math.random()-.5)*.02,sp:Math.random()*6.28,ss:1+Math.random()});
@@ -374,7 +374,12 @@ const ENGINE_COLORS = {
     const disp=Math.sqrt((hX[i]-pX[i])**2+(hY[i]-pY[i])**2);br[i]=Math.min(MAX,DIM+disp*.08);cR[i]+=(.5-cR[i])*.02;cG[i]+=(.6-cG[i])*.02;cB[i]+=(.7-cB[i])*.02;}}
 
   function render(){if(!W||!H)return;ctx.fillStyle='#06080f';ctx.fillRect(0,0,W,H);
-    for(let i=0;i<NH;i++){const a=br[i];if(a<.005)continue;ctx.fillStyle=`rgba(${Math.floor(cR[i]*255)},${Math.floor(cG[i]*255)},${Math.floor(cB[i]*255)},${(Math.floor(a*50)/50)})`;ctx.fillRect(pX[i]-1.2,pY[i]-1.2,2.4,2.4);}}
+    const _cc={};
+    for(let i=0;i<NH;i++){const a=br[i];if(a<.005)continue;
+      const r=(cR[i]*255)|0,g=(cG[i]*255)|0,b=(cB[i]*255)|0,aq=(a*50)|0;
+      const k=(r<<16|g<<8|b)*51+aq;
+      if(!_cc[k])_cc[k]=`rgba(${r},${g},${b},${aq/50})`;
+      ctx.fillStyle=_cc[k];ctx.fillRect(pX[i]-1.2,pY[i]-1.2,2.4,2.4);}}
 
   function resize(){const dpr=Math.min(devicePixelRatio||1,2),r=canvas.getBoundingClientRect();W=r.width;H=r.height;if(!W||!H)return;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
     const sx=W/(COLS+1),sy=H/(ROWS+1);for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const i=r*COLS+c;hX[i]=(c+1)*sx;hY[i]=(r+1)*sy;if(!pX[i]&&!pY[i]){pX[i]=hX[i];pY[i]=hY[i];}}}
@@ -403,9 +408,9 @@ const ENGINE_COLORS = {
   for (let i=0;i<N_;i++){cR_[i]=.5;cG_[i]=.6;cB_[i]=.7;br_[i]=DIM_A;}
 
   function blend2(i,c,a){a=Math.min(a,1)*.3;cR_[i]+=(c.r-cR_[i])*a;cG_[i]+=(c.g-cG_[i])*a;cB_[i]+=(c.b-cB_[i])*a;}
-  function impulse2(cx,cy,rad,str,c){
-    for(let i=0;i<N_;i++){const dx=pX_[i]-cx,dy=pY_[i]-cy,d=Math.sqrt(dx*dx+dy*dy);
-      if(d<rad&&d>.5){const t=1-d/rad;vX_[i]+=dx/d*t*str;vY_[i]+=dy/d*t*str;blend2(i,c,t*.4);}}}
+  function impulse2(cx,cy,rad,str,c){const r2=rad*rad;
+    for(let i=0;i<N_;i++){const dx=pX_[i]-cx,dy=pY_[i]-cy,d2=dx*dx+dy*dy;
+      if(d2<r2&&d2>.25){const d=Math.sqrt(d2),t=1-d/rad;vX_[i]+=dx/d*t*str;vY_[i]+=dy/d*t*str;blend2(i,c,t*.4);}}}
 
   let gusts2=[],gustAcc2=0,flocks2=[],swarms2=[],shocks2=[],curtains2=[];
   let waterPts2=[];
@@ -484,9 +489,12 @@ const ENGINE_COLORS = {
 
   function render2(){
     if(!W2||!H2)return;ctx.fillStyle='#06080f';ctx.fillRect(0,0,W2,H2);
+    const _cc={};
     for(let i=0;i<N_;i++){const a=br_[i];if(a<.005)continue;
-      ctx.fillStyle=`rgba(${Math.floor(cR_[i]*255)},${Math.floor(cG_[i]*255)},${Math.floor(cB_[i]*255)},${(Math.floor(a*50)/50)})`;
-      ctx.fillRect(pX_[i]-1,pY_[i]-1,2,2);}
+      const r=(cR_[i]*255)|0,g=(cG_[i]*255)|0,b=(cB_[i]*255)|0,aq=(a*50)|0;
+      const k=(r<<16|g<<8|b)*51+aq;
+      if(!_cc[k])_cc[k]=`rgba(${r},${g},${b},${aq/50})`;
+      ctx.fillStyle=_cc[k];ctx.fillRect(pX_[i]-1,pY_[i]-1,2,2);}
   }
 
   function resize2(){
