@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streams — Sounds</title>
+<meta name="description" content="Listen to Streams granular synthesizer. Audio demos, sound design examples, and performance recordings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.sounds-section {
+  padding: 120px 24px 80px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.sounds-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.sound-embed {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.3s;
+}
+
+.sound-embed:hover {
+  border-color: rgba(74, 144, 209, 0.3);
+}
+
+.sound-embed h3 {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-heading);
+  margin-bottom: 6px;
+}
+
+.sound-embed p {
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.sound-placeholder {
+  width: 100%;
+  height: 180px;
+  border-radius: 8px;
+  background: var(--surface2);
+  border: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio"></a>
+  <div class="nav-links">
+    <a href="streams-index.html" class="active">Streams</a>
+    <a href="habitat-index.html">Habitat</a>
+    <a href="#">OttoVerb</a>
+  </div>
+  <div class="nav-right">
+    <a href="streams-index.html">Overview</a>
+    <a href="streams-sounds.html" class="active">Sounds</a>
+    <a href="streams-tutorial.html">Tutorial</a>
+    <a href="download.html">Download</a>
+  </div>
+</nav>
+
+<div class="sounds-section">
+  <h1 class="section-title">Sounds</h1>
+
+  <div class="sounds-grid">
+
+    <div class="sound-embed">
+      <h3>Demo coming soon</h3>
+      <p>Audio and video demos will be embedded here.</p>
+      <div class="sound-placeholder">Embed placeholder</div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>Otto Audio &mdash; &copy; <a href="https://github.com/mattperich">Matt Perich</a></p>
+</footer>
+
+</body>
+</html>
