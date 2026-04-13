@@ -940,8 +940,8 @@
   function pl(key,def){return params[key]!==undefined?params[key]:def;}
 
   const EC = {
-    wind:{r:.49,g:.72,b:.66}, water:{r:.29,g:.56,b:.76}, bird:{r:.77,g:.66,b:.30},
-    insect:{r:.55,g:.76,b:.29}, thunder:{r:.58,g:.46,b:.80}, rain:{r:.43,g:.56,b:.72},
+    wind:{r:.49,g:.72,b:.66}, water:{r:.13,g:.82,b:.93}, bird:{r:.77,g:.66,b:.30},
+    insect:{r:.55,g:.76,b:.29}, thunder:{r:.91,g:.36,b:.36}, rain:{r:.58,g:.46,b:.80},
     aurora:{r:.25,g:.88,b:.63}, ice:{r:.63,g:.85,b:.94}
   };
   const ENGINES = Object.keys(EC);
@@ -1310,7 +1310,17 @@
 
   window._vizSetEngine=function(name){
     Object.keys(params).forEach(k=>delete params[k]);
-    if(ENGINES.includes(name)){mode=name;gusts=[];gustAcc=0;flocks=[];swarms=[];fronts=[];shocks=[];rBands=[];rainDropAcc=0;curtains=[];iceCracks=[];iceAcc=0;}
+    if(ENGINES.includes(name)){
+      mode=name;gusts=[];gustAcc=0;flocks=[];swarms=[];fronts=[];shocks=[];rBands=[];rainDropAcc=0;curtains=[];iceCracks=[];iceAcc=0;
+      // Seed initial objects so effects appear immediately
+      if(name==='wind'){gustAcc=3;}
+      if(name==='thunder'){
+        fronts.push({p:.2+Math.random()*.3,spd:.04+Math.random()*.03,w:.08+Math.random()*.06,ct:1200,ci:1500+Math.random()*1000});
+        shocks.push({x:(.3+Math.random()*.4)*W,y:(.3+Math.random()*.4)*H,r:0,e:3,mr:250});
+      }
+      if(name==='rain'){rBands.push({a:.3+Math.random()*.8,p:.1+Math.random()*.5,spd:.06+Math.random()*.04,w:.2+Math.random()*.15});rainDropAcc=5;}
+      if(name==='ice'){iceAcc=2;}
+    }
     else if(name==='intro'||name==='end')mode='habitat';
     else mode=name;};
   window._vizClear=function(){Object.keys(params).forEach(k=>delete params[k]);mode='habitat';};
