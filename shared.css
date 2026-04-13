@@ -104,16 +104,6 @@ a:hover { text-decoration: underline; }
 
 section { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
 
-.section-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text);
-  margin-bottom: 12px;
-}
-
 .section-title {
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   font-weight: 300;
@@ -157,43 +147,6 @@ section { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
 }
 
 .btn-primary svg { width: 18px; height: 18px; fill: currentColor; }
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 28px;
-  background: transparent;
-  color: var(--text-body);
-  font-weight: 400;
-  font-size: 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: border-color 0.3s, color 0.2s;
-}
-
-.btn-secondary:hover {
-  border-color: var(--accent);
-  color: var(--text-heading);
-  text-decoration: none;
-}
-
-/* ── Platform Badges ─────────────────────────────────────── */
-
-.platform-badge {
-  display: inline-block;
-  padding: 6px 16px;
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.03em;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: rgba(12, 14, 21, 0.6);
-  backdrop-filter: blur(8px);
-}
 
 /* ── Feature Cards ───────────────────────────────────────── */
 

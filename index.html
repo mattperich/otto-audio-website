@@ -334,17 +334,17 @@
       if (sp > 1.5) { vx[i] *= 1.5 / sp; vy[i] *= 1.5 / sp; }
     }
 
+    ctx.lineWidth = 0.5;
     for (let i = 0; i < N; i++) {
       for (let j = i + 1; j < N; j++) {
         const dx = px[i] - px[j], dy = py[i] - py[j];
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (d < 140) {
-          const a = (1 - d / 140) * 0.08;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 19600) {
+          const d = Math.sqrt(d2);
           ctx.beginPath();
           ctx.moveTo(px[i], py[i]);
           ctx.lineTo(px[j], py[j]);
-          ctx.strokeStyle = `rgba(74, 144, 209, ${a})`;
-          ctx.lineWidth = 0.5;
+          ctx.strokeStyle = `rgba(74,144,209,${((1 - d / 140) * 0.08).toFixed(3)})`;
           ctx.stroke();
         }
       }

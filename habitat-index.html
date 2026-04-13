@@ -318,6 +318,12 @@
 
 <!-- ═══════ SCRIPTS ═══════ -->
 <script>
+const ENGINE_COLORS = {
+  wind:{r:.49,g:.72,b:.66}, water:{r:.29,g:.56,b:.76}, bird:{r:.77,g:.66,b:.30},
+  insect:{r:.55,g:.76,b:.29}, thunder:{r:.58,g:.46,b:.80}, rain:{r:.43,g:.56,b:.72},
+  aurora:{r:.25,g:.88,b:.63}, ice:{r:.63,g:.85,b:.94}
+};
+
 // ── Hero habitat simulation (full viewport) ──
 (function() {
   const canvas = document.getElementById('heroCanvas');
@@ -331,9 +337,7 @@
   const cR = new Float32Array(NH), cG = new Float32Array(NH), cB = new Float32Array(NH);
   const br = new Float32Array(NH);
   let W=0,H=0,now=0;
-  const EC={wind:{r:.49,g:.72,b:.66},water:{r:.29,g:.56,b:.76},bird:{r:.77,g:.66,b:.30},
-    insect:{r:.55,g:.76,b:.29},thunder:{r:.58,g:.46,b:.80},rain:{r:.43,g:.56,b:.72},
-    aurora:{r:.25,g:.88,b:.63},ice:{r:.63,g:.85,b:.94}};
+  const EC=ENGINE_COLORS;
   for(let i=0;i<NH;i++){cR[i]=.5;cG[i]=.6;cB[i]=.7;br[i]=DIM;}
   function bl(i,c,a){a=Math.min(a,1)*.3;cR[i]+=(c.r-cR[i])*a;cG[i]+=(c.g-cG[i])*a;cB[i]+=(c.b-cB[i])*a;}
   function imp(cx,cy,rad,str,c){for(let i=0;i<NH;i++){const dx=pX[i]-cx,dy=pY[i]-cy,d=Math.sqrt(dx*dx+dy*dy);if(d<rad&&d>.5){const t=1-d/rad;vX[i]+=dx/d*t*str;vY[i]+=dy/d*t*str;bl(i,c,t*.4);}}}
@@ -395,11 +399,7 @@
   const br_ = new Float32Array(N_);
   let W2 = 0, H2 = 0, now2 = 0, running = false;
 
-  const EC2 = {
-    wind:{r:.49,g:.72,b:.66}, water:{r:.29,g:.56,b:.76}, bird:{r:.77,g:.66,b:.30},
-    insect:{r:.55,g:.76,b:.29}, thunder:{r:.58,g:.46,b:.80}, rain:{r:.43,g:.56,b:.72},
-    aurora:{r:.25,g:.88,b:.63}, ice:{r:.63,g:.85,b:.94}
-  };
+  const EC2=ENGINE_COLORS;
   for (let i=0;i<N_;i++){cR_[i]=.5;cG_[i]=.6;cB_[i]=.7;br_[i]=DIM_A;}
 
   function blend2(i,c,a){a=Math.min(a,1)*.3;cR_[i]+=(c.r-cR_[i])*a;cG_[i]+=(c.g-cG_[i])*a;cB_[i]+=(c.b-cB_[i])*a;}
