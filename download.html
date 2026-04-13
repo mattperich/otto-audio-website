@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Download — Otto Audio</title>
+<meta name="description" content="Download Streams, Habitat, and OttoVerb. Free and open source instruments and effects for macOS, iPad, AU & VST3.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.download-section {
+  padding: 120px 24px 80px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.download-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.download-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  transition: border-color 0.3s;
+}
+
+.download-card:hover {
+  border-color: rgba(74, 144, 209, 0.3);
+}
+
+.download-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(74, 144, 209, 0.1);
+  color: var(--accent);
+}
+
+.download-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.download-body h3 {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--text-heading);
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+
+.download-body .app-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.download-body p {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.download-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--teal));
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 12px var(--accent-glow);
+}
+
+.download-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px var(--accent-glow);
+  text-decoration: none;
+}
+
+.download-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.download-link {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.download-link:hover {
+  color: var(--text-heading);
+  text-decoration: none;
+}
+
+.download-platforms {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.platform-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 8px;
+}
+
+.download-card.coming-soon {
+  opacity: 0.5;
+}
+
+.download-card.coming-soon:hover {
+  border-color: var(--border);
+}
+
+@media (max-width: 600px) {
+  .download-card {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio"></a>
+  <div class="nav-links">
+    <a href="streams-index.html">Streams</a>
+    <a href="habitat-index.html">Habitat</a>
+    <a href="#">OttoVerb</a>
+  </div>
+  <div class="nav-right">
+    <a href="download.html" class="active">Download</a>
+  </div>
+</nav>
+
+<div class="download-section">
+  <h1 class="section-title">Download</h1>
+  <p class="section-desc">Free and open source. Clone, build, and run.</p>
+
+  <div class="download-grid">
+
+    <div class="download-card">
+      <div class="download-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 12c2-3 4-5 6-5s4 3 6 3 4-4 6-4"/><path d="M2 16c2-2 4-4 6-4s4 2 6 2 4-3 6-3" opacity="0.5"/></svg>
+      </div>
+      <div class="download-body">
+        <div class="app-type">Granular Synthesizer</div>
+        <h3>Streams</h3>
+        <p>Real-time granular synthesis with AI text-to-audio generation, six visualization modes, and 256 concurrent grains.</p>
+        <div class="download-links">
+          <a href="https://github.com/mattperich/streams" class="download-btn">
+            <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="streams-index.html" class="download-link">Overview</a>
+          <a href="streams-tutorial.html" class="download-link">Tutorial</a>
+        </div>
+        <div class="download-platforms">
+          <span class="platform-tag">macOS</span>
+          <span class="platform-tag">iPad</span>
+          <span class="platform-tag">AU</span>
+          <span class="platform-tag">VST3</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="download-card">
+      <div class="download-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2a10 10 0 0 1 0 20"/><path d="M12 2a10 10 0 0 0 0 20"/><path d="M2 12h20" opacity="0.5"/></svg>
+      </div>
+      <div class="download-body">
+        <div class="app-type">Generative Drone Synthesizer</div>
+        <h3>Habitat</h3>
+        <p>Eight nature-modeled engines layered into evolving soundscapes. Wind, water, birds, insects, thunder, rain, aurora, and ice.</p>
+        <div class="download-links">
+          <a href="https://github.com/mattperich/habitat" class="download-btn">
+            <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="habitat-index.html" class="download-link">Overview</a>
+          <a href="habitat-tutorial.html" class="download-link">Tutorial</a>
+        </div>
+        <div class="download-platforms">
+          <span class="platform-tag">macOS</span>
+          <span class="platform-tag">iPad</span>
+          <span class="platform-tag">AU</span>
+          <span class="platform-tag">VST3</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="download-card coming-soon">
+      <div class="download-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2v4M12 18v4"/><path d="M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83"/><path d="M2 12h4M18 12h4" opacity="0.5"/><circle cx="12" cy="12" r="4"/></svg>
+      </div>
+      <div class="download-body">
+        <div class="app-type">Reverb Effect</div>
+        <h3>OttoVerb</h3>
+        <p>Creative reverb with deep modulation, spectral processing, and an expressive interface.</p>
+        <div class="download-links">
+          <span style="font-size:12px;color:var(--text-dim)">Coming soon</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>Otto Audio &mdash; <a href="https://github.com/mattperich">Matt Perich</a></p>
+</footer>
+
+</body>
+</html>
