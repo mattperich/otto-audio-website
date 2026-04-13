@@ -341,8 +341,7 @@
 <!-- ═══════ MODES ═══════ -->
 <section id="modes">
   <div class="reveal">
-    <div class="section-label">Visualization</div>
-    <h2 class="section-title">Six modes</h2>
+    <h2 class="section-title">Six interaction modes</h2>
     <p class="section-desc">
       Each mode renders audio as a different particle system. Click to expand, drag to interact.
     </p>
@@ -384,8 +383,7 @@
 <!-- ═══════ AI GENERATION ═══════ -->
 <section id="generate">
   <div class="reveal">
-    <div class="section-label">AI Generation</div>
-    <h2 class="section-title">Text to audio</h2>
+    <h2 class="section-title">AI-enabled audio generation</h2>
     <p class="section-desc">
       Describe a sound and generate source material locally on-device via CoreML.
       Output feeds directly into the granular engine.
@@ -418,11 +416,49 @@
   </div>
 </section>
 
+<!-- ═══════ GRAIN SYSTEM ═══════ -->
+<section id="grain-system">
+  <div class="reveal">
+    <h2 class="section-title">Granular sampling engine</h2>
+    <p class="section-desc">
+      Composite grains combine multiple bandpass-filtered components into a single voice.
+      Triggered, continuous, or sequenced.
+    </p>
+  </div>
+  <div class="grain-demo reveal">
+    <div>
+      <canvas class="waveform-canvas" id="waveformCanvas"></canvas>
+      <div class="grain-tag-row">
+        <span class="grain-tag">pitch: 1.2x</span>
+        <span class="grain-tag">size: 85ms</span>
+        <span class="grain-tag">pan: 0.3L</span>
+        <span class="grain-tag">density: 12/s</span>
+        <span class="grain-tag">spread: 200ms</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="grain-card">
+        <h4>Triggered</h4>
+        <p>Click the stream to sample nearby particles into composite grains.
+           Drag velocity controls timbre richness.</p>
+      </div>
+      <div class="grain-card">
+        <h4>Continuous</h4>
+        <p>Auto-spawn grains at a configurable rate with position spread across the stream.</p>
+      </div>
+      <div class="grain-card">
+        <h4>MIDI &amp; Sequenced</h4>
+        <p>Trigger grains from MIDI notes or the built-in step sequencer. Scale-aware routing
+           tunes grains to musical intervals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════ EFFECTS ═══════ -->
 <section id="effects">
   <div class="reveal">
-    <div class="section-label">Processing Chain</div>
-    <h2 class="section-title">Signal chain</h2>
+    <h2 class="section-title">Studio quality effects processing</h2>
     <p class="section-desc">
       Resonant strings, granular delay, algorithmic reverb, and character shaping.
     </p>
@@ -462,51 +498,10 @@
   </div>
 </section>
 
-<!-- ═══════ GRAIN SYSTEM ═══════ -->
-<section id="grain-system">
-  <div class="reveal">
-    <div class="section-label">Granular Engine</div>
-    <h2 class="section-title">Granular engine</h2>
-    <p class="section-desc">
-      Composite grains combine multiple bandpass-filtered components into a single voice.
-      Triggered, continuous, or sequenced.
-    </p>
-  </div>
-  <div class="grain-demo reveal">
-    <div>
-      <canvas class="waveform-canvas" id="waveformCanvas"></canvas>
-      <div class="grain-tag-row">
-        <span class="grain-tag">pitch: 1.2x</span>
-        <span class="grain-tag">size: 85ms</span>
-        <span class="grain-tag">pan: 0.3L</span>
-        <span class="grain-tag">density: 12/s</span>
-        <span class="grain-tag">spread: 200ms</span>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:16px;">
-      <div class="grain-card">
-        <h4>Triggered</h4>
-        <p>Click the stream to sample nearby particles into composite grains.
-           Drag velocity controls timbre richness.</p>
-      </div>
-      <div class="grain-card">
-        <h4>Continuous</h4>
-        <p>Auto-spawn grains at a configurable rate with position spread across the stream.</p>
-      </div>
-      <div class="grain-card">
-        <h4>MIDI &amp; Sequenced</h4>
-        <p>Trigger grains from MIDI notes or the built-in step sequencer. Scale-aware routing
-           tunes grains to musical intervals.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ═══════ MODULATION ═══════ -->
 <section id="modulation">
   <div class="reveal">
-    <div class="section-label">Modulation</div>
-    <h2 class="section-title">Modulation</h2>
+    <h2 class="section-title">Flexible modulation</h2>
     <p class="section-desc">
       Route LFOs to any parameter, including other LFOs. Step sequencer for rhythmic patterns.
     </p>
@@ -530,8 +525,7 @@
 <!-- ═══════ SPECS ═══════ -->
 <section id="specs">
   <div class="reveal">
-    <div class="section-label">Architecture</div>
-    <h2 class="section-title">Specs</h2>
+    <h2 class="section-title">Real-time sound processing</h2>
     <p class="section-desc">
       Lock-free audio, parallel grain rendering, zero-copy ring buffers.
     </p>
