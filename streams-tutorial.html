@@ -42,43 +42,15 @@
 
 /* ── Top nav bar ──────────────────────────────────────── */
 
-#topNav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 70;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 10px 16px 10px 58px;
-  background: linear-gradient(to bottom, rgba(6,8,15,0.85), rgba(6,8,15,0));
-  pointer-events: auto;
-}
-
-#topNav .logo {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  margin-right: auto;
-}
-#topNav .logo img {
-  height: 24px;
-  width: auto;
-}
-
-#topNav a {
-  font-size: 12px;
-  color: var(--app-text-dim);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-#topNav a:hover { color: var(--app-text); }
+/* Override z-index so header renders above sidebar */
+.site-nav { z-index: 110; }
 
 /* ── Fixed left nav strip (replica of plugin UI) ──────── */
 
 #navStrip {
   position: fixed;
   left: 0;
-  top: 0;
+  top: 41px;
   bottom: 0;
   width: 48px;
   z-index: 50;
@@ -990,11 +962,18 @@
 </div>
 
 <!-- ═══════ TOP NAV ═══════ -->
-<nav id="topNav">
-  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio" style="height:24px;width:auto"></a>
-  <a href="streams-index.html">Streams</a>
-  <a href="habitat-index.html">Habitat</a>
-  <a href="#">OttoVerb</a>
+<nav class="site-nav">
+  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio"></a>
+  <div class="nav-links">
+    <a href="streams-index.html" class="active">Streams</a>
+    <a href="habitat-index.html">Habitat</a>
+    <a href="#">OttoVerb</a>
+  </div>
+  <div class="nav-right">
+    <a href="streams-index.html">Overview</a>
+    <a href="streams-tutorial.html" class="active">Tutorial</a>
+    <a href="#">Download</a>
+  </div>
 </nav>
 
 <!-- ═══════ LEFT NAV STRIP ═══════ -->
@@ -1973,7 +1952,7 @@ function createVizSim(canvas,mode,opts){
 
     // Center total block vertically next to the nav button
     let top = btnRect.top + btnRect.height / 2 - totalH / 2;
-    top = Math.max(10, Math.min(window.innerHeight - totalH - 10, top));
+    top = Math.max(50, Math.min(window.innerHeight - totalH - 10, top));
 
     descEl.style.top = top + 'px';
     panel.style.top = (top + descH + gap) + 'px';

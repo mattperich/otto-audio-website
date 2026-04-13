@@ -51,43 +51,15 @@
 
 /* ── Top nav bar ──────────────────────────────────────── */
 
-#topNav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 70;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 10px 16px 10px 58px;
-  background: linear-gradient(to bottom, rgba(6,8,15,0.85), rgba(6,8,15,0));
-  pointer-events: auto;
-}
-
-#topNav .logo {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  margin-right: auto;
-}
-#topNav .logo img {
-  height: 24px;
-  width: auto;
-}
-
-#topNav a {
-  font-size: 12px;
-  color: var(--app-text-dim);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-#topNav a:hover { color: var(--app-text); }
+/* Override z-index so header renders above sidebar */
+.site-nav { z-index: 110; }
 
 /* ── Fixed left nav strip (replica of Habitat app) ────── */
 
 #navStrip {
   position: fixed;
   left: 0;
-  top: 0;
+  top: 41px;
   bottom: 0;
   width: 48px;
   z-index: 50;
@@ -851,11 +823,18 @@
 </div>
 
 <!-- ═══════ TOP NAV ═══════ -->
-<nav id="topNav">
-  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio" style="height:24px;width:auto"></a>
-  <a href="streams-index.html">Streams</a>
-  <a href="habitat-tutorial.html">Habitat</a>
-  <a href="#">OttoVerb</a>
+<nav class="site-nav">
+  <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio"></a>
+  <div class="nav-links">
+    <a href="streams-index.html">Streams</a>
+    <a href="habitat-index.html" class="active">Habitat</a>
+    <a href="#">OttoVerb</a>
+  </div>
+  <div class="nav-right">
+    <a href="habitat-index.html">Overview</a>
+    <a href="habitat-tutorial.html" class="active">Tutorial</a>
+    <a href="#">Download</a>
+  </div>
 </nav>
 
 <!-- ═══════ LEFT NAV STRIP ═══════ -->
@@ -868,6 +847,7 @@
   <div class="v2-nav-btn nav-rain" data-step="rain">RAN</div>
   <div class="v2-nav-btn nav-aurora" data-step="aurora">AUR</div>
   <div class="v2-nav-btn nav-ice" data-step="ice">ICE</div>
+  <div class="v2-nav-btn" data-step="interact">&#9758;</div>
   <div class="nav-spacer"></div>
   <div class="v2-nav-btn" data-step="evo">EVO</div>
   <div class="v2-nav-btn" data-step="scale">KEY</div>
@@ -926,6 +906,7 @@
 <div class="scroll-section" data-step="rain"></div>
 <div class="scroll-section" data-step="aurora"></div>
 <div class="scroll-section" data-step="ice"></div>
+<div class="scroll-section" data-step="interact"></div>
 <div class="scroll-section" data-step="evo"></div>
 <div class="scroll-section" data-step="scale"></div>
 <div class="scroll-section" data-step="mod"></div>
@@ -954,6 +935,10 @@
 
   let W = 0, H = 0, mx = -1e4, my = -1e4, mDown = false, now = 0, mode = 'habitat';
 
+  // Live params from slider interaction (0-1 normalized)
+  const params = {};
+  function pl(key,def){return params[key]!==undefined?params[key]:def;}
+
   const EC = {
     wind:{r:.49,g:.72,b:.66}, water:{r:.29,g:.56,b:.76}, bird:{r:.77,g:.66,b:.30},
     insect:{r:.55,g:.76,b:.29}, thunder:{r:.58,g:.46,b:.80}, rain:{r:.43,g:.56,b:.72},
@@ -972,9 +957,9 @@
   // ── WIND: sweeping gust bands ──
   let gusts=[], gustAcc=0;
   function simWind(dt,lvl) {
-    const c=EC.wind;
-    gustAcc+=dt*2*lvl;
-    while(gustAcc>1){gustAcc--;gusts.push({p:-.05,spd:.5+Math.random()*.8,w:.08+Math.random()*.12,str:lvl*(.6+Math.random()*.4)});}
+    const c=EC.wind, gustRate=pl('gust_rate',.5), gustDepth=pl('gust_depth',.5);
+    gustAcc+=dt*(1+gustRate*3)*lvl;
+    while(gustAcc>1){gustAcc--;gusts.push({p:-.05,spd:.5+Math.random()*.8,w:.08+Math.random()*.12,str:lvl*gustDepth*(.6+Math.random()*.4)});}
     for(const g of gusts){
       g.p+=g.spd*dt;
       for(let i=0;i<N;i++){const nx=pX[i]/W;if(Math.abs(nx-g.p)<g.w){
@@ -988,14 +973,15 @@
   let waterPts=[];
   function initWater(){waterPts=[];for(let t=0;t<5;t++)waterPts.push({bx:.1+t*.2,by:.35+Math.sin(t*.628)*.15,px:Math.random()*6.28,py:Math.random()*6.28,rp:Math.random()});}
   function simWater(dt,lvl) {
-    const c=EC.water,rad=60+lvl*50;
+    const c=EC.water, turb=pl('turbulence',.3), bodySize=pl('body_size',.5);
+    const rad=40+bodySize*80;
     for(const wp of waterPts){
       const wx=(wp.bx+Math.sin(now*.00003+wp.px)*.04)*W;
       const wy=(wp.by+Math.cos(now*.00004+wp.py)*.03)*H;
-      wp.rp+=dt*.65; if(wp.rp>1)wp.rp-=1;
+      wp.rp+=dt*(.4+turb*.5); if(wp.rp>1)wp.rp-=1;
       for(let r=0;r<3;r++){const rr=((wp.rp+r/3)%1)*rad*.9;
         for(let i=0;i<N;i++){const dx=pX[i]-wx,dy=pY[i]-wy,d=Math.sqrt(dx*dx+dy*dy);
-          if(Math.abs(d-rr)<14&&d>.5){const t=1-Math.abs(d-rr)/14,f=t*.5*lvl;vX[i]+=dx/d*f;vY[i]+=dy/d*f;blend(i,c,t*lvl*.5);}}}}
+          if(Math.abs(d-rr)<14&&d>.5){const t=1-Math.abs(d-rr)/14,f=t*(.3+turb*.4)*lvl;vX[i]+=dx/d*f;vY[i]+=dy/d*f;blend(i,c,t*lvl*.5);}}}}
     for(let i=0;i<N;i++)vX[i]+=lvl*.04;
   }
 
@@ -1004,8 +990,8 @@
   function spawnFlock(){const s=Math.random()<.5?-.05:1.05;
     flocks.push({x:s*W,y:Math.random()*H,tx:(1.05-s)*W,ty:Math.random()*H,prog:0,spd:.02+Math.random()*.015,rad:50+Math.random()*50});}
   function simBird(dt,lvl) {
-    const c=EC.bird;
-    if(flocks.length<3)spawnFlock();
+    const c=EC.bird, fSize=Math.max(1,Math.round(pl('flock_size',.13)*16));
+    while(flocks.length<fSize)spawnFlock();
     for(const f of flocks){
       f.prog+=f.spd*dt;
       f.x+=(f.tx-f.x)*.003;f.y+=(f.ty-f.y)*.003;
@@ -1019,8 +1005,8 @@
   let swarms=[];
   function spawnSwarm(){swarms.push({x:(0.15+Math.random()*.7)*W,y:(0.15+Math.random()*.7)*H,rad:30+Math.random()*40,age:0,life:6000+Math.random()*8000,ph:Math.random()*6.28});}
   function simInsect(dt,lvl) {
-    const c=EC.insect;
-    if(swarms.length<3)spawnSwarm();
+    const c=EC.insect, sDens=Math.max(1,Math.round(pl('swarm_density',.13)*8));
+    while(swarms.length<sDens)spawnSwarm();
     for(const s of swarms){
       s.age+=dt*1000;s.ph+=dt*6;
       const env=s.age<1500?s.age/1500:s.age>s.life-1500?Math.max(0,(s.life-s.age)/1500):1;
@@ -1057,11 +1043,11 @@
   // ── RAIN: sweeping diagonal bands with drop impacts ──
   let rBands=[],rainDropAcc=0;
   function simRain(dt,lvl) {
-    const c=EC.rain;
+    const c=EC.rain, dens=pl('density',.02);
     if(rBands.length<3)rBands.push({a:.3+Math.random()*.8,p:-.2,spd:.06+Math.random()*.04,w:.2+Math.random()*.15});
     for(const b of rBands){b.p+=b.spd*dt;}
     rBands=rBands.filter(b=>b.p<1.3);
-    rainDropAcc+=dt*40*lvl;
+    rainDropAcc+=dt*(10+dens*80)*lvl;
     while(rainDropAcc>1){rainDropAcc--;impulse(Math.random()*W,Math.random()*H,15+lvl*12,.4*lvl,c);}
     // Gentle downward drift
     for(let i=0;i<N;i++){vY[i]+=lvl*.04;vX[i]+=lvl*.01*(Math.random()-.5);}
@@ -1070,8 +1056,8 @@
   // ── AURORA: vertical curtain bands with vertical shimmer ──
   let curtains=[];
   function simAurora(dt,lvl) {
-    const c=EC.aurora;
-    while(curtains.length<4)curtains.push({x:.1+Math.random()*.8,w:.06+Math.random()*.12,spd:(Math.random()-.5)*.03,sp:Math.random()*6.28,ss:1+Math.random()*2,int:.5+Math.random()*.5});
+    const c=EC.aurora, aDens=Math.max(1,Math.round(pl('density',.38)*8));
+    while(curtains.length<aDens)curtains.push({x:.1+Math.random()*.8,w:.06+Math.random()*.12,spd:(Math.random()-.5)*.03,sp:Math.random()*6.28,ss:1+Math.random()*2,int:.5+Math.random()*.5});
     for(const cu of curtains){
       cu.sp+=cu.ss*dt;cu.x+=cu.spd*dt+Math.sin(cu.sp)*.0002;
       if(cu.x<-.1)cu.x=1.1;if(cu.x>1.1)cu.x=-.1;
@@ -1086,8 +1072,8 @@
   // ── ICE: directional crack waves + radial stress pulse ──
   let iceCracks=[],iceAcc=0;
   function simIce(dt,lvl) {
-    const c=EC.ice;
-    iceAcc+=dt*3*lvl;
+    const c=EC.ice, crRate=pl('crack_rate',.05), stress=pl('stress',.3);
+    iceAcc+=dt*(1+crRate*6)*lvl;
     while(iceAcc>1&&iceCracks.length<5){iceAcc--;iceCracks.push({p:-.05,spd:3+Math.random()*4,a:Math.random()*6.28,w:.03+.5*.06,int:.8+Math.random()*.4});}
     for(const cr of iceCracks){
       cr.p+=cr.spd*dt;
@@ -1096,7 +1082,7 @@
         if(Math.abs(proj-cr.p)<cr.w){const t=1-Math.abs(proj-cr.p)/cr.w,f=t*cr.int*lvl*3;
           vX[i]+=(-sa)*f*.4+(Math.random()-.5)*f*.6;vY[i]+=(ca)*f*.4+(Math.random()-.5)*f*.6;blend(i,c,t*lvl*.7);}}}
     iceCracks=iceCracks.filter(cr=>cr.p<1.3);
-    const sp=Math.sin(now*.0003)*lvl*.4;
+    const sp=Math.sin(now*.0003)*lvl*(.2+stress*.6);
     const md=Math.sqrt(W*W+H*H)*.5;
     for(let i=0;i<N;i++){const dx=pX[i]-W/2,dy=pY[i]-H/2,d=Math.sqrt(dx*dx+dy*dy);
       if(d>.5&&d<md){const f=sp*.15*(1-d/md);vX[i]+=dx/d*f;vY[i]+=dy/d*f;blend(i,c,Math.abs(sp)*.2*(1-d/md));}}
@@ -1169,20 +1155,41 @@
   function physics(dt) {
     if(ENGINES.includes(mode)){
       switch(mode){
-        case'wind':simWind(dt,.7);break;case'water':simWater(dt,.6);break;
-        case'bird':simBird(dt,.6);break;case'insect':simInsect(dt,.6);break;
-        case'thunder':simThunder(dt,.6);break;case'rain':simRain(dt,.6);break;
-        case'aurora':simAurora(dt,.6);break;case'ice':simIce(dt,.6);break;}
+        case'wind':simWind(dt,pl('level',.7));break;case'water':simWater(dt,pl('level',.6));break;
+        case'bird':simBird(dt,pl('level',.6));break;case'insect':simInsect(dt,pl('level',.6));break;
+        case'thunder':simThunder(dt,pl('level',.6));break;case'rain':simRain(dt,pl('level',.6));break;
+        case'aurora':simAurora(dt,pl('level',.6));break;case'ice':simIce(dt,pl('level',.6));break;}
     } else {
       simHabitat(dt);
       if(mode==='mod'){for(let i=0;i<N;i++)blend(i,{r:.72,g:.56,b:.25},.006);}
       else if(mode==='delay'||mode==='reverb'){for(let i=0;i<N;i++)blend(i,{r:.29,g:.56,b:.82},.006);}
     }
 
+    // Process interactive shockwaves (from clicks/lightning) regardless of mode
+    if(mode!=='thunder'){
+      for(const s of shocks){s.r+=8;s.e*=.965;
+        for(let i=0;i<N;i++){const dx=pX[i]-s.x,dy=pY[i]-s.y,d=Math.sqrt(dx*dx+dy*dy);
+          if(Math.abs(d-s.r)<45&&d>.5){const t=1-Math.abs(d-s.r)/45,f=s.e*t*2.5;
+            vX[i]+=dx/d*f;vY[i]+=dy/d*f;blend(i,EC.water,f*.3);}}}
+      shocks=shocks.filter(s=>s.r<(s.mr||250)&&s.e>.01);
+    }
+    updateAuroraTrail(dt);
+
     for(let i=0;i<N;i++){
       vX[i]+=(hX[i]-pX[i])*SPRING;vY[i]+=(hY[i]-pY[i])*SPRING;
-      if(mDown){const dx=pX[i]-mx,dy=pY[i]-my,d=Math.sqrt(dx*dx+dy*dy);
-        if(d<120&&d>1){const f=(1-d/120)*2.5;vX[i]+=dx/d*f;vY[i]+=dy/d*f;}}
+      if(mDown&&gesture==='ctrl_drag'){
+        const dx=pX[i]-mx,dy=pY[i]-my,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<100){const t=1-d/100;vX[i]*=1-t*.15;vY[i]*=1-t*.15;blend(i,EC.ice,t*.02);}
+      } else if(mDown&&gesture==='drag'){
+        const dx=pX[i]-mx,dy=pY[i]-my,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<120&&d>1){const f=(1-d/120)*2.5;vX[i]+=dx/d*f;vY[i]+=dy/d*f;}
+      } else if(mDown&&gesture==='pending'){
+        // Hold charge: pull dots inward (lightning charge)
+        const holdT=Math.min(1,(performance.now()-gestureStart)/2000);
+        if(holdT>.15){const dx=pX[i]-mx,dy=pY[i]-my,d=Math.sqrt(dx*dx+dy*dy);
+          const rad=60+holdT*60;
+          if(d<rad&&d>1){const t=1-d/rad;vX[i]-=dx/d*t*holdT*.2;vY[i]-=dy/d*t*holdT*.2;blend(i,EC.thunder,t*holdT*.2);}}
+      }
       vX[i]*=DAMP;vY[i]*=DAMP;pX[i]+=vX[i];pY[i]+=vY[i];
       const disp=Math.sqrt((hX[i]-pX[i])**2+(hY[i]-pY[i])**2);
       br[i]=Math.min(MAX_A,DIM_A+disp*.08);
@@ -1195,7 +1202,10 @@
     for(let i=0;i<N;i++){const a=br[i];if(a<.005)continue;
       ctx.fillStyle=`rgba(${Math.floor(cR[i]*255)},${Math.floor(cG[i]*255)},${Math.floor(cB[i]*255)},${(Math.floor(a*50)/50)})`;
       ctx.fillRect(pX[i]-1.2,pY[i]-1.2,2.4,2.4);}
-    if(mDown){ctx.beginPath();ctx.arc(mx,my,120,0,6.28);ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;ctx.stroke();}
+    if(mDown&&gesture==='drag'){ctx.beginPath();ctx.arc(mx,my,120,0,6.28);ctx.strokeStyle=`rgba(${EC.wind.r*255|0},${EC.wind.g*255|0},${EC.wind.b*255|0},0.08)`;ctx.lineWidth=1;ctx.stroke();}
+    if(mDown&&gesture==='shift_drag'){ctx.beginPath();ctx.arc(mx,my,25,0,6.28);ctx.strokeStyle=`rgba(${EC.aurora.r*255|0},${EC.aurora.g*255|0},${EC.aurora.b*255|0},0.15)`;ctx.lineWidth=1;ctx.stroke();}
+    if(mDown&&gesture==='ctrl_drag'){ctx.beginPath();ctx.arc(mx,my,100,0,6.28);ctx.strokeStyle=`rgba(${EC.ice.r*255|0},${EC.ice.g*255|0},${EC.ice.b*255|0},0.12)`;ctx.lineWidth=1;ctx.stroke();}
+    if(mDown&&gesture==='pending'){const ht=Math.min(1,(performance.now()-gestureStart)/2000);if(ht>.15){ctx.beginPath();ctx.arc(mx,my,60+ht*60,0,6.28);ctx.strokeStyle=`rgba(${EC.thunder.r*255|0},${EC.thunder.g*255|0},${EC.thunder.b*255|0},${ht*.25})`;ctx.lineWidth=1.5;ctx.stroke();}}
   }
 
   function resize(){const dpr=Math.min(devicePixelRatio||1,2),r=canvas.getBoundingClientRect();
@@ -1203,13 +1213,92 @@
     const sx=W/(COLS+1),sy=H/(ROWS+1);
     for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const i=r*COLS+c;hX[i]=(c+1)*sx;hY[i]=(r+1)*sy;if(!pX[i]&&!pY[i]){pX[i]=hX[i];pY[i]=hY[i];}}}
 
-  canvas.addEventListener('mousedown',e=>{mDown=true;const r=canvas.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;});
-  canvas.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top;});
-  canvas.addEventListener('mouseup',()=>{mDown=false;mx=my=-1e4;});
-  canvas.addEventListener('mouseleave',()=>{mDown=false;mx=my=-1e4;});
-  canvas.addEventListener('touchstart',e=>{e.preventDefault();mDown=true;const t=e.touches[0],r=canvas.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;},{passive:false});
-  canvas.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;},{passive:false});
-  canvas.addEventListener('touchend',()=>{mDown=false;mx=my=-1e4;});
+  // Gesture state: 'idle' | 'pending' | 'drag' | 'shift_drag' | 'ctrl_drag' | 'hold'
+  let gesture='idle', gestureStart=0, startX=0, startY=0;
+  let shiftDown=false, ctrlDown=false;
+  let auroraTrail=[];
+  const DRAG_THRESHOLD=6;
+
+  document.addEventListener('keydown',e=>{if(e.key==='Shift')shiftDown=true;if(e.key==='Control'||e.key==='Meta')ctrlDown=true;});
+  document.addEventListener('keyup',e=>{if(e.key==='Shift')shiftDown=false;if(e.key==='Control'||e.key==='Meta')ctrlDown=false;});
+
+  function canvasXY(e){const r=canvas.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top];}
+
+  canvas.addEventListener('mousedown',e=>{
+    [mx,my]=canvasXY(e); startX=mx; startY=my;
+    mDown=true; gesture='pending'; gestureStart=performance.now();
+  });
+
+  canvas.addEventListener('mousemove',e=>{
+    [mx,my]=canvasXY(e);
+    if(!mDown)return;
+
+    const dist=Math.sqrt((mx-startX)**2+(my-startY)**2);
+
+    if(gesture==='pending'&&dist>DRAG_THRESHOLD){
+      // Commit to a drag type based on modifier keys
+      gesture=shiftDown?'shift_drag':ctrlDown?'ctrl_drag':'drag';
+    }
+
+    if(gesture==='shift_drag'){
+      auroraTrail.push({x:mx,y:my,age:0,life:3000});
+      impulse(mx,my,25,.3,EC.aurora);
+    }
+    // 'drag' and 'ctrl_drag' are handled in the physics loop via mDown
+  });
+
+  canvas.addEventListener('mouseup',e=>{
+    const [ux,uy]=canvasXY(e);
+    const holdDur=(performance.now()-gestureStart)/1000;
+
+    if(gesture==='pending'){
+      // Never dragged — classify as click or hold
+      if(holdDur>0.6){
+        // Lightning strike
+        const charge=Math.min(1,holdDur/2);
+        impulse(ux,uy,80+charge*120,2+charge*4,EC.thunder);
+        shocks.push({x:ux,y:uy,r:0,e:1.5+charge*3,mr:200+charge*300});
+      } else {
+        // Pond drop + creature summon
+        impulse(ux,uy,50,1.5,EC.water);
+        shocks.push({x:ux,y:uy,r:0,e:1.2,mr:180});
+        if(uy<H/2){spawnFlock();flocks[flocks.length-1].x=ux;flocks[flocks.length-1].y=uy;impulse(ux,uy,30,.8,EC.bird);}
+        else{spawnSwarm();swarms[swarms.length-1].x=ux;swarms[swarms.length-1].y=uy;impulse(ux,uy,30,.8,EC.insect);}
+      }
+    }
+    // Ctrl+drag release: ice crack burst
+    if(gesture==='ctrl_drag'){
+      impulse(ux,uy,60,1.5,EC.ice);
+    }
+
+    mDown=false; gesture='idle'; mx=my=-1e4;
+  });
+
+  canvas.addEventListener('mouseleave',()=>{mDown=false;gesture='idle';mx=my=-1e4;});
+
+  canvas.addEventListener('touchstart',e=>{
+    e.preventDefault(); const t=e.touches[0];
+    [mx,my]=[t.clientX-canvas.getBoundingClientRect().left,t.clientY-canvas.getBoundingClientRect().top];
+    startX=mx;startY=my;mDown=true;gesture='pending';gestureStart=performance.now();
+  },{passive:false});
+  canvas.addEventListener('touchmove',e=>{
+    e.preventDefault();const t=e.touches[0];
+    [mx,my]=[t.clientX-canvas.getBoundingClientRect().left,t.clientY-canvas.getBoundingClientRect().top];
+    if(gesture==='pending'&&Math.sqrt((mx-startX)**2+(my-startY)**2)>DRAG_THRESHOLD)gesture='drag';
+  },{passive:false});
+  canvas.addEventListener('touchend',()=>{
+    if(gesture==='pending'){impulse(mx,my,50,1.5,EC.water);shocks.push({x:mx,y:my,r:0,e:1.2,mr:180});}
+    mDown=false;gesture='idle';mx=my=-1e4;
+  });
+
+  // Aurora trail decay
+  function updateAuroraTrail(dt){
+    for(const p of auroraTrail){p.age+=dt*1000;
+      if(p.age<p.life){const t=1-p.age/p.life;
+        for(let i=0;i<N;i++){const dx=pX[i]-p.x,dy=pY[i]-p.y,d=Math.sqrt(dx*dx+dy*dy);
+          if(d<20){vY[i]-=t*.1;blend(i,EC.aurora,t*.1*(1-d/20));}}}}
+    auroraTrail=auroraTrail.filter(p=>p.age<p.life);
+  }
 
   let lastT=performance.now();
   function tick(t){const dt=Math.min(.05,(t-lastT)/1000);lastT=t;now=t;if(dt>0){physics(dt);render();}requestAnimationFrame(tick);}
@@ -1217,10 +1306,12 @@
   window.addEventListener('resize',()=>{resize();initWater();initHabWater();});
 
   window._vizSetEngine=function(name){
+    Object.keys(params).forEach(k=>delete params[k]);
     if(ENGINES.includes(name)){mode=name;gusts=[];gustAcc=0;flocks=[];swarms=[];fronts=[];shocks=[];rBands=[];rainDropAcc=0;curtains=[];iceCracks=[];iceAcc=0;}
     else if(name==='intro'||name==='end')mode='habitat';
     else mode=name;};
-  window._vizClear=function(){mode='habitat';};
+  window._vizClear=function(){Object.keys(params).forEach(k=>delete params[k]);mode='habitat';};
+  window._vizSetParam=function(key,val){params[key]=val;};
 })();
 
 
@@ -1231,8 +1322,9 @@
 (function tutorial() {
 
   // ── Helpers for V2-style param HTML ──
-  function P(label, value, fill) {
-    return `<div class="param-row"><div class="param-label"><span>${label}</span><span class="param-value">${value}</span></div><input type="range" min="0" max="1000" value="${fill * 10}" style="--fill:${fill}%"></div>`;
+  function P(label, value, fill, paramKey) {
+    const pk = paramKey || label.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+    return `<div class="param-row"><div class="param-label"><span>${label}</span><span class="param-value">${value}</span></div><input type="range" min="0" max="1000" value="${fill * 10}" style="--fill:${fill}%" data-param="${pk}" data-fill="${fill}"></div>`;
   }
   function D(label) {
     return `<div class="subsection-divider"><span class="subsection-label">${label}</span></div>`;
@@ -1414,6 +1506,33 @@
         ${P('Stress','30%',30)}
         ${P('Stereo Width','60%',60)}`
     },
+    interact: {
+      title: 'Interactions', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Interactions</h3><p>The canvas is your instrument. Every gesture triggers a different natural event in the visualization. Try them now.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">GESTURES</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <span style="font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--app-text-bright);background:rgba(255,255,255,.06);border:1px solid var(--app-border);border-radius:4px;padding:3px 7px;white-space:nowrap;flex-shrink:0">Click</span>
+            <div><div style="font-size:11px;font-weight:600;color:var(--app-text)">Pond Drop</div><div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Creates a water ripple at the click point. Upper half summons a bird flock, lower half spawns an insect swarm.</div></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <span style="font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--app-text-bright);background:rgba(255,255,255,.06);border:1px solid var(--app-border);border-radius:4px;padding:3px 7px;white-space:nowrap;flex-shrink:0">Drag</span>
+            <div><div style="font-size:11px;font-weight:600;color:var(--app-text)">Wind Push</div><div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Push dots outward from your cursor. Drag speed controls force intensity.</div></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <span style="font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--app-text-bright);background:rgba(255,255,255,.06);border:1px solid var(--app-border);border-radius:4px;padding:3px 7px;white-space:nowrap;flex-shrink:0">Shift+Drag</span>
+            <div><div style="font-size:11px;font-weight:600;color:var(--app-text)">Aurora Trace</div><div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Paint glowing aurora trails that drift upward and fade.</div></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <span style="font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--app-text-bright);background:rgba(255,255,255,.06);border:1px solid var(--app-border);border-radius:4px;padding:3px 7px;white-space:nowrap;flex-shrink:0">Hold</span>
+            <div><div style="font-size:11px;font-weight:600;color:var(--app-text)">Lightning Strike</div><div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Charge energy by holding, then release for a thunder shockwave. Longer hold = bigger blast.</div></div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <span style="font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--app-text-bright);background:rgba(255,255,255,.06);border:1px solid var(--app-border);border-radius:4px;padding:3px 7px;white-space:nowrap;flex-shrink:0">Ctrl+Drag</span>
+            <div><div style="font-size:11px;font-weight:600;color:var(--app-text)">Freeze Field</div><div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Crystallize dots in place. Release to thaw with ice crack impulses.</div></div>
+          </div>
+        </div>`
+    },
     evo: {
       title: 'Evolution', tagClass: '', borderClass: '', panelClass: '',
       desc: `<h3>Evolution</h3><p>Global modulation that slowly morphs all engine parameters over time. Controls how the entire soundscape breathes and transforms.</p>`,
@@ -1541,7 +1660,7 @@
     }
   };
 
-  const STEP_ORDER = ['intro','wind','water','bird','insect','thunder','rain','aurora','ice','evo','scale','mod','delay','reverb','output','preset','end'];
+  const STEP_ORDER = ['intro','wind','water','bird','insect','thunder','rain','aurora','ice','interact','evo','scale','mod','delay','reverb','output','preset','end'];
   const panel = document.getElementById('floatPanel');
   const panelBody = document.getElementById('panelBody');
   const descEl = document.getElementById('descOverlay');
@@ -1567,7 +1686,7 @@
     const totalH = descH + gap + panelH;
 
     let top = btnRect.top + btnRect.height / 2 - totalH / 2;
-    top = Math.max(10, Math.min(window.innerHeight - totalH - 10, top));
+    top = Math.max(50, Math.min(window.innerHeight - totalH - 10, top));
 
     descEl.style.top = top + 'px';
     panel.style.top = (top + descH + gap) + 'px';
@@ -1604,6 +1723,16 @@
       // Parameter panel
       panelBody.innerHTML = data.html;
       panel.className = 'visible' + (data.panelClass ? ' ' + data.panelClass : '');
+
+      // Wire sliders: update --fill on drag + push to viz engine
+      panel.querySelectorAll('input[type=range]').forEach(sl => {
+        sl.addEventListener('input', () => {
+          const pct = (sl.value - sl.min) / (sl.max - sl.min) * 100;
+          sl.style.setProperty('--fill', pct + '%');
+          const pk = sl.dataset.param;
+          if (pk && window._vizSetParam) window._vizSetParam(pk, pct / 100);
+        });
+      });
 
       // Position next frame
       requestAnimationFrame(() => positionOverlays(stepName, navTarget));
