@@ -1267,6 +1267,7 @@
                 const MAX = options.maxDroplets || 2000;
                 const SPAWN_RATE = options.spawnRate || 15;
                 const DPR_CAP = options.dprCap || 2;
+                let recycleCursor = 0;
                 let bgGrad = null;
 
                 // SoA arrays
@@ -1285,7 +1286,7 @@
                 const FFT_PROFILES = {
                     flow: "balanced",
                     flock: "midrange",
-                    flame: "bass-heavy",
+                    flame: "balanced",
                     fractal: "harmonic",
                     flora: "burst",
                     flood: "broadband",
@@ -1766,10 +1767,15 @@
                         const thresh = 15 * (1 - freqT * 0.4);
                         if (amp < thresh) continue;
                         if (Math.random() > (amp / 200) * 0.95) continue;
-                        if (drCount >= MAX) break;
 
                         const a = amp / 255;
-                        const n = drCount++;
+                        let n;
+                        if (drCount < MAX) {
+                            n = drCount++;
+                        } else {
+                            n = recycleCursor;
+                            recycleCursor = (recycleCursor + 1) % MAX;
+                        }
 
                         if (mode === "flow") {
                             const spread = (freqT - 0.5) * 2;
@@ -1840,7 +1846,10 @@
                                 break;
                             }
                             if (!floSpawned) {
-                                drCount--;
+                                if (n === drCount - 1) drCount--;
+                                else
+                                    recycleCursor =
+                                        (recycleCursor - 1 + MAX) % MAX;
                                 continue;
                             }
                         }
@@ -1946,11 +1955,7 @@
                                 // Splash
                                 const splashX = rainX[i];
                                 const maxSplash = 15;
-                                for (
-                                    let s = 0;
-                                    s < maxSplash && drCount < MAX;
-                                    s++
-                                ) {
+                                for (let s = 0; s < maxSplash; s++) {
                                     const freqT = s / maxSplash;
                                     const bin = (freqT * 255) | 0;
                                     const amp = fftData[bin] || 50;
@@ -1958,7 +1963,14 @@
                                     const spreadW = W * 0.15;
                                     const dx =
                                         splashX - spreadW / 2 + freqT * spreadW;
-                                    const n = drCount++;
+                                    let n;
+                                    if (drCount < MAX) {
+                                        n = drCount++;
+                                    } else {
+                                        n = recycleCursor;
+                                        recycleCursor =
+                                            (recycleCursor + 1) % MAX;
+                                    }
                                     drX[n] = splashX + (dx - splashX) * 0.15;
                                     drY[n] = ground;
                                     drVx[n] = (dx - splashX) * 0.015;
@@ -2709,8 +2721,8 @@
                     const mode = cell.dataset.mode;
                     const canvas = cell.querySelector("canvas");
                     const sim = createVizSim(canvas, mode, {
-                        maxDroplets: 1500,
-                        spawnRate: 14,
+                        maxDroplets: 3000,
+                        spawnRate: 30,
                         dprCap: 1.25,
                     });
                     sim.setInteraction(true);

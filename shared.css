@@ -682,12 +682,9 @@ body.has-scrolled .scroll-indicator {
 
 .canvas-pause svg { width: 14px; height: 14px; fill: currentColor; }
 
-/* ── Off-screen rendering skip (saves paint/layout on long pages) ── */
-
-.cv-auto {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 800px;
-}
+/* Off-screen rendering skip was here; removed because Safari briefly paints
+   the intrinsic-size placeholder as a white box on cold load. */
+.cv-auto { /* intentionally empty — class retained so HTML markup still matches */ }
 
 /* ── Reduced motion ──────────────────────────────────────── */
 
