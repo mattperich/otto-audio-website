@@ -267,6 +267,13 @@ button {
   opacity: 0.4;
 }
 
+.site-nav a[aria-disabled="true"],
+.site-footer a[aria-disabled="true"] {
+  color: var(--text-dim);
+  pointer-events: none;
+  cursor: default;
+}
+
 .site-nav .nav-right {
   display: flex;
   align-items: center;
@@ -478,6 +485,25 @@ section {
   height: 24px;
   width: auto;
   opacity: 0.8;
+}
+
+.site-footer .footer-logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  transition: filter var(--dur-med) var(--ease-standard);
+}
+
+.site-footer .footer-logo img {
+  height: 24px;
+  width: auto;
+  opacity: 0.8;
+  transition: opacity var(--dur-med) var(--ease-standard);
+}
+
+.site-footer .footer-logo:hover img {
+  opacity: 1;
+  filter: drop-shadow(0 0 12px var(--accent-glow));
 }
 
 .site-footer .footer-brand p {

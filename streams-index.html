@@ -2715,6 +2715,9 @@
                 const grid = document.getElementById("vizGrid");
                 const cells = grid.querySelectorAll(".viz-cell");
                 const sims = [];
+                const reduced = matchMedia(
+                    "(prefers-reduced-motion: reduce)",
+                ).matches;
 
                 // Create simulations
                 cells.forEach((cell) => {
@@ -2728,6 +2731,15 @@
                     sim.setInteraction(true);
                     sims.push({ sim, cell, canvas, mode });
                 });
+
+                if (reduced) {
+                    // Render a single static seed frame per cell, no RAF loop.
+                    for (const s of sims) {
+                        s.sim.resize();
+                        s.sim.tick(performance.now());
+                    }
+                    return;
+                }
 
                 // Single rAF ticker
                 let running = false;
@@ -2780,6 +2792,9 @@
             (function waveformDemo() {
                 const canvas = document.getElementById("waveformCanvas");
                 const ctx = canvas.getContext("2d");
+                const reduced = matchMedia(
+                    "(prefers-reduced-motion: reduce)",
+                ).matches;
                 let W,
                     H,
                     phase = 0;
@@ -2870,10 +2885,15 @@
                         ctx.fillStyle = `hsla(${hue},${Math.min(sat + 10, 45)}%,${Math.min(lit + 8, 60)}%,${alpha * 0.55})`;
                         ctx.fillRect(gx, 2, gw, 1.5);
                     }
-                    requestAnimationFrame(draw);
+                    if (!reduced && !document.hidden)
+                        requestAnimationFrame(draw);
                 }
 
                 addEventListener("resize", resize);
+                document.addEventListener("visibilitychange", () => {
+                    if (!document.hidden && !reduced)
+                        requestAnimationFrame(draw);
+                });
 
                 // Start when visible
                 const obs = new IntersectionObserver(
