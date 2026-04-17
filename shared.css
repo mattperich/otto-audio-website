@@ -150,6 +150,17 @@ a:hover { text-decoration: underline; }
 
 img, svg { display: block; max-width: 100%; }
 
+button {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
 /* ── Skip link ───────────────────────────────────────────── */
 
 .skip-link {
@@ -647,14 +658,22 @@ body.has-scrolled .scroll-indicator {
   justify-content: center;
   cursor: pointer;
   opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
   transition: opacity var(--dur-med) var(--ease-standard),
+              visibility 0s linear var(--dur-med),
               color var(--dur-fast) var(--ease-standard),
               transform var(--dur-fast) var(--ease-spring);
   z-index: 3;
 }
 
 .hero:hover .canvas-pause,
-.canvas-pause:focus-visible { opacity: 0.85; }
+.canvas-pause:focus-visible {
+  opacity: 0.85;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
 
 .canvas-pause:hover {
   color: var(--text-strong);
