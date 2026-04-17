@@ -2620,7 +2620,7 @@
                 const canvas = document.getElementById("heroCanvas");
                 if (!canvas) return;
                 const sim = createVizSim(canvas, "flow", {
-                    maxDroplets: 6000,
+                    maxDroplets: 15000,
                     spawnRate: 40,
                 });
                 const pauseBtn = document.getElementById("heroPause");
@@ -2668,6 +2668,11 @@
                 }
 
                 window.addEventListener("resize", () => sim.resize());
+
+                if (typeof ResizeObserver !== "undefined") {
+                    const ro = new ResizeObserver(() => sim.resize());
+                    ro.observe(canvas);
+                }
 
                 document.addEventListener("visibilitychange", () => {
                     if (document.hidden) stop();
