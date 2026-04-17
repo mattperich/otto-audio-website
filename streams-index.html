@@ -994,12 +994,12 @@
             // SHARED: Colormap, FFT Simulator, Viz Engine
             // ══════════════════════════════════════════════════════════
 
-            // ── 4-stop blue colormap: pale sky → streams blue ──
+            // ── 4-stop colormap: orange → amber → teal → blue ──
             const CMAP = new Uint8Array(256 * 3);
             const CMAP_STOPS = [
-                { t: 0, c: [170, 205, 235] },
-                { t: 0.3, c: [120, 175, 220] },
-                { t: 0.6, c: [90, 158, 215] },
+                { t: 0, c: [200, 130, 60] },
+                { t: 0.3, c: [184, 144, 64] },
+                { t: 0.6, c: [26, 158, 158] },
                 { t: 1, c: [74, 144, 209] },
             ];
             for (let i = 0; i < 256; i++) {
@@ -1645,7 +1645,7 @@
                         let lw = Math.max(0.75, 3 - b.depth * 0.45);
                         lw *= Math.min(1, b.opacity * 2);
                         tc.lineWidth = lw;
-                        tc.strokeStyle = `rgba(90,120,160,${b.opacity * 0.85})`;
+                        tc.strokeStyle = `rgba(140,100,60,${b.opacity * 0.85})`;
                         tc.beginPath();
                         const cs = b.curveSide || 1;
                         const mx2 =
@@ -1664,7 +1664,7 @@
                         const lifeN = Math.max(0, 1 - bl.age / bl.decayDur);
                         tc.beginPath();
                         tc.arc(bl.cx, bl.cy, 4.5, 0, Math.PI * 2);
-                        tc.fillStyle = `rgba(170,210,245,${pulse * lifeT * lifeN * lifeN * lifeN})`;
+                        tc.fillStyle = `rgba(220,190,130,${pulse * lifeT * lifeN * lifeN * lifeN})`;
                         tc.fill();
                     }
                     tc.setTransform(1, 0, 0, 1, 0, 0);
@@ -2398,9 +2398,9 @@
                             );
                             ctx.closePath();
                             const freqT = x / W;
-                            const r = Math.round(130 - freqT * 56),
-                                g = Math.round(180 - freqT * 36),
-                                b = Math.round(225 - freqT * 16);
+                            const r = Math.round(200 - freqT * 174),
+                                g = Math.round(130 + freqT * 28),
+                                b = Math.round(60 + freqT * 124);
                             ctx.fillStyle = `rgba(${r},${g},${b},${(a * 0.65).toFixed(3)})`;
                             ctx.fill();
                             // Shimmer
@@ -2448,13 +2448,13 @@
                                 0,
                                 Math.PI * 1.2,
                             );
-                            ctx.strokeStyle = `rgba(74,144,209,${vt.fade * (0.2 - ring * 0.05)})`;
+                            ctx.strokeStyle = `rgba(26,158,158,${vt.fade * (0.2 - ring * 0.05)})`;
                             ctx.lineWidth = 1.5 - ring * 0.3;
                             ctx.stroke();
                         }
                         ctx.beginPath();
                         ctx.arc(0, 0, 2.5, 0, 6.28);
-                        ctx.fillStyle = `rgba(110,180,230,${vt.fade * 0.5})`;
+                        ctx.fillStyle = `rgba(26,180,180,${vt.fade * 0.5})`;
                         ctx.fill();
                         ctx.restore();
                     }
