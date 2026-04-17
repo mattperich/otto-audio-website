@@ -10,66 +10,211 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
+body { --app-accent: var(--streams); --app-accent-dim: var(--streams-dim); --app-accent-soft: var(--streams-soft); }
+
 .sounds-section {
-  padding: 120px 24px 80px;
-  max-width: 900px;
+  padding: 140px 24px 100px;
+  max-width: 880px;
   margin: 0 auto;
 }
 
-.sounds-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  margin-top: 48px;
+.sounds-hero {
+  text-align: center;
+  margin-bottom: 56px;
 }
 
-.sound-embed {
+.sounds-hero .eyebrow { color: var(--app-accent); }
+
+.sounds-hero h1 {
+  font-size: clamp(2rem, 4.5vw, 2.8rem);
+  font-weight: 300;
+  color: var(--text-strong);
+  letter-spacing: -0.015em;
+  margin: 6px 0 12px;
+}
+
+.sounds-hero p {
+  color: var(--text-body);
+  max-width: 56ch;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+/* Animated waveform placeholder */
+.sounds-placeholder {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px;
-  transition: border-color 0.3s;
+  border-radius: var(--radius-lg);
+  padding: 44px 36px 36px;
+  overflow: hidden;
 }
 
-.sound-embed:hover {
-  border-color: rgba(74, 144, 209, 0.3);
+.sounds-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 120% at 50% 0%, var(--app-accent-soft), transparent 70%);
+  pointer-events: none;
 }
 
-.sound-embed h3 {
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--text-heading);
-  margin-bottom: 6px;
-}
-
-.sound-embed p {
-  font-size: 0.85rem;
-  color: var(--text);
-  margin-bottom: 16px;
-}
-
-.sound-placeholder {
+.wave-art {
+  position: relative;
   width: 100%;
-  height: 180px;
-  border-radius: 8px;
-  background: var(--surface2);
-  border: 1px dashed var(--border);
-  display: flex;
+  height: 160px;
+  display: block;
+}
+
+.wave-art .bar {
+  fill: var(--app-accent);
+  opacity: 0.35;
+  transform-origin: center;
+  animation: wave-pulse 2.4s var(--ease-standard) infinite;
+}
+
+.wave-art .bar.b { animation-delay: 0.12s; opacity: 0.55; }
+.wave-art .bar.c { animation-delay: 0.24s; opacity: 0.8; }
+.wave-art .bar.d { animation-delay: 0.36s; opacity: 0.95; }
+.wave-art .bar.e { animation-delay: 0.48s; opacity: 0.8; }
+.wave-art .bar.f { animation-delay: 0.60s; opacity: 0.55; }
+.wave-art .bar.g { animation-delay: 0.72s; opacity: 0.35; }
+
+@keyframes wave-pulse {
+  0%, 100% { transform: scaleY(0.4); }
+  50%      { transform: scaleY(1); }
+}
+
+.placeholder-body {
+  position: relative;
+  text-align: center;
+  margin-top: 28px;
+}
+
+.placeholder-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--app-accent);
+  background: var(--app-accent-soft);
+  border: 1px solid var(--app-accent-dim);
+  border-radius: 4px;
+  padding: 5px 12px;
+  display: inline-block;
+}
+
+.placeholder-body h2 {
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--text-strong);
+  margin: 16px 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.placeholder-body p {
+  color: var(--text-body);
+  font-size: 0.95rem;
+  max-width: 56ch;
+  margin: 0 auto 24px;
+  line-height: 1.65;
+}
+
+.watch-pill {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  color: var(--text-dim);
+  gap: 9px;
+  padding: 10px 18px;
   font-size: 13px;
+  font-weight: 500;
+  color: var(--text-strong);
+  background: var(--surface2);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: transform var(--dur-fast) var(--ease-spring),
+              border-color var(--dur-med) var(--ease-standard),
+              background var(--dur-med) var(--ease-standard);
+}
+
+.watch-pill:hover {
+  transform: translateY(-2px);
+  border-color: var(--app-accent-dim);
+  background: var(--app-accent-soft);
+  text-decoration: none;
+}
+
+.watch-pill svg { width: 15px; height: 15px; fill: currentColor; }
+
+/* "What's coming" list */
+.coming-list {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.coming-item {
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: border-color var(--dur-med) var(--ease-standard),
+              transform var(--dur-med) var(--ease-spring);
+}
+
+.coming-item:hover {
+  border-color: var(--app-accent-dim);
+  transform: translateY(-2px);
+}
+
+.coming-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--app-accent);
+  box-shadow: 0 0 12px var(--app-accent-dim);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.coming-item h3 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-strong);
+  margin-bottom: 4px;
+}
+
+.coming-item p {
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-art .bar { animation: none; transform: scaleY(0.7); }
+}
+
+@media (max-width: 640px) {
+  .sounds-section { padding: 110px 20px 64px; }
+  .sounds-placeholder { padding: 32px 22px 28px; }
+  .wave-art { height: 120px; }
 }
 </style>
 </head>
 <body>
 
-<nav class="site-nav">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="site-nav" aria-label="Primary">
   <a href="index.html" class="logo"><img src="otto_audio-05.svg" alt="Otto Audio"></a>
   <div class="nav-links">
     <a href="streams-index.html" class="active">Streams</a>
     <a href="habitat-index.html">Habitat</a>
-    <a href="#">OttoVerb</a>
+    <a href="#" aria-disabled="true">OttoVerb</a>
   </div>
   <div class="nav-right">
     <a href="streams-index.html">Overview</a>
@@ -79,23 +224,121 @@
   </div>
 </nav>
 
+<main id="main">
+
 <div class="sounds-section">
-  <h1 class="section-title">Sounds</h1>
+  <div class="sounds-hero reveal">
+    <span class="eyebrow">Audio examples</span>
+    <h1>Sounds</h1>
+    <p>Demos, sound-design studies, and performance recordings made with Streams. Coming together now — check back, or watch the GitHub repo for release drops.</p>
+  </div>
 
-  <div class="sounds-grid">
+  <div class="sounds-placeholder reveal">
+    <svg class="wave-art" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true">
+      <rect class="bar a" x="20"  y="40" width="14" height="80" rx="3"/>
+      <rect class="bar b" x="50"  y="40" width="14" height="80" rx="3"/>
+      <rect class="bar c" x="80"  y="40" width="14" height="80" rx="3"/>
+      <rect class="bar d" x="110" y="40" width="14" height="80" rx="3"/>
+      <rect class="bar e" x="140" y="40" width="14" height="80" rx="3"/>
+      <rect class="bar f" x="170" y="40" width="14" height="80" rx="3"/>
+      <rect class="bar g" x="200" y="40" width="14" height="80" rx="3"/>
+      <rect class="bar f" x="230" y="40" width="14" height="80" rx="3"/>
+      <rect class="bar e" x="260" y="40" width="14" height="80" rx="3"/>
+      <rect class="bar d" x="290" y="40" width="14" height="80" rx="3"/>
+      <rect class="bar c" x="320" y="40" width="14" height="80" rx="3"/>
+      <rect class="bar b" x="350" y="40" width="14" height="80" rx="3"/>
+    </svg>
 
-    <div class="sound-embed">
-      <h3>Demo coming soon</h3>
-      <p>Audio and video demos will be embedded here.</p>
-      <div class="sound-placeholder">Embed placeholder</div>
+    <div class="placeholder-body">
+      <span class="placeholder-tag">Coming soon</span>
+      <h2>Recordings in progress</h2>
+      <p>Full demos will land here alongside each release. Watch the repo for release drops and sound-pack additions.</p>
+      <a class="watch-pill" href="https://github.com/mattperich/streams" rel="noopener">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Watch on GitHub
+      </a>
     </div>
+  </div>
 
+  <div class="coming-list reveal reveal-stagger">
+    <div class="coming-item">
+      <span class="dot"></span>
+      <div>
+        <h3>Sound-design studies</h3>
+        <p>Short examples of each visualization mode and grain configuration.</p>
+      </div>
+    </div>
+    <div class="coming-item">
+      <span class="dot"></span>
+      <div>
+        <h3>Text-to-audio demos</h3>
+        <p>Prompts feeding the AI generator — raw output plus granular reworks.</p>
+      </div>
+    </div>
+    <div class="coming-item">
+      <span class="dot"></span>
+      <div>
+        <h3>Performance recordings</h3>
+        <p>Long-form live takes exploring modulation routing and interaction.</p>
+      </div>
+    </div>
   </div>
 </div>
 
+</main>
+
 <footer class="site-footer">
-  <p>Otto Audio &mdash; &copy; <a href="https://github.com/mattperich">Matt Perich</a></p>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="footer-logo"><img src="otto_audio-05.svg" alt="Otto Audio"></a>
+      <p>Hand-crafted audio tools by <a href="https://github.com/mattperich" rel="noopener">Matt Perich</a>.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Streams</h4>
+      <a href="streams-index.html">Overview</a>
+      <a href="streams-sounds.html">Sounds</a>
+      <a href="streams-tutorial.html">Tutorial</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="download.html">Download</a>
+      <a href="habitat-index.html">Habitat</a>
+    </div>
+    <div class="footer-col">
+      <h4>Connect</h4>
+      <a href="https://github.com/mattperich" rel="noopener">GitHub</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; <span id="year"></span> Matt Perich</span>
+    <span>Built with care in vanilla HTML, CSS, and JS.</span>
+  </div>
 </footer>
 
+<script>
+const yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+const nav = document.querySelector('.site-nav');
+if (nav) {
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+}
+
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => {
+  if (reduceMotion) el.classList.add('visible');
+  else revealObserver.observe(el);
+});
+</script>
 </body>
 </html>
