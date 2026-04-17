@@ -663,6 +663,13 @@ body.has-scrolled .scroll-indicator {
 
 .canvas-pause svg { width: 14px; height: 14px; fill: currentColor; }
 
+/* ── Off-screen rendering skip (saves paint/layout on long pages) ── */
+
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
+}
+
 /* ── Reduced motion ──────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
