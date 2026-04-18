@@ -257,6 +257,148 @@
                 color: var(--warm);
                 border-color: rgba(200, 134, 74, 0.25);
             }
+            .feature-icon.latent {
+                background: rgba(74, 144, 209, 0.1);
+                color: #4a90d1;
+                border-color: rgba(74, 144, 209, 0.25);
+            }
+
+            /* ── Latent explorer preview ──────────────────────────── */
+
+            .latent-preview {
+                display: grid;
+                grid-template-columns: minmax(280px, 380px) 1fr;
+                gap: var(--space-6);
+                align-items: center;
+                margin-top: var(--space-8);
+            }
+
+            .latent-pad {
+                position: relative;
+                aspect-ratio: 16 / 11;
+                background:
+                    radial-gradient(
+                        circle at 50% 50%,
+                        rgba(74, 144, 209, 0.06) 0%,
+                        transparent 70%
+                    ),
+                    #060a10;
+                border: 1px solid var(--border);
+                border-radius: var(--radius-md);
+                overflow: hidden;
+            }
+
+            .latent-pad::before,
+            .latent-pad::after {
+                content: "";
+                position: absolute;
+                background: rgba(255, 255, 255, 0.04);
+            }
+            .latent-pad::before {
+                left: 0;
+                right: 0;
+                top: 50%;
+                height: 1px;
+            }
+            .latent-pad::after {
+                top: 0;
+                bottom: 0;
+                left: 50%;
+                width: 1px;
+            }
+
+            .latent-anchor {
+                position: absolute;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #4a90d1;
+                transform: translate(-50%, -50%);
+                box-shadow: 0 0 6px rgba(74, 144, 209, 0.5);
+            }
+
+            .latent-cursor {
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                border: 2px solid #f6c863;
+                box-shadow: 0 0 10px rgba(246, 200, 99, 0.4);
+                transform: translate(-50%, -50%);
+                animation: latent-wander 14s var(--ease-in-out) infinite;
+            }
+
+            .latent-cursor::after {
+                content: "";
+                position: absolute;
+                inset: 6px;
+                border-radius: 50%;
+                background: #f6c863;
+            }
+
+            @keyframes latent-wander {
+                0%   { left: 22%; top: 30%; }
+                18%  { left: 68%; top: 22%; }
+                36%  { left: 80%; top: 66%; }
+                54%  { left: 45%; top: 78%; }
+                72%  { left: 18%; top: 62%; }
+                90%  { left: 38%; top: 46%; }
+                100% { left: 22%; top: 30%; }
+            }
+
+            .latent-caption {
+                position: absolute;
+                left: 12px;
+                bottom: 10px;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--text-dim);
+            }
+            .latent-caption span {
+                color: #f6c863;
+            }
+
+            .latent-list h3 {
+                font-size: 1.1rem;
+                font-weight: 500;
+                color: var(--text-heading);
+                margin-bottom: var(--space-3);
+            }
+            .latent-list ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                gap: var(--space-2);
+            }
+            .latent-list li {
+                position: relative;
+                padding-left: 20px;
+                color: var(--text-body);
+                font-size: 0.92rem;
+                line-height: 1.6;
+            }
+            .latent-list li::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0.55em;
+                width: 10px;
+                height: 1px;
+                background: #4a90d1;
+            }
+            .latent-list li strong {
+                color: var(--text-heading);
+                font-weight: 500;
+            }
+
+            @media (max-width: 768px) {
+                .latent-preview { grid-template-columns: 1fr; }
+                .latent-pad { max-width: 420px; margin: 0 auto; }
+            }
 
             /* ── Grain System ─────────────────────────────────────── */
 
@@ -629,8 +771,8 @@
                     </h2>
                     <p class="section-desc">
                         Describe a sound and generate source material locally
-                        via CoreML. Output feeds directly into the granular
-                        engine.
+                        via CoreML, then navigate the latent space between
+                        your generations to decode new hybrids on demand.
                     </p>
                 </div>
                 <div class="features reveal reveal-stagger">
@@ -686,7 +828,7 @@
                         </p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon resonator" aria-hidden="true">
+                        <div class="feature-icon latent" aria-hidden="true">
                             <svg
                                 width="22"
                                 height="22"
@@ -694,18 +836,61 @@
                                 fill="none"
                                 stroke="currentColor"
                                 stroke-width="1.5"
+                                stroke-linecap="round"
                             >
-                                <polyline
-                                    points="22 12 18 12 15 21 9 3 6 12 2 12"
-                                />
+                                <circle cx="7" cy="8" r="1.5" fill="currentColor" />
+                                <circle cx="15" cy="6" r="1.5" fill="currentColor" />
+                                <circle cx="18" cy="13" r="1.5" fill="currentColor" />
+                                <circle cx="11" cy="17" r="1.5" fill="currentColor" />
+                                <circle cx="5" cy="15" r="1.5" fill="currentColor" />
+                                <circle cx="12" cy="11" r="3" stroke-dasharray="2 2" />
                             </svg>
                         </div>
-                        <h3>Infinite source material</h3>
+                        <h3>Latent space explorer</h3>
                         <p>
-                            Generated audio feeds directly into the granular
-                            engine for slicing, scattering, and reshaping with
-                            effects and modulation.
+                            Every generation drops an anchor in the model's
+                            latent space. Click between anchors to decode
+                            hybrid textures that blend what you've already made.
                         </p>
+                    </div>
+                </div>
+
+                <div class="latent-preview reveal">
+                    <div class="latent-pad" aria-hidden="true">
+                        <div class="latent-anchor" style="left: 22%; top: 30%"></div>
+                        <div class="latent-anchor" style="left: 68%; top: 22%"></div>
+                        <div class="latent-anchor" style="left: 80%; top: 66%"></div>
+                        <div class="latent-anchor" style="left: 45%; top: 78%"></div>
+                        <div class="latent-anchor" style="left: 18%; top: 62%"></div>
+                        <div class="latent-anchor" style="left: 38%; top: 46%"></div>
+                        <div class="latent-cursor"></div>
+                        <div class="latent-caption">
+                            decode at <span>(x, y)</span>
+                        </div>
+                    </div>
+                    <div class="latent-list">
+                        <h3>Navigate, don't just generate</h3>
+                        <ul>
+                            <li>
+                                <strong>Every prompt</strong> becomes an anchor
+                                — a point in a 2D projection of the full latent
+                                space.
+                            </li>
+                            <li>
+                                <strong>Click between anchors</strong> to decode
+                                a new ~12s sample at that position, blending
+                                the nearest results.
+                            </li>
+                            <li>
+                                <strong>Recompute the projection</strong> as
+                                your collection grows and new clusters emerge.
+                            </li>
+                            <li>
+                                <strong>Everything stays local</strong> on
+                                Apple Silicon via CoreML — no uploads, no
+                                waiting on the network.
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </section>
