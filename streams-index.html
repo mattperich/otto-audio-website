@@ -1267,7 +1267,6 @@
                 const MAX = options.maxDroplets || 2000;
                 const SPAWN_RATE = options.spawnRate || 15;
                 const DPR_CAP = options.dprCap || 2;
-                let recycleCursor = 0;
                 let bgGrad = null;
 
                 // SoA arrays
@@ -1769,13 +1768,8 @@
                         if (Math.random() > (amp / 200) * 0.95) continue;
 
                         const a = amp / 255;
-                        let n;
-                        if (drCount < MAX) {
-                            n = drCount++;
-                        } else {
-                            n = recycleCursor;
-                            recycleCursor = (recycleCursor + 1) % MAX;
-                        }
+                        if (drCount >= MAX) break;
+                        const n = drCount++;
 
                         if (mode === "flow") {
                             const spread = (freqT - 0.5) * 2;
@@ -1846,10 +1840,7 @@
                                 break;
                             }
                             if (!floSpawned) {
-                                if (n === drCount - 1) drCount--;
-                                else
-                                    recycleCursor =
-                                        (recycleCursor - 1 + MAX) % MAX;
+                                drCount--;
                                 continue;
                             }
                         }
@@ -1963,14 +1954,8 @@
                                     const spreadW = W * 0.15;
                                     const dx =
                                         splashX - spreadW / 2 + freqT * spreadW;
-                                    let n;
-                                    if (drCount < MAX) {
-                                        n = drCount++;
-                                    } else {
-                                        n = recycleCursor;
-                                        recycleCursor =
-                                            (recycleCursor + 1) % MAX;
-                                    }
+                                    if (drCount >= MAX) break;
+                                    const n = drCount++;
                                     drX[n] = splashX + (dx - splashX) * 0.15;
                                     drY[n] = ground;
                                     drVx[n] = (dx - splashX) * 0.015;
@@ -2620,8 +2605,8 @@
                 const canvas = document.getElementById("heroCanvas");
                 if (!canvas) return;
                 const sim = createVizSim(canvas, "flow", {
-                    maxDroplets: 15000,
-                    spawnRate: 40,
+                    maxDroplets: 6000,
+                    spawnRate: 16,
                 });
                 const pauseBtn = document.getElementById("heroPause");
                 const reduceMotion = matchMedia(
@@ -2730,7 +2715,7 @@
                     const canvas = cell.querySelector("canvas");
                     const sim = createVizSim(canvas, mode, {
                         maxDroplets: 3000,
-                        spawnRate: 30,
+                        spawnRate: 8,
                         dprCap: 1.25,
                     });
                     sim.setInteraction(true);
