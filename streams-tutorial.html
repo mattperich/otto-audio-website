@@ -54,6 +54,23 @@
 /* Override z-index so header renders above sidebar */
 .site-nav { z-index: 110; }
 
+/* ── Scroll progress bar ──────────────────────────────── */
+
+#scrollProgress {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 105;
+  pointer-events: none;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 80ms linear;
+  background: linear-gradient(90deg, var(--accent), var(--teal));
+  box-shadow: 0 0 12px rgba(74, 144, 209, 0.35);
+}
+
 /* ── Fixed left nav strip (replica of plugin UI) ──────── */
 
 #navStrip {
@@ -75,6 +92,7 @@
 }
 
 .nav-btn {
+  position: relative;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -176,6 +194,19 @@
   line-height: 1.5;
   margin: 0;
 }
+
+/* Stagger-reveal contents on step change */
+#descOverlay .desc-tag,
+#descOverlay h3,
+#descOverlay p {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--dur-med) var(--ease-out),
+              transform var(--dur-med) var(--ease-out);
+}
+#descOverlay.visible .desc-tag { opacity: 1; transform: translateY(0); transition-delay: 60ms; }
+#descOverlay.visible h3        { opacity: 1; transform: translateY(0); transition-delay: 120ms; }
+#descOverlay.visible p         { opacity: 1; transform: translateY(0); transition-delay: 180ms; }
 
 /* ── Floating param panel (exact V2 Immersive replica) ── */
 
@@ -742,11 +773,15 @@
   text-align: center;
   max-width: 620px;
   padding: 0 var(--space-6);
-  transition: opacity var(--dur-slow) var(--ease-standard);
   animation: intro-rise 1.1s var(--ease-out) 0.1s both;
+  will-change: opacity, transform;
 }
 
-#introOverlay.hidden { opacity: 0; pointer-events: none; }
+#introOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
 
 @keyframes intro-rise {
   from { opacity: 0; transform: translate(-50%, calc(-50% + 14px)); }
@@ -884,6 +919,7 @@
 }
 
 .tool-btn {
+  position: relative;
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -912,6 +948,46 @@
 }
 
 .tool-btn.gear { font-size: 15px; line-height: 1; }
+
+/* ── Nav-strip tooltip (hover full names) ─────────────── */
+
+.nav-btn[data-tip]::after,
+.tool-btn[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  padding: 5px 10px;
+  background: rgba(8, 11, 20, 0.96);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-sm);
+  color: var(--app-text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-standard),
+              transform var(--dur-fast) var(--ease-standard);
+  z-index: 80;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.nav-btn:hover[data-tip]::after,
+.tool-btn:hover[data-tip]::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+  transition-delay: 150ms;
+}
+
+@media (max-width: 768px) {
+  [data-tip]::after { display: none !important; }
+}
 
 /* ── Responsive ───────────────────────────────────────── */
 
@@ -962,6 +1038,28 @@
   #introOverlay { animation: none; }
   .scroll-cue { animation: none; opacity: 0.5; }
   .latent-nav-cursor { animation: none; }
+}
+
+/* Canvas pause button — override for full-viewport viz */
+.canvas-pause#vizPause {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 70;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+body:hover .canvas-pause#vizPause,
+.canvas-pause#vizPause:focus-visible,
+.canvas-pause#vizPause.paused {
+  opacity: 0.85;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+@media (max-width: 560px) {
+  .canvas-pause#vizPause { display: none; }
 }
 
 /* ── Window shape buttons (GRN panel) ────────────────── */
@@ -1124,25 +1222,33 @@
   </div>
 </nav>
 
+<!-- ═══════ SCROLL PROGRESS BAR ═══════ -->
+<div id="scrollProgress" aria-hidden="true"></div>
+
+<!-- ═══════ VIZ PAUSE BUTTON ═══════ -->
+<button class="canvas-pause" id="vizPause" aria-label="Pause background animation">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+</button>
+
 <!-- ═══════ LEFT NAV STRIP ═══════ -->
 <div id="navStrip">
-  <div class="nav-btn" data-step="input">IN</div>
-  <div class="nav-btn" data-step="generate" style="color:#4a90d1">GEN</div>
-  <div class="nav-btn" data-step="tempo">BPM</div>
-  <div class="nav-btn" data-step="scale">KEY</div>
-  <div class="nav-btn orange" data-step="grain">GRN</div>
-  <div class="nav-btn teal" data-step="stream">STR</div>
-  <div class="nav-btn teal" data-step="resonator">RES</div>
-  <div class="nav-btn teal" data-step="delay">DLY</div>
-  <div class="nav-btn" data-step="reverb">REV</div>
-  <div class="nav-btn" data-step="output">OUT</div>
-  <div class="nav-btn amber" data-step="mod">MOD</div>
-  <div class="nav-btn red" data-step="seq">SEQ</div>
+  <div class="nav-btn" data-step="input" data-tip="Input — audio source & sampling">IN</div>
+  <div class="nav-btn" data-step="generate" data-tip="Generate — AI source material & latent navigator" style="color:#4a90d1">GEN</div>
+  <div class="nav-btn" data-step="tempo" data-tip="Tempo — global clock">BPM</div>
+  <div class="nav-btn" data-step="scale" data-tip="Key — scale & pitch snapping">KEY</div>
+  <div class="nav-btn orange" data-step="grain" data-tip="Grain — granular engine">GRN</div>
+  <div class="nav-btn teal" data-step="stream" data-tip="Stream — grain scheduling">STR</div>
+  <div class="nav-btn teal" data-step="resonator" data-tip="Resonator — tuned feedback">RES</div>
+  <div class="nav-btn teal" data-step="delay" data-tip="Delay — echo & feedback">DLY</div>
+  <div class="nav-btn" data-step="reverb" data-tip="Reverb — space & tail">REV</div>
+  <div class="nav-btn" data-step="output" data-tip="Output — final shaping">OUT</div>
+  <div class="nav-btn amber" data-step="mod" data-tip="Modulation — LFOs & routing">MOD</div>
+  <div class="nav-btn red" data-step="seq" data-tip="Sequence — pattern & automation">SEQ</div>
   <div class="nav-spacer"></div>
-  <div class="tool-btn" data-step="help">?</div>
-  <div class="tool-btn" data-step="preset">PRE</div>
-  <div class="tool-btn" data-step="reset">&#8635;</div>
-  <div class="tool-btn gear" data-step="settings">&#9881;</div>
+  <div class="tool-btn" data-step="help" data-tip="Help">?</div>
+  <div class="tool-btn" data-step="preset" data-tip="Presets">PRE</div>
+  <div class="tool-btn" data-step="reset" data-tip="Reset to defaults">&#8635;</div>
+  <div class="tool-btn gear" data-step="settings" data-tip="Settings">&#9881;</div>
 </div>
 
 <!-- ═══════ DESCRIPTION OVERLAY (above panel) ═══════ -->
@@ -1158,8 +1264,8 @@
 
 <!-- ═══════ INTRO OVERLAY ═══════ -->
 <div id="introOverlay">
-  <span class="eyebrow">Interactive Tour</span>
-  <h1>Explore <span>Streams</span></h1>
+  <span class="eyebrow">Interactive Tutorial</span>
+  <h1><span>Streams</span></h1>
   <p>
     Scroll through the immersive view to discover each section of the granular synthesizer. The left toolbar mirrors the real plugin &mdash; every button opens a parameter panel that shapes your sound.
   </p>
@@ -1240,7 +1346,7 @@ const PHI=(1+Math.sqrt(5))/2;
 // ── createVizSim (full-screen version, higher budget) ──
 function createVizSim(canvas,mode,opts){
   opts=opts||{};const ctx=canvas.getContext('2d');let W=0,H=0;
-  const MAX=opts.maxDroplets||10000,SPAWN=opts.spawnRate||50;
+  const MAX=opts.maxDroplets||6000,SPAWN=opts.spawnRate||16;
   const drX=new Float32Array(MAX),drY=new Float32Array(MAX),drA=new Float32Array(MAX);
   const drB=new Uint8Array(MAX),drVx=new Float32Array(MAX),drVy=new Float32Array(MAX);
   const drHx=new Float32Array(MAX),drHy=new Float32Array(MAX),drTch=new Float32Array(MAX);
@@ -1436,12 +1542,12 @@ function createVizSim(canvas,mode,opts){
 (function tutorial() {
   const canvas = document.getElementById('vizCanvas');
   let currentMode = 'flow';
-  let sim = createVizSim(canvas, currentMode, { maxDroplets: 10000, spawnRate: 50 });
+  let sim = createVizSim(canvas, currentMode, { maxDroplets: 6000, spawnRate: 16 });
   sim.setInteraction(true);
   sim.start();
 
   // Animation loop
-  function tick(t) { if (sim.isRunning()) sim.tick(t); requestAnimationFrame(tick); }
+  function tick(t) { if (sim.isRunning() && !window._vizPaused) sim.tick(t); requestAnimationFrame(tick); }
   requestAnimationFrame(tick);
   window.addEventListener('resize', () => sim.resize());
 
@@ -1450,7 +1556,7 @@ function createVizSim(canvas,mode,opts){
     if (newMode === currentMode) return;
     currentMode = newMode;
     sim.stop();
-    sim = createVizSim(canvas, newMode, { maxDroplets: 10000, spawnRate: 50 });
+    sim = createVizSim(canvas, newMode, { maxDroplets: 6000, spawnRate: 16 });
     sim.setInteraction(true);
     sim.start();
     sim.resize();
@@ -2240,15 +2346,59 @@ function createVizSim(canvas,mode,opts){
   setStep('intro');
 })();
 
-// Nav scroll state
+// Nav scroll + scroll progress + intro fade
 (function() {
   const nav = document.querySelector('.site-nav');
-  if (!nav) return;
+  const progress = document.getElementById('scrollProgress');
+  const intro = document.getElementById('introOverlay');
+  const doc = document.documentElement;
+  let introReady = false;
+  // Only start scroll-linked fade once the intro-rise animation finishes
+  if (intro) {
+    intro.addEventListener('animationend', () => {
+      introReady = true;
+      intro.style.animation = 'none';
+    }, { once: true });
+  }
   const onScroll = () => {
-    nav.classList.toggle('scrolled', window.scrollY > 4);
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 4);
+    if (progress) {
+      const max = doc.scrollHeight - doc.clientHeight;
+      const p = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+      progress.style.transform = `scaleX(${p})`;
+    }
+    if (intro && introReady && !intro.classList.contains('hidden')) {
+      const p = Math.max(0, Math.min(1, window.scrollY / 220));
+      intro.style.opacity = String(1 - p);
+      intro.style.transform = `translate(-50%, calc(-50% - ${p * 50}%))`;
+      intro.style.pointerEvents = p > 0.5 ? 'none' : '';
+    }
   };
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+})();
+
+// Canvas pause button
+(function() {
+  const btn = document.getElementById('vizPause');
+  if (!btn) return;
+  const playIcon  = '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="6,4 20,12 6,20"/></svg>';
+  const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>';
+  const applyState = () => {
+    btn.classList.toggle('paused', !!window._vizPaused);
+    btn.innerHTML = window._vizPaused ? playIcon : pauseIcon;
+    btn.setAttribute('aria-label',
+      window._vizPaused ? 'Play background animation' : 'Pause background animation');
+  };
+  btn.addEventListener('click', () => {
+    window._vizPaused = !window._vizPaused;
+    applyState();
+  });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    window._vizPaused = true;
+  }
+  applyState();
 })();
 </script>
 </body>
