@@ -661,10 +661,8 @@ section {
   50%      { transform: rotate(45deg) translate(3px, 3px); opacity: 1; }
 }
 
-body.has-scrolled .scroll-indicator {
-  opacity: 0;
-  transition: opacity var(--dur-med) var(--ease-standard);
-}
+/* Opacity is driven by JS (scroll-linked inline style) for a smooth,
+   finger-matched fade. See each page's nav-scroll IIFE. */
 
 /* ── Canvas pause control ────────────────────────────────── */
 
