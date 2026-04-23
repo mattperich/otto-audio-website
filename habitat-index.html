@@ -6,6 +6,7 @@
 <title>Habitat — Generative Drone Synthesizer</title>
 <meta name="description" content="Habitat is a generative drone synthesizer with eight nature-modeled engines, real-time visualization, scale systems, and LFO modulation. macOS, iPad, AU & VST3.">
 <link rel="icon" type="image/svg+xml" href="otto_audio-05.svg">
+<meta name="theme-color" content="#06080f">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Otto Audio">
 <meta property="og:title" content="Habitat — Generative Drone Synthesizer">
@@ -144,14 +145,16 @@
   transition: width var(--dur-slow) var(--ease-out);
 }
 
-.engine-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--engine);
-  background: var(--surface-raised);
-  box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 32px var(--engine-dim);
+@media (hover: hover) {
+  .engine-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--engine);
+    background: var(--surface-raised);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 32px var(--engine-dim);
+  }
+  .engine-card:hover::after { width: 100%; }
+  .engine-card:hover .engine-wave path { animation-duration: 1.6s; }
 }
-
-.engine-card:hover::after { width: 100%; }
 
 .engine-wave {
   width: 40px;
@@ -175,9 +178,6 @@
   50%      { opacity: 1; transform: scaleY(1.2); }
 }
 
-.engine-card:hover .engine-wave path {
-  animation-duration: 1.6s;
-}
 
 .engine-card h3 {
   font-size: 1.02rem;
@@ -665,7 +665,7 @@
       <h4>Products</h4>
       <a href="streams-index.html">Streams</a>
       <a href="habitat-index.html">Habitat</a>
-      <a href="#">OttoVerb</a>
+      <a href="#" aria-disabled="true">OttoVerb</a>
     </div>
     <div class="footer-col">
       <h4>Habitat</h4>

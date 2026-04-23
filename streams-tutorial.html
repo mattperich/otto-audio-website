@@ -6,6 +6,7 @@
 <title>Streams Tutorial — Learn Granular Synthesis</title>
 <meta name="description" content="Interactive tutorial for Streams granular synthesizer. Explore 6 visualization modes, trigger grains, shape sounds, and design textures.">
 <link rel="icon" type="image/svg+xml" href="otto_audio-05.svg">
+<meta name="theme-color" content="#06080f">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Otto Audio">
 <meta property="og:title" content="Streams Tutorial — Learn Granular Synthesis">
@@ -997,23 +998,8 @@
   #introOverlay { max-width: 90%; }
 }
 
-/* Small tablet / large phone: shrink nav strip */
+/* Phone / small tablet: collapse the plugin UI replica. Viz still plays fullscreen. */
 @media (max-width: 768px) {
-  #navStrip {
-    width: 40px;
-    padding: 8px 4px;
-    gap: 3px;
-  }
-  .nav-btn { width: 30px; height: 30px; font-size: 8px; }
-  .tool-btn { width: 26px; height: 26px; font-size: 9px; }
-  .tool-btn.gear { font-size: 13px; }
-  #descOverlay, #floatPanel { left: 46px; width: 200px; padding: 10px 12px; }
-  #stepDots { right: 10px; }
-  .step-dot { width: 5px; height: 5px; }
-}
-
-/* Phone: collapse the plugin UI replica. Viz still plays fullscreen. */
-@media (max-width: 560px) {
   #navStrip { display: none; }
   #descOverlay, #floatPanel { display: none; }
   #stepDots { display: none; }
@@ -1058,7 +1044,7 @@ body:hover .canvas-pause#vizPause,
   pointer-events: auto;
   transition-delay: 0s;
 }
-@media (max-width: 560px) {
+@media (max-width: 768px) {
   .canvas-pause#vizPause { display: none; }
 }
 
@@ -1212,7 +1198,7 @@ body:hover .canvas-pause#vizPause,
   <div class="nav-links">
     <a href="streams-index.html" class="active">Streams</a>
     <a href="habitat-index.html">Habitat</a>
-    <a href="#">OttoVerb</a>
+    <a href="#" aria-disabled="true">OttoVerb</a>
   </div>
   <div class="nav-right">
     <a href="streams-index.html">Overview</a>

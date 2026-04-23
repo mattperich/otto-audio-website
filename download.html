@@ -6,6 +6,7 @@
 <title>Download — Otto Audio</title>
 <meta name="description" content="Download Streams, Habitat, and OttoVerb. Free and open source instruments and effects for macOS, iPad, AU & VST3.">
 <link rel="icon" type="image/svg+xml" href="otto_audio-05.svg">
+<meta name="theme-color" content="#06080f">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Otto Audio">
 <meta property="og:title" content="Download — Otto Audio">
@@ -470,30 +471,6 @@
   </div>
 </footer>
 
-<script>
-const yearEl = document.getElementById('year');
-if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-const nav = document.querySelector('.site-nav');
-if (nav) {
-  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 8);
-  onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
-}
-
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const revealObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      revealObserver.unobserve(e.target);
-    }
-  });
-}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-document.querySelectorAll('.reveal').forEach(el => {
-  if (reduceMotion) el.classList.add('visible');
-  else revealObserver.observe(el);
-});
-</script>
+<script src="site.js" defer></script>
 </body>
 </html>

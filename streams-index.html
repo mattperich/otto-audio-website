@@ -9,6 +9,7 @@
             content="Streams is a real-time granular synthesizer with AI text-to-audio generation, 6 interactive visualization modes, spectral filtering, resonant strings, and an immersive particle interface."
         />
         <link rel="icon" type="image/svg+xml" href="otto_audio-05.svg" />
+        <meta name="theme-color" content="#06080f" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Otto Audio" />
         <meta property="og:title" content="Streams — Granular Synthesizer" />
@@ -420,9 +421,11 @@
                     background var(--dur-med) var(--ease-standard);
             }
 
-            .grain-card:hover {
-                border-color: var(--border-strong);
-                background: var(--surface-raised);
+            @media (hover: hover) {
+                .grain-card:hover {
+                    border-color: var(--border-strong);
+                    background: var(--surface-raised);
+                }
             }
 
             .grain-card h4 {
@@ -486,10 +489,12 @@
                     transform var(--dur-med) var(--ease-spring);
             }
 
-            .mod-card:hover {
-                border-color: var(--border-strong);
-                background: var(--surface-raised);
-                transform: translateY(-3px);
+            @media (hover: hover) {
+                .mod-card:hover {
+                    border-color: var(--border-strong);
+                    background: var(--surface-raised);
+                    transform: translateY(-3px);
+                }
             }
 
             .mod-card h4 {
@@ -535,9 +540,11 @@
                     background var(--dur-med) var(--ease-standard);
             }
 
-            .spec:hover {
-                border-color: var(--border);
-                background: var(--surface);
+            @media (hover: hover) {
+                .spec:hover {
+                    border-color: var(--border);
+                    background: var(--surface);
+                }
             }
 
             .spec-value {
@@ -1138,7 +1145,7 @@
                     <h4>Products</h4>
                     <a href="streams-index.html">Streams</a>
                     <a href="habitat-index.html">Habitat</a>
-                    <a href="#">OttoVerb</a>
+                    <a href="#" aria-disabled="true">OttoVerb</a>
                 </div>
                 <div class="footer-col">
                     <h4>Streams</h4>
