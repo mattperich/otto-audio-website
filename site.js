@@ -1,4 +1,4 @@
-// Otto Audio — shared page init. Used by simpler pages; larger interactive pages keep their own inline logic.
+// Otto Engineering — shared page init. Used by simpler pages; larger interactive pages keep their own inline logic.
 (function () {
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
