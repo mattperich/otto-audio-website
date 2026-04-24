@@ -1000,19 +1000,32 @@
   #introOverlay { max-width: 90%; }
 }
 
-/* Phone / small tablet: hide the desktop plugin replica (nav strip, param
-   panel, step dots) and promote #descOverlay to a bottom sheet that shows
-   the active step's title + description. The viz continues behind it. */
+/* Phone / small tablet: shrink the desktop plugin replica to something that
+   fits a portrait phone. The nav strip stays (tap-to-jump), tool buttons
+   that don't map to a scroll step are hidden, and #descOverlay becomes a
+   bottom sheet carrying each step's title + description. Viz plays behind. */
 @media (max-width: 768px) {
-  #navStrip { display: none; }
   #floatPanel { display: none; }
   #stepDots { display: none; }
   #vizLayer canvas { touch-action: auto; cursor: default; }
 
-  /* Re-anchor #descOverlay as a bottom card, clear of #ctaFooter
-     (which is ~108px tall on mobile when it fades in on the end step). */
+  /* Compact left nav strip (tap buttons to jump between steps) */
+  #navStrip {
+    width: 40px;
+    padding: 8px 0;
+    gap: 3px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  #navStrip::-webkit-scrollbar { display: none; }
+  .nav-btn { width: 28px; height: 28px; font-size: 8px; }
+  .tool-btn { display: none; }             /* click-only tools, not scroll-linked */
+  .nav-spacer { flex: 0 0 4px; min-height: 4px; }
+
+  /* #descOverlay: bottom card shifted right of the nav strip, clear of the
+     ~108px-tall #ctaFooter when it fades in on the end step. */
   #descOverlay {
-    left: 16px;
+    left: 48px;
     right: 16px;
     top: auto;
     bottom: 120px;
