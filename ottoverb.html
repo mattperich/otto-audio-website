@@ -218,9 +218,6 @@
   border: 1px solid currentColor;
 }
 
-.feature-icon.tone     { background: rgba(184,144,64,0.10);  color: var(--ottoverb); border-color: rgba(184,144,64,0.25); }
-.feature-icon.shape    { background: rgba(200,134,74,0.10);  color: var(--warm);     border-color: rgba(200,134,74,0.25); }
-.feature-icon.evolve   { background: rgba(212,175,55,0.10);  color: var(--amber);    border-color: rgba(212,175,55,0.25); }
 .feature-icon.lfo      { background: rgba(184,144,64,0.10);  color: var(--ottoverb); border-color: rgba(184,144,64,0.25); }
 .feature-icon.env      { background: rgba(26,158,158,0.10);  color: var(--teal);     border-color: rgba(26,158,158,0.25); }
 .feature-icon.sweep    { background: rgba(74,144,209,0.08);  color: var(--accent);   border-color: rgba(74,144,209,0.20); }
@@ -230,279 +227,92 @@
 
 .feature-icon svg { opacity: 0.9; }
 
-/* ── Intuitive room preview ───────────────────────────── */
+/* ── Focused view (app-style topology panel) ────────── */
 
-.room-preview {
-  display: grid;
-  grid-template-columns: minmax(280px, 1.1fr) 1fr;
-  gap: var(--space-8);
-  align-items: center;
-  margin-top: var(--space-8);
-}
-
-.room-viz {
+.focused-frame {
   position: relative;
-  aspect-ratio: 2 / 1;
-  background:
-    radial-gradient(120% 80% at 30% 30%, rgba(184,144,64,0.14) 0%, transparent 65%),
-    linear-gradient(180deg, rgba(10,14,24,0.7), rgba(6,8,15,0.9));
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-}
-
-.room-decay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  animation: room-morph 12s var(--ease-in-out) infinite;
-  transform-origin: left center;
-}
-
-@keyframes room-morph {
-  0%, 100% { transform: scaleX(0.38); filter: none; }
-  25%      { transform: scaleX(0.58); filter: saturate(1.15); }
-  50%      { transform: scaleX(0.98); filter: saturate(1.25) hue-rotate(-4deg); }
-  75%      { transform: scaleX(0.72); filter: saturate(1.1); }
-}
-
-.room-pulse {
-  position: absolute;
-  left: 7%;
-  top: 50%;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #e8f4ff 0%, var(--ottoverb) 60%, transparent 100%);
-  box-shadow: 0 0 18px rgba(184,144,64,0.55);
-  transform: translate(-50%, -50%);
-  animation: room-pulse-anim 3.4s var(--ease-in-out) infinite;
-}
-
-@keyframes room-pulse-anim {
-  0%,   70% { opacity: 0.0; transform: translate(-50%, -50%) scale(0.6); }
-  5%        { opacity: 1.0; transform: translate(-50%, -50%) scale(1.0); }
-  40%       { opacity: 0.25; transform: translate(-50%, -50%) scale(1.4); }
-}
-
-.room-label {
-  position: absolute;
-  bottom: 14px;
-  left: 16px;
-  z-index: 2;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--ottoverb);
-  background: rgba(6,8,15,0.6);
-  padding: 5px 11px;
-  border-radius: 999px;
+  margin-top: var(--space-10);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--ottoverb-dim);
+  background: linear-gradient(180deg, rgba(8,12,20,0.85), rgba(6,8,15,0.95));
+  overflow: hidden;
+  box-shadow: 0 24px 60px -32px rgba(184,144,64,0.22);
 }
 
-.room-label span { transition: opacity 400ms var(--ease-standard); }
+.focused-canvas {
+  display: block;
+  width: 100%;
+  height: 420px;
+}
 
-.room-controls {
-  display: flex;
-  flex-direction: column;
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Macros grid ─────────────────────────────────────── */
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-3);
+  margin-top: var(--space-10);
 }
 
-.room-controls h3 {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--text-heading);
-  margin-bottom: var(--space-2);
+.macro-pill {
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--dur-med) var(--ease-standard),
+              transform var(--dur-med) var(--ease-spring),
+              background var(--dur-med) var(--ease-standard);
 }
 
-.room-copy {
-  margin-top: var(--space-3);
-  color: var(--text-body);
-  font-size: 0.95rem;
-  line-height: 1.6;
-  max-width: 44ch;
+@media (hover: hover) {
+  .macro-pill:hover {
+    border-color: var(--ottoverb-dim);
+    background: var(--surface-raised);
+    transform: translateY(-2px);
+  }
 }
 
-.slider-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.slider-label {
-  flex-shrink: 0;
-  width: 76px;
+.macro-name {
+  display: block;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.slider-track {
-  position: relative;
-  flex: 1;
-  height: 2px;
-  background: var(--surface2);
-  border-radius: 2px;
-}
-
-.slider-thumb {
-  position: absolute;
-  top: 50%;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #e8f4ff 0%, var(--ottoverb) 70%);
-  border: 1px solid rgba(184,144,64,0.4);
-  box-shadow: 0 0 10px rgba(184,144,64,0.45);
-  transform: translate(-50%, -50%);
-}
-
-.slider-thumb-size    { animation: slide-size   10s var(--ease-in-out) infinite; }
-.slider-thumb-tone    { animation: slide-tone   14s var(--ease-in-out) infinite; }
-.slider-thumb-shimmer { animation: slide-shimmer 8s var(--ease-in-out) infinite; }
-
-@keyframes slide-size    { 0%,100%{left:22%} 50%{left:86%} }
-@keyframes slide-tone    { 0%,100%{left:70%} 50%{left:32%} }
-@keyframes slide-shimmer { 0%,100%{left:14%} 50%{left:58%} }
-
-@media (max-width: 768px) {
-  .room-preview { grid-template-columns: 1fr; }
-  .room-viz { max-width: 480px; margin: 0 auto; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .room-decay, .room-pulse,
-  .slider-thumb-size, .slider-thumb-tone, .slider-thumb-shimmer { animation: none; }
-  .room-decay { transform: scaleX(0.7); }
-}
-
-/* ── Interaction split ────────────────────────────────── */
-
-.surfaces {
-  display: grid;
-  grid-template-columns: minmax(260px, 360px) 1fr;
-  gap: var(--space-8);
-  align-items: center;
-  margin-top: var(--space-8);
-}
-
-.meta-panel {
-  position: relative;
-  background:
-    radial-gradient(circle at 50% 35%, rgba(184,144,64,0.15) 0%, transparent 65%),
-    linear-gradient(180deg, rgba(10,14,24,0.7), rgba(6,8,15,0.9));
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-}
-
-.meta-panel-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
   color: var(--ottoverb);
-  margin-bottom: 14px;
-  opacity: 0.8;
-}
-
-.meta-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px 10px;
-}
-
-.meta-knob {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.meta-knob-dial {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 40%, rgba(184,144,64,0.25), rgba(184,144,64,0.05) 65%, transparent 70%),
-    conic-gradient(from 225deg, var(--ottoverb-dim) 0deg, var(--ottoverb-dim) var(--angle, 200deg), rgba(255,255,255,0.04) var(--angle, 200deg), rgba(255,255,255,0.04) 270deg);
-  border: 1px solid rgba(184,144,64,0.28);
-  position: relative;
-}
-
-.meta-knob-dial::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 8px;
-  width: 1.5px;
-  height: 12px;
-  background: var(--ottoverb);
-  border-radius: 2px;
-  transform-origin: 50% 14px;
-  transform: translateX(-50%) rotate(var(--rot, 45deg));
-  box-shadow: 0 0 6px rgba(184,144,64,0.6);
-}
-
-.meta-knob-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.surface-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.surface-list h3 {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--text-heading);
   margin-bottom: 6px;
 }
 
-.surface-list ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-3); }
-
-.surface-list li {
-  position: relative;
-  padding-left: 20px;
+.macro-desc {
+  display: block;
+  font-size: 0.88rem;
   color: var(--text-body);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  line-height: 1.5;
 }
-
-.surface-list li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.7em;
-  width: 10px;
-  height: 1px;
-  background: var(--ottoverb);
-}
-
-.surface-list li strong { color: var(--text-heading); font-weight: 500; }
 
 /* ── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 1024px) {
   .mode-grid { grid-template-columns: repeat(2, 1fr); }
-  .surfaces  { grid-template-columns: 1fr; }
-  .meta-panel { max-width: 380px; margin: 0 auto; }
+  .focused-canvas { height: 360px; }
+}
+
+@media (max-width: 640px) {
+  .focused-canvas { height: 300px; }
 }
 
 @media (max-width: 480px) {
   .mode-grid { grid-template-columns: 1fr; max-width: 380px; margin-left: auto; margin-right: auto; }
-  .meta-grid { grid-template-columns: repeat(3, 1fr); gap: 10px 6px; }
-  .meta-knob-dial { width: 38px; height: 38px; }
 }
 </style>
 </head>
@@ -609,38 +419,42 @@
   </div>
 </section>
 
-<!-- ═══════ CHARACTER ═══════ -->
-<section id="character" class="cv-auto">
+<!-- ═══════ FOCUSED VIEW ═══════ -->
+<section id="focused" class="cv-auto">
   <div class="reveal">
-    <span class="eyebrow">Character</span>
-    <h2 class="section-title">Nine meta-knobs for deep sound design</h2>
+    <span class="eyebrow">Focused view</span>
+    <h2 class="section-title">Read the reverb you're shaping</h2>
     <p class="section-desc">
-      Shape every corner of the room with high-level macros that remap loop counts, diffusion, damping, and feedback behind the scenes. No need to dive into tank geometry — reach for the character you want.
+      A live topology visualizer shows delay loops pulse, energy flow between them, modulation rings orbit active nodes, and dynamics breathe with the source. Every gesture on the GUI reads back visually — you hear the change and you see it.
     </p>
   </div>
 
-  <div class="features reveal reveal-stagger">
-    <div class="feature-card">
-      <div class="feature-icon tone" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 12h16"/><circle cx="8" cy="12" r="3"/><circle cx="16" cy="12" r="3"/></svg>
-      </div>
-      <h3>Tonal shaping</h3>
-      <p><strong>Tone</strong> sweeps dark to bright across the whole decay. <strong>Emphasis</strong> splits decay across frequency bands so highs and lows breathe at different rates.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon shape" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 L8 6 L12 14 L16 4 L20 16"/></svg>
-      </div>
-      <h3>Reverb character</h3>
-      <p><strong>Space</strong> sets the scale from tight booth to vast hall. <strong>Nonlinearity</strong> adds structural irregularity, <strong>Vintage</strong> dials in plate-era warmth, and <strong>Natural</strong> morphs toward realistic room behavior.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon evolve" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 12c3 0 3-6 6-6s3 12 6 12 3-6 6-6"/></svg>
-      </div>
-      <h3>Movement</h3>
-      <p><strong>Chaos</strong> layers stereo drift and internal variation so nothing repeats. <strong>Dynamics</strong> gates the tail to input amplitude. <strong>Evolve</strong> sweeps spectral resonances across the output.</p>
-    </div>
+  <div class="reveal focused-frame">
+    <canvas class="focused-canvas" id="focusedCanvas" aria-hidden="true"></canvas>
+  </div>
+  <p class="sr-only">
+    A rendering of the OttoVerb focused-view scene. A D-shaped room with a wall you drag to change room size, four horizontal macro strips along the bottom (Material, Flavor, Motion, Tail), left and right vertical rails for Mix and Shimmer, a listener ear with spread handles, and a source slider. The page shows a non-interactive auto-animated preview.
+  </p>
+</section>
+
+<!-- ═══════ MACROS ═══════ -->
+<section id="macros" class="cv-auto">
+  <div class="reveal">
+    <span class="eyebrow">Macros</span>
+    <h2 class="section-title">Shape character in a gesture</h2>
+    <p class="section-desc">
+      The focused view's macros are gestures on the room itself — drag the wall, pick the material, shape the tail. Each one moves several underlying parameters at once, so small, intuitive adjustments reshape the whole space.
+    </p>
+  </div>
+
+  <div class="reveal macro-grid">
+    <div class="macro-pill"><span class="macro-name">Room</span><span class="macro-desc">Drag the wall. Size, decay, and diffusion all scale together — a closet becomes a cathedral in one gesture.</span></div>
+    <div class="macro-pill"><span class="macro-name">Material</span><span class="macro-desc">Stone → plaster → wood → cloth → foam. Damping and frequency response shift as a single surface character.</span></div>
+    <div class="macro-pill"><span class="macro-name">Flavor</span><span class="macro-desc">Neutral → airy → room → warm → vintage. Tone, emphasis, nonlinearity, and vintage colour move as one voicing.</span></div>
+    <div class="macro-pill"><span class="macro-name">Motion</span><span class="macro-desc">Still → settled → breathing → flowing → otherworldly. Chaos, dynamics, evolve, and modulation depth layer on together.</span></div>
+    <div class="macro-pill"><span class="macro-name">Tail</span><span class="macro-desc">Clean → lush → warm → dirty → lo-fi. Chorus, drive, and compression colour the decay as a single tail character.</span></div>
+    <div class="macro-pill"><span class="macro-name">Source</span><span class="macro-desc">Position the sound in the room. Pre-delay and early reflections shift from close-bounce to diffuse as it moves back.</span></div>
+    <div class="macro-pill"><span class="macro-name">Shimmer</span><span class="macro-desc">Raise the right-side rail for sparkle. Pitch, feedback, and tone all climb together for octave-up ascending washes.</span></div>
   </div>
 </section>
 
@@ -714,87 +528,6 @@
   </div>
 </section>
 
-<!-- ═══════ INTUITIVE ═══════ -->
-<section id="intuitive" class="cv-auto">
-  <div class="reveal">
-    <span class="eyebrow">Intuitive</span>
-    <h2 class="section-title">One knob. A different room.</h2>
-    <p class="section-desc">
-      The character macros make big moves with small gestures — reshape the tail, the tone, and the motion at once. Reach for what you want to hear; the DSP underneath follows.
-    </p>
-  </div>
-
-  <div class="reveal room-preview">
-    <div class="room-viz" aria-hidden="true">
-      <svg class="room-decay" viewBox="0 0 320 160" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="ottoDecayFill" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stop-color="#b89040" stop-opacity="0.55"/>
-            <stop offset="60%"  stop-color="#b89040" stop-opacity="0.18"/>
-            <stop offset="100%" stop-color="#b89040" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <path d="M0,118 C30,85 90,60 200,102 C260,120 300,135 320,144 L320,160 L0,160 Z" fill="url(#ottoDecayFill)"/>
-        <path d="M0,118 C30,85 90,60 200,102 C260,120 300,135 320,144" stroke="#b89040" stroke-width="1.3" fill="none" opacity="0.7"/>
-      </svg>
-      <span class="room-pulse"></span>
-      <div class="room-label"><span id="roomLabel">Tight room</span></div>
-    </div>
-    <div class="room-controls">
-      <h3>Big changes. Small moves.</h3>
-      <div class="slider-row">
-        <span class="slider-label">Size</span>
-        <div class="slider-track"><div class="slider-thumb slider-thumb-size"></div></div>
-      </div>
-      <div class="slider-row">
-        <span class="slider-label">Tone</span>
-        <div class="slider-track"><div class="slider-thumb slider-thumb-tone"></div></div>
-      </div>
-      <div class="slider-row">
-        <span class="slider-label">Shimmer</span>
-        <div class="slider-track"><div class="slider-thumb slider-thumb-shimmer"></div></div>
-      </div>
-      <p class="room-copy">One macro moves the whole space — room size, brightness, and shimmer amount all shift together. A short tail becomes a vast hall, and a dry bright plate slides into a dark cathedral, without ever opening a sub-panel.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════ INTERACTION ═══════ -->
-<section id="interaction" class="cv-auto">
-  <div class="reveal">
-    <span class="eyebrow">Interaction</span>
-    <h2 class="section-title">Focused macros. Full access.</h2>
-    <p class="section-desc">
-      Two surfaces in one plugin: sculpt fast with nine named macros, or open every parameter and work at DSP depth. A live topology visualizer shows the engine at work in either view.
-    </p>
-  </div>
-
-  <div class="reveal surfaces">
-    <div class="meta-panel" aria-hidden="true">
-      <div class="meta-panel-label">Character</div>
-      <div class="meta-grid">
-        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:260deg; --rot:35deg"></span><span class="meta-knob-label">Tone</span></div>
-        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:220deg; --rot:10deg"></span><span class="meta-knob-label">Space</span></div>
-        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:180deg; --rot:-15deg"></span><span class="meta-knob-label">Nonlin.</span></div>
-        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:140deg; --rot:-35deg"></span><span class="meta-knob-label">Chaos</span></div>
-        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:200deg; --rot:0deg"></span><span class="meta-knob-label">Emphasis</span></div>
-        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:170deg; --rot:-25deg"></span><span class="meta-knob-label">Dynamics</span></div>
-        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:230deg; --rot:20deg"></span><span class="meta-knob-label">Evolve</span></div>
-        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:110deg; --rot:-55deg"></span><span class="meta-knob-label">Vintage</span></div>
-        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:250deg; --rot:30deg"></span><span class="meta-knob-label">Natural</span></div>
-      </div>
-    </div>
-    <div class="surface-list">
-      <h3>Play it two ways.</h3>
-      <ul>
-        <li><strong>Meta-knob panel</strong> — nine expressive macros shape tone, size, irregularity, asymmetry, and motion. Each one remaps multiple internal parameters at once.</li>
-        <li><strong>Full parameter view</strong> — dive into decay, size, diffusion, modulation depth, mix, width, and EQ directly. Everything the engine exposes is addressable.</li>
-        <li><strong>Topology visualizer</strong> — a live node graph shows delay loops pulse, energy flow, modulation rings orbit, and dynamics breathe in real time. A window into the engine you can read at a glance.</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
 </main>
 
 <!-- ═══════ FOOTER ═══════ -->
@@ -839,11 +572,13 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
   window.addEventListener('scroll', onScroll, { passive: true });
 })();
 
-// ── Hero topology viz ───────────────────────────────────
-// Ring of delay-loop nodes with energy dots flowing along connections,
-// occasional modulation rings, slow topology rearrangement. Amber palette.
-(function() {
-  const canvas = document.getElementById('heroCanvas');
+// ── Topology viz factory ────────────────────────────────
+// Ring/tree/cluster of delay-loop nodes with energy dots flowing along
+// connections, occasional modulation rings, slow topology rearrangement.
+// Amber palette. Used for both the hero background and the Focused View
+// panel below.
+function initTopologyViz({ canvasId, pauseBtnId = null, gateOnVisible = false }) {
+  const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
@@ -859,6 +594,7 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 
   let W = 0, H = 0, cx = 0, cy = 0, radius = 0;
   let rafId = null, paused = false, firstFrame = true, lastT = 0;
+  let inView = !gateOnVisible; // start paused if gated
 
   // Each node has a base position, an energy level, a wobble phase.
   const nodes = [];
@@ -870,10 +606,11 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
   const edges = [];
   function rebuildEdges(mode) {
     edges.length = 0;
+    const half = (N_NODES / 2) | 0;
     if (mode === 'ring') {
       for (let i = 0; i < N_NODES; i++) edges.push([i, (i + 1) % N_NODES]);
       // a few chords
-      for (let i = 0; i < N_NODES; i += 3) edges.push([i, (i + N_NODES / 2) | 0]);
+      for (let i = 0; i < N_NODES; i += 3) edges.push([i, (i + half) % N_NODES]);
     } else if (mode === 'tree') {
       // rough binary layout
       for (let i = 1; i < N_NODES; i++) edges.push([i, ((i - 1) >> 1)]);
@@ -881,7 +618,7 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
     } else { // cluster
       for (let i = 0; i < N_NODES; i++) edges.push([i, (i + 1) % N_NODES]);
       for (let i = 0; i < N_NODES; i++) edges.push([i, (i + 2) % N_NODES]);
-      for (let i = 0; i < N_NODES; i += 2) edges.push([i, (i + N_NODES / 2) | 0]);
+      for (let i = 0; i < N_NODES; i += 2) edges.push([i, (i + half) % N_NODES]);
     }
   }
   let topology = 'ring';
@@ -995,7 +732,7 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
     for (let i = modRings.length - 1; i >= 0; i--) if (modRings[i].age >= modRings[i].life) modRings.splice(i, 1);
 
     render();
-    if (!paused) rafId = requestAnimationFrame(tick);
+    if (!paused && inView) rafId = requestAnimationFrame(tick);
   }
 
   function render() {
@@ -1059,7 +796,7 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
     if (firstFrame) { firstFrame = false; canvas.classList.add('loaded'); }
   }
 
-  function start() { if (paused || rafId) return; lastT = performance.now(); rafId = requestAnimationFrame(tick); }
+  function start() { if (paused || rafId || !inView) return; lastT = performance.now(); rafId = requestAnimationFrame(tick); }
   function stop()  { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
 
   resize();
@@ -1067,7 +804,7 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
   if (prefersReducedMotion.matches) {
     render();
     paused = true;
-  } else {
+  } else if (!gateOnVisible) {
     start();
   }
 
@@ -1079,39 +816,573 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop();
-    else if (!paused) start();
+    else if (!paused && inView) start();
   });
 
-  const btn = document.getElementById('heroPause');
-  if (btn) {
-    const playIcon  = '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="6,4 20,12 6,20"/></svg>';
-    const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>';
-    btn.addEventListener('click', () => {
-      paused = !paused;
-      if (paused) { stop(); btn.innerHTML = playIcon; btn.setAttribute('aria-label', 'Play background animation'); }
-      else { start(); btn.innerHTML = pauseIcon; btn.setAttribute('aria-label', 'Pause background animation'); }
-    });
+  if (gateOnVisible) {
+    // Render an immediate static frame so the canvas isn't blank when the
+    // section first scrolls into view on slow machines / reduced-motion.
+    render();
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        inView = e.isIntersecting;
+        if (inView) {
+          // Re-measure — the canvas may not have had final layout at init time.
+          resize();
+          if (!paused && !prefersReducedMotion.matches) start();
+          else render();
+        } else {
+          stop();
+        }
+      });
+    }, { threshold: 0.15 });
+    obs.observe(canvas);
   }
-})();
 
-// ── Room-preview scene label rotator ──
-(function() {
-  const el = document.getElementById('roomLabel');
-  if (!el || prefersReducedMotion.matches) return;
-  const scenes = ['Tight room', 'Bright hall', 'Dark cathedral', 'Shimmer wash', 'Long plate'];
-  let i = 0, timer = null;
-  const step = () => {
-    i = (i + 1) % scenes.length;
-    el.style.transition = 'opacity 300ms var(--ease-standard)';
-    el.style.opacity = '0';
-    setTimeout(() => { el.textContent = scenes[i]; el.style.opacity = '1'; }, 320);
+  if (pauseBtnId) {
+    const btn = document.getElementById(pauseBtnId);
+    if (btn) {
+      const playIcon  = '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="6,4 20,12 6,20"/></svg>';
+      const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>';
+      btn.addEventListener('click', () => {
+        paused = !paused;
+        if (paused) { stop(); btn.innerHTML = playIcon; btn.setAttribute('aria-label', 'Play background animation'); }
+        else { start(); btn.innerHTML = pauseIcon; btn.setAttribute('aria-label', 'Pause background animation'); }
+      });
+    }
+  }
+}
+
+initTopologyViz({ canvasId: 'heroCanvas', pauseBtnId: 'heroPause' });
+
+// ── OttoVerb acoustic-scene painted field ────────────────
+// Visual-only port of the OttoVerb GUI scene (mattperich/OttoVerb,
+// feature/painted-field-canvas). The plugin itself is JUCE C++; this is a
+// reimplementation of each scene object's paint() in HTML5 Canvas driven
+// by a gentle idle-autoplay choreography so the scene looks alive without
+// audio. Coordinate system mirrors AcousticScene: scene space [-1,1] ×
+// [-1,1], listener at origin, D-shape floor at y = 0.30.
+(function initAcousticScene() {
+  const canvas = document.getElementById('focusedCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // Palette — from Source/GUI/OttoVerbLookAndFeel.h on the branch.
+  const C = {
+    bg: '#0c0906', bgLight: '#14100a',
+    panel: '#1a140d', panelBorder: '#2a2118',
+    accent: '#b89040', accentDim: '#8a6b30', highlight: '#d6a85a',
+    text: '#e8ddc8', textDim: '#746555',
+    knobThumb: '#c2b69e',
+    fieldWarm: '#e8a060', fieldCool: '#5c4a32',
+    fieldGlow: '#e8c478', fieldSpark: '#ffd9a8',
   };
-  const start = () => { if (!timer) timer = setInterval(step, 3000); };
-  const stop  = () => { if (timer) { clearInterval(timer); timer = null; } };
-  start();
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stop(); else start();
+  const FONT_MONO = "11px 'JetBrains Mono', ui-monospace, monospace";
+  const FONT_STOP = "9px 'JetBrains Mono', ui-monospace, monospace";
+
+  // Scene constants (mirror AcousticScene.h).
+  const MIN_BOUNDARY = 0.55, MAX_BOUNDARY = 0.92;
+  const FLOOR_Y = 0.30;
+
+  // ── Scene state + targets (autoplay eases toward target) ──
+  // All values in [0,1] except positions. size in [0,1] → boundary radius.
+  const state  = { size:.32, material:.42, flavor:.50, motion:.35, tail:.25,
+                   mix:.60, shimmer:.30, width:.55, source:.35 };
+  const target = Object.assign({}, state);
+
+  // Choreography of gentle autoplay drifts; loops.
+  const choreography = [
+    { param: 'material', to: 0.75, duration: 5.0, label: 'Material · CLOTH' },
+    { param: 'motion',   to: 0.72, duration: 5.0, label: 'Motion · FLOWING' },
+    { param: 'size',     to: 0.82, duration: 5.5, label: 'Room · expanding' },
+    { param: 'flavor',   to: 0.80, duration: 5.0, label: 'Flavor · VINTAGE' },
+    { param: 'shimmer',  to: 0.58, duration: 4.0, label: 'Shimmer · rising' },
+    { param: 'tail',     to: 0.62, duration: 4.5, label: 'Tail · DIRTY' },
+    { param: 'source',   to: 0.65, duration: 4.0, label: 'Source · back wall' },
+    { param: 'width',    to: 0.78, duration: 4.0, label: 'Width · wide' },
+    { param: 'mix',      to: 0.42, duration: 3.5, label: 'Mix · balanced' },
+    { param: 'material', to: 0.18, duration: 5.0, label: 'Material · STONE' },
+    { param: 'motion',   to: 0.20, duration: 4.5, label: 'Motion · SETTLED' },
+    { param: 'size',     to: 0.28, duration: 5.0, label: 'Room · intimate' },
+    { param: 'flavor',   to: 0.20, duration: 4.5, label: 'Flavor · AIRY' },
+    { param: 'shimmer',  to: 0.20, duration: 3.5, label: 'Shimmer · subtle' },
+    { param: 'tail',     to: 0.18, duration: 4.0, label: 'Tail · CLEAN' },
+    { param: 'source',   to: 0.25, duration: 3.5, label: 'Source · entrance' },
+  ];
+  let stepIdx = 0, stepElapsed = 0, activeLabel = '';
+  let lastActiveParam = 'material';
+
+  // ── Layout (computed in resize, in pixels) ──
+  let W = 0, H = 0, listenerPx = { x: 0, y: 0 }, sceneRadiusPx = 100;
+  let flavorBandY = 0, materialBandY = 0, motionBandY = 0, tailBandY = 0;
+  let shimmerRailX = 0, mixRailX = 0;
+
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
+    if (!W || !H) return;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // Strip + rail reservations — ported from AcousticScene.cpp:58–93
+    // but tightened slightly to fit the website's 420px-max frame.
+    const tailFromBottom     = 22;
+    const motionFromBottom   = 48;
+    const materialFromBottom = 74;
+    const flavorFromBottom   = 100;
+    const marginAboveBands   = 18;
+    const shimmerFromRight   = 46;
+    const mixFromLeft        = 22;
+    const rightStripRegionPx = 66;
+    const leftStripRegionPx  = 44;
+    const edgeMarginTop      = 10;
+
+    const bandsTop = H - flavorFromBottom - marginAboveBands;
+    const verticalRoom  = bandsTop - edgeMarginTop;
+    const horizontalRoom = W - leftStripRegionPx - rightStripRegionPx;
+    const rMaxV = verticalRoom / (1.0 + FLOOR_Y);
+    const rMaxH = horizontalRoom * 0.5 - 10;
+    sceneRadiusPx = Math.max(1, Math.min(rMaxV, rMaxH));
+    listenerPx.x = leftStripRegionPx + horizontalRoom * 0.5;
+    listenerPx.y = bandsTop - FLOOR_Y * sceneRadiusPx;
+
+    flavorBandY   = (H - flavorFromBottom   - listenerPx.y) / sceneRadiusPx;
+    materialBandY = (H - materialFromBottom - listenerPx.y) / sceneRadiusPx;
+    motionBandY   = (H - motionFromBottom   - listenerPx.y) / sceneRadiusPx;
+    tailBandY     = (H - tailFromBottom     - listenerPx.y) / sceneRadiusPx;
+    shimmerRailX  = (W - shimmerFromRight - listenerPx.x) / sceneRadiusPx;
+    mixRailX      = (mixFromLeft           - listenerPx.x) / sceneRadiusPx;
+  }
+
+  function sx(x) { return listenerPx.x + x * sceneRadiusPx; }
+  function sy(y) { return listenerPx.y + y * sceneRadiusPx; }
+  function spx(u) { return u * sceneRadiusPx; }
+
+  // ── Helpers ──
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function hexA(hex, alpha) {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${alpha})`;
+  }
+
+  // ── Paint: D-shape path builder (AcousticScene.cpp:255–269) ──
+  function dShapePath(radPx, floorPx) {
+    const p = new Path2D();
+    const sinFloor = Math.max(-1, Math.min(1, floorPx / Math.max(radPx, 1e-4)));
+    const thetaR = Math.asin(sinFloor);
+    const span = Math.PI + 2 * thetaR;
+    const steps = 96;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const th = thetaR - t * span;
+      const x = listenerPx.x + radPx * Math.cos(th);
+      const y = listenerPx.y + radPx * Math.sin(th);
+      if (i === 0) p.moveTo(x, y); else p.lineTo(x, y);
+    }
+    p.closePath();
+    return p;
+  }
+
+  // ── Paint: background + radial lift ──
+  function paintBg() {
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(0, 0, W, H);
+    const grad = ctx.createRadialGradient(
+      listenerPx.x, listenerPx.y, 0,
+      listenerPx.x, listenerPx.y, sceneRadiusPx * 1.4);
+    grad.addColorStop(0, hexA(C.bgLight, 0.5));
+    grad.addColorStop(1, hexA(C.bg, 0));
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // ── Paint: tail halo — ring outside the boundary, eased toward decay ──
+  let haloRadius = 0.5;
+  function paintTailHalo() {
+    // Decay tracks size (bigger room ⇒ longer tail)
+    const decay = lerp(0.30, 0.96, state.size);
+    haloRadius += (decay - haloRadius) * 0.06;
+    const radPx = haloRadius * sceneRadiusPx;
+    const floorPx = FLOOR_Y * sceneRadiusPx;
+    const path = dShapePath(radPx, floorPx);
+    const grad = ctx.createRadialGradient(
+      listenerPx.x, listenerPx.y, radPx * 0.82,
+      listenerPx.x, listenerPx.y, radPx);
+    grad.addColorStop(0, hexA(C.accent, 0.09));
+    grad.addColorStop(0.82, hexA(C.accent, 0.14));
+    grad.addColorStop(1, hexA(C.accent, 0));
+    ctx.fillStyle = grad;
+    ctx.fill(path);
+  }
+
+  // ── Paint: boundary (the D-shape wall) ──
+  function paintBoundary() {
+    const boundaryRadius = lerp(MIN_BOUNDARY, MAX_BOUNDARY, state.size);
+    const radPx = boundaryRadius * sceneRadiusPx;
+    const floorPx = FLOOR_Y * sceneRadiusPx;
+    const path = dShapePath(radPx, floorPx);
+
+    // Wall tint blends accent → dim as damping rises.
+    const damping = lerp(0.15, 0.90, state.material);
+    const darkness = Math.min(1, damping);
+    const wallR = lerp(0xb8, 0x74, darkness);
+    const wallG = lerp(0x90, 0x65, darkness);
+    const wallB = lerp(0x40, 0x55, darkness);
+    const wallRGB = `${wallR|0},${wallG|0},${wallB|0}`;
+
+    // Halo pass (soft glow)
+    ctx.lineWidth = 4.5; ctx.strokeStyle = `rgba(${wallRGB},0.18)`; ctx.stroke(path);
+    ctx.lineWidth = 2.2; ctx.strokeStyle = `rgba(${wallRGB},0.50)`; ctx.stroke(path);
+    ctx.lineWidth = 1.0;
+    if (damping > 0.55) { ctx.setLineDash([4, 3]); }
+    ctx.strokeStyle  = `rgba(${wallRGB},0.92)`;
+    ctx.stroke(path);
+    ctx.setLineDash([]);
+  }
+
+  // ── Paint: four horizontal macro strips ──
+  const STOPS = {
+    material: ['STONE', 'PLASTER', 'WOOD', 'CLOTH', 'FOAM'],
+    flavor:   ['NEUTRAL', 'AIRY', 'ROOM', 'WARM', 'VINTAGE'],
+    motion:   ['STILL', 'SETTLED', 'BREATHING', 'FLOWING', 'OTHERWORLDLY'],
+    tail:     ['CLEAN', 'LUSH', 'WARM', 'DIRTY', 'LO-FI'],
+  };
+  function paintStrip(u, sceneY, key, label) {
+    const stops = STOPS[key];
+    const bandLeft  = -0.58, bandRight = 0.58;
+    const trackLeftPx  = sx(bandLeft);
+    const trackRightPx = sx(bandRight);
+    const trackY = sy(sceneY);
+    const trackH = 6;
+
+    // Track
+    ctx.fillStyle = C.panel;
+    ctx.beginPath();
+    roundRect(ctx, trackLeftPx, trackY - trackH/2, trackRightPx - trackLeftPx, trackH, 3);
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = C.panelBorder;
+    ctx.stroke();
+
+    // Stop ticks
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = hexA(C.textDim, 0.55);
+    for (let i = 0; i < stops.length; i++) {
+      const t = i / (stops.length - 1);
+      const x = trackLeftPx + (trackRightPx - trackLeftPx) * t;
+      ctx.beginPath();
+      ctx.moveTo(x, trackY - trackH); ctx.lineTo(x, trackY + trackH);
+      ctx.stroke();
+    }
+
+    // Stop labels (below band)
+    ctx.font = FONT_STOP;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = hexA(C.textDim, 0.85);
+    for (let i = 0; i < stops.length; i++) {
+      const t = i / (stops.length - 1);
+      const x = trackLeftPx + (trackRightPx - trackLeftPx) * t;
+      // Only first/middle/last labels on narrow canvases to avoid overlap
+      if (W < 640 && i !== 0 && i !== ((stops.length-1)/2|0) && i !== stops.length - 1) continue;
+      ctx.fillText(stops[i], x, trackY + trackH + 3);
+    }
+
+    // Thumb
+    const thumbX = trackLeftPx + (trackRightPx - trackLeftPx) * u;
+    paintCoupledGlow(thumbX, trackY, 7);
+    ctx.beginPath();
+    ctx.arc(thumbX, trackY, 5.5, 0, Math.PI * 2);
+    ctx.fillStyle = C.accent;
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = hexA(C.highlight, 0.7);
+    ctx.stroke();
+
+    // Section label on the left of the band (only at wider widths)
+    if (W >= 560) {
+      ctx.font = FONT_STOP;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = hexA(C.textDim, 0.75);
+      ctx.fillText(label.toUpperCase(), trackLeftPx - 10, trackY);
+    }
+    ctx.textAlign = 'left';
+  }
+
+  // ── Paint: coupled thumb glow (from LookAndFeel::drawCoupledGlow) ──
+  function paintCoupledGlow(cx, cy, thumbRadius) {
+    const grad = ctx.createRadialGradient(cx, cy, thumbRadius * 0.4,
+                                          cx, cy, thumbRadius * 2.2);
+    grad.addColorStop(0, hexA(C.fieldGlow, 0.35));
+    grad.addColorStop(1, hexA(C.fieldGlow, 0));
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, thumbRadius * 2.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // ── Paint: vertical rail (Shimmer on right, Mix on left) ──
+  function paintRail(v, sceneX, label, warmTint) {
+    const topY = -0.55, botY = 0.55;
+    const x = sx(sceneX);
+    const y0 = sy(topY), y1 = sy(botY);
+
+    // Rail
+    ctx.strokeStyle = hexA(C.textDim, 0.35);
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke();
+
+    // End caps (dashes)
+    ctx.beginPath();
+    ctx.moveTo(x - 5, y0); ctx.lineTo(x + 5, y0);
+    ctx.moveTo(x - 5, y1); ctx.lineTo(x + 5, y1);
+    ctx.stroke();
+
+    // Thumb — diamond, tinted up as v rises
+    const thumbY = lerp(y1, y0, v); // up = more
+    const tint = blendColor(C.knobThumb, warmTint ? C.accent : C.highlight, v);
+    paintCoupledGlow(x, thumbY, 6);
+    ctx.fillStyle = tint;
+    ctx.beginPath();
+    ctx.moveTo(x, thumbY - 6);
+    ctx.lineTo(x + 5, thumbY);
+    ctx.lineTo(x, thumbY + 6);
+    ctx.lineTo(x - 5, thumbY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = hexA(C.highlight, 0.65);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Label at bottom
+    ctx.font = FONT_STOP;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = hexA(C.textDim, 0.75);
+    ctx.fillText(label, x, y1 + 8);
+    ctx.textAlign = 'left';
+  }
+
+  function blendColor(hex1, hex2, t) {
+    const n1 = parseInt(hex1.slice(1), 16), n2 = parseInt(hex2.slice(1), 16);
+    const r = Math.round(lerp((n1>>16)&255, (n2>>16)&255, t));
+    const g = Math.round(lerp((n1>>8)&255,  (n2>>8)&255,  t));
+    const b = Math.round(lerp(n1&255,       n2&255,       t));
+    return `rgb(${r},${g},${b})`;
+  }
+
+  // ── Paint: listener ear + two spread handles ──
+  function paintListener() {
+    const cx = sx(0), cy = sy(0);
+    const spread = lerp(0.12, 0.38, state.width);
+    const lx = sx(-spread), rx = sx(spread);
+
+    // Stereo axis (connector line between handles)
+    ctx.strokeStyle = hexA(C.textDim, 0.45);
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(lx, cy); ctx.lineTo(rx, cy); ctx.stroke();
+
+    // Ear
+    ctx.strokeStyle = C.textDim;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(cx, cy, 6.5, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = C.text;
+    ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, Math.PI * 2); ctx.fill();
+
+    // Spread handles (rings)
+    ctx.strokeStyle = hexA(C.text, 0.85);
+    for (const hx of [lx, rx]) {
+      ctx.beginPath(); ctx.arc(hx, cy, 4.5, 0, Math.PI * 2); ctx.stroke();
+    }
+  }
+
+  // ── Paint: source slider + slow emission rings ──
+  let sourcePulse = 0;
+  function paintSource(dt) {
+    sourcePulse = (sourcePulse + dt * 0.35) % 1;
+    const boundaryRadius = lerp(MIN_BOUNDARY, MAX_BOUNDARY, state.size);
+    const topSceneY = -(boundaryRadius - 0.05);
+    const botSceneY = FLOOR_Y - 0.15;
+    const x = sx(0);
+    const y0 = sy(topSceneY), y1 = sy(botSceneY);
+
+    // Rail
+    ctx.strokeStyle = hexA(C.textDim, 0.35);
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(x, y0); ctx.lineTo(x, y1); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Thumb position — lerp between back-wall (top) and entrance (bottom)
+    const thumbY = lerp(y0, y1, state.source);
+
+    // Emission rings — 3 concentric circles, phased
+    for (let i = 0; i < 3; i++) {
+      const phase = (sourcePulse + i / 3) % 1;
+      const radius = 4 + phase * 28;
+      const alpha = (1 - phase) * 0.35;
+      ctx.strokeStyle = hexA(C.fieldGlow, alpha);
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(x, thumbY, radius, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    // Source thumb
+    ctx.fillStyle = C.fieldSpark;
+    ctx.beginPath(); ctx.arc(x, thumbY, 3.4, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // ── Paint: echo dots (blooms at the wall) ──
+  const echoDots = [];
+  let echoSpawnAcc = 0;
+  function updateEchoDots(dt) {
+    const spawnRate = 11; // dots/sec, gentle
+    echoSpawnAcc += dt * spawnRate;
+    while (echoSpawnAcc >= 1 && echoDots.length < 60) {
+      echoSpawnAcc -= 1;
+      const side = Math.random() < 0.5 ? -1 : 1;
+      // Angle on the upper half of the D, biased away from the floor
+      const theta = -Math.PI / 2 + side * (Math.random() * Math.PI * 0.42 + 0.08);
+      echoDots.push({ theta, life: 0, dur: 0.45 + Math.random() * 0.25,
+                      sizeFrac: 0.012 + Math.random() * 0.010 });
+    }
+    for (let i = echoDots.length - 1; i >= 0; i--) {
+      echoDots[i].life += dt;
+      if (echoDots[i].life >= echoDots[i].dur) echoDots.splice(i, 1);
+    }
+  }
+  function paintEchoDots() {
+    const boundaryRadius = lerp(MIN_BOUNDARY, MAX_BOUNDARY, state.size);
+    const radPx = boundaryRadius * sceneRadiusPx;
+    for (const d of echoDots) {
+      const p = d.life / d.dur;
+      // Triangular envelope; peak at mid
+      const env = p < 0.5 ? (p / 0.5) : (1 - (p - 0.5) / 0.5);
+      // Radial excursion: starts inward (0.88r), peaks at wall (r), recedes
+      const rFrac = 0.88 + 0.12 * env;
+      const r = radPx * rFrac;
+      const x = listenerPx.x + r * Math.cos(d.theta);
+      const y = listenerPx.y + r * Math.sin(d.theta);
+      const a = env * 0.75;
+      const rad = sceneRadiusPx * d.sizeFrac;
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, rad * 2.5);
+      grad.addColorStop(0, hexA(C.fieldSpark, a));
+      grad.addColorStop(1, hexA(C.fieldSpark, 0));
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(x, y, rad * 2.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  // ── Paint: readout pill ──
+  function paintReadout() {
+    if (!activeLabel) return;
+    const x = W * 0.5;
+    const y = 20;
+    ctx.font = FONT_MONO;
+    const textW = ctx.measureText(activeLabel).width;
+    const padX = 10, pillH = 22;
+    const pillW = textW + padX * 2;
+    const pillX = x - pillW / 2, pillY = y - pillH / 2;
+
+    ctx.fillStyle = C.panel;
+    ctx.beginPath();
+    roundRect(ctx, pillX, pillY, pillW, pillH, 4);
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = C.panelBorder;
+    ctx.stroke();
+
+    ctx.fillStyle = C.text;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(activeLabel, x, y + 1);
+    ctx.textAlign = 'left';
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  }
+
+  // ── Autoplay stepper ──
+  function stepAutoplay(dt) {
+    if (prefersReducedMotion.matches) return;
+    const step = choreography[stepIdx];
+    stepElapsed += dt;
+    const f = Math.min(1, stepElapsed / step.duration);
+    target[step.param] = step.to;
+    lastActiveParam = step.param;
+    activeLabel = step.label;
+    if (f >= 1) {
+      stepElapsed = 0;
+      stepIdx = (stepIdx + 1) % choreography.length;
+    }
+    // Ease state toward target for all params
+    const k = 1 - Math.pow(0.15, dt);
+    for (const key of Object.keys(state)) {
+      state[key] += (target[key] - state[key]) * k;
+    }
+  }
+
+  // ── Main render ──
+  function render(dt) {
+    if (!W || !H) return;
+    if (dt > 0) {
+      stepAutoplay(dt);
+      updateEchoDots(prefersReducedMotion.matches ? 0 : dt);
+    }
+    paintBg();
+    paintTailHalo();
+    paintBoundary();
+    paintSource(dt);
+    paintEchoDots();
+    paintStrip(state.flavor,   flavorBandY,   'flavor',   'Flavor');
+    paintStrip(state.material, materialBandY, 'material', 'Material');
+    paintStrip(state.motion,   motionBandY,   'motion',   'Motion');
+    paintStrip(state.tail,     tailBandY,     'tail',     'Tail');
+    paintRail(state.mix,     mixRailX,     'MIX',     false);
+    paintRail(state.shimmer, shimmerRailX, 'SHIMMER', true);
+    paintListener();
+    paintReadout();
+  }
+
+  // ── rAF loop / visibility / intersection ──
+  let rafId = null, lastT = 0, inView = false, paused = false;
+  function tick(t) {
+    const dt = Math.min(0.05, lastT ? (t - lastT) / 1000 : 0);
+    lastT = t;
+    render(dt);
+    if (!paused && inView) rafId = requestAnimationFrame(tick);
+  }
+  function start() { if (rafId || paused || !inView) return; lastT = 0; rafId = requestAnimationFrame(tick); }
+  function stop()  { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
+
+  resize();
+  render(0); // always paint a static frame so the canvas isn't blank
+
+  let resizeRaf = 0;
+  window.addEventListener('resize', () => {
+    if (resizeRaf) return;
+    resizeRaf = requestAnimationFrame(() => { resizeRaf = 0; resize(); render(0); });
   });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else if (!paused && inView) start();
+  });
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      inView = e.isIntersecting;
+      if (inView) { resize(); if (!prefersReducedMotion.matches) start(); else render(0); }
+      else stop();
+    });
+  }, { threshold: 0.15 });
+  obs.observe(canvas);
 })();
 
 // ── Scroll reveal ──
