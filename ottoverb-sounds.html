@@ -3,26 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Streams — Sounds</title>
-<meta name="description" content="Listen to Streams granular synthesizer. Audio demos, sound design examples, and performance recordings.">
+<title>OttoVerb — Sounds</title>
+<meta name="description" content="Listen to OttoVerb, a studio-grade reverb plugin. Impulse captures, tail walkthroughs, and demo recordings.">
 <link rel="icon" type="image/svg+xml" href="otto-favicon.svg">
 <meta name="theme-color" content="#06080f">
-<link rel="canonical" href="https://ottoengineering.xyz/streams-sounds">
+<link rel="canonical" href="https://ottoengineering.xyz/ottoverb-sounds">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://ottoengineering.xyz/streams-sounds">
+<meta property="og:url" content="https://ottoengineering.xyz/ottoverb-sounds">
 <meta property="og:site_name" content="Otto Engineering">
-<meta property="og:title" content="Streams — Sounds">
-<meta property="og:description" content="Listen to Streams granular synthesizer. Audio demos, sound design examples, and performance recordings.">
+<meta property="og:title" content="OttoVerb — Sounds">
+<meta property="og:description" content="Impulse captures, tail walkthroughs, and demo recordings made with OttoVerb.">
 <meta property="og:image" content="https://ottoengineering.xyz/otto-logo.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Streams — Sounds">
-<meta name="twitter:description" content="Audio demos and performance recordings from Streams.">
+<meta name="twitter:title" content="OttoVerb — Sounds">
+<meta name="twitter:description" content="Impulse captures, tail walkthroughs, and demo recordings made with OttoVerb.">
 <meta name="twitter:image" content="https://ottoengineering.xyz/otto-logo.png">
 <link rel="preload" href="fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="shared.css">
 <style>
-body { --app-accent: var(--streams); --app-accent-dim: var(--streams-dim); --app-accent-soft: var(--streams-soft); }
+body { --app-accent: var(--ottoverb); --app-accent-dim: var(--ottoverb-dim); --app-accent-soft: var(--ottoverb-soft); }
 
 .sounds-section {
   padding: 140px 24px 100px;
@@ -52,7 +52,6 @@ body { --app-accent: var(--streams); --app-accent-dim: var(--streams-dim); --app
   line-height: 1.65;
 }
 
-/* Animated waveform placeholder */
 .sounds-placeholder {
   position: relative;
   background: var(--surface);
@@ -132,33 +131,6 @@ body { --app-accent: var(--streams); --app-accent-dim: var(--streams-dim); --app
   line-height: 1.65;
 }
 
-.watch-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  padding: 10px 18px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-strong);
-  background: var(--surface2);
-  border: 1px solid var(--border-strong);
-  border-radius: 999px;
-  text-decoration: none;
-  transition: transform var(--dur-fast) var(--ease-spring),
-              border-color var(--dur-med) var(--ease-standard),
-              background var(--dur-med) var(--ease-standard);
-}
-
-.watch-pill:hover {
-  transform: translateY(-2px);
-  border-color: var(--app-accent-dim);
-  background: var(--app-accent-soft);
-  text-decoration: none;
-}
-
-.watch-pill svg { width: 15px; height: 15px; fill: currentColor; }
-
-/* "What's coming" list */
 .coming-list {
   margin-top: 48px;
   display: grid;
@@ -224,14 +196,13 @@ body { --app-accent: var(--streams); --app-accent-dim: var(--streams-dim); --app
 <nav class="site-nav" aria-label="Primary">
   <a href="index.html" class="logo" aria-label="Otto Engineering home"><img src="otto-logo.png" alt=""></a>
   <div class="nav-links">
-    <a href="streams.html" class="active">Streams</a>
+    <a href="streams.html">Streams</a>
     <a href="habitat.html">Habitat</a>
-    <a href="ottoverb.html">OttoVerb</a>
+    <a href="ottoverb.html" class="active">OttoVerb</a>
   </div>
   <div class="nav-right">
-    <a href="streams.html">Overview</a>
-    <a href="streams-sounds.html" class="active">Sounds</a>
-    <a href="streams-tutorial.html">Tutorial</a>
+    <a href="ottoverb.html">Overview</a>
+    <a href="ottoverb-sounds.html" class="active">Sounds</a>
     <a href="download.html">Download</a>
   </div>
 </nav>
@@ -242,7 +213,7 @@ body { --app-accent: var(--streams); --app-accent-dim: var(--streams-dim); --app
   <div class="sounds-hero reveal">
     <span class="eyebrow">Audio examples</span>
     <h1>Sounds</h1>
-    <p>Demos, sound-design studies, and performance recordings made with Streams. Coming together now — check back soon.</p>
+    <p>Impulse captures, tail walkthroughs, and demo tracks that show OttoVerb across its four topologies. Coming together now; check back soon.</p>
   </div>
 
   <div class="sounds-placeholder reveal">
@@ -264,7 +235,7 @@ body { --app-accent: var(--streams); --app-accent-dim: var(--streams-dim); --app
     <div class="placeholder-body">
       <span class="placeholder-tag">Coming Soon</span>
       <h2>Recordings in progress</h2>
-      <p>Full demos will land here alongside each release.</p>
+      <p>Full demos will land here alongside each release — mode-by-mode impulse captures, preset walk-throughs, and long-form modulated tails.</p>
     </div>
   </div>
 
@@ -272,22 +243,22 @@ body { --app-accent: var(--streams); --app-accent-dim: var(--streams-dim); --app
     <div class="coming-item">
       <span class="dot"></span>
       <div>
-        <h3>Sound-design studies</h3>
-        <p>Short examples of each visualization mode and grain configuration.</p>
+        <h3>Topology captures</h3>
+        <p>Side-by-side impulse responses for plate, FDN, nested allpass, and velvet noise — hear how the four topologies differ.</p>
       </div>
     </div>
     <div class="coming-item">
       <span class="dot"></span>
       <div>
-        <h3>Text-to-audio demos</h3>
-        <p>Prompts feeding the AI generator — raw output plus granular reworks.</p>
+        <h3>Infinite washes</h3>
+        <p>Shimmer, freeze, and long-tail preset demos stretching into cathedral-scale ambient spaces.</p>
       </div>
     </div>
     <div class="coming-item">
       <span class="dot"></span>
       <div>
-        <h3>Performance recordings</h3>
-        <p>Long-form live takes exploring modulation routing and interaction.</p>
+        <h3>Modulated evolutions</h3>
+        <p>LFO and envelope-driven tail studies showing how the reverb breathes with the source.</p>
       </div>
     </div>
   </div>
@@ -302,14 +273,14 @@ body { --app-accent: var(--streams); --app-accent-dim: var(--streams-dim); --app
       <p>Hand-crafted audio tools by Matt Perich.</p>
     </div>
     <div class="footer-col">
-      <h4>Streams</h4>
-      <a href="streams.html">Overview</a>
-      <a href="streams-sounds.html">Sounds</a>
-      <a href="streams-tutorial.html">Tutorial</a>
+      <h4>OttoVerb</h4>
+      <a href="ottoverb.html">Overview</a>
+      <a href="ottoverb-sounds.html">Sounds</a>
     </div>
     <div class="footer-col">
       <h4>Resources</h4>
       <a href="download.html">Download</a>
+      <a href="streams.html">Streams</a>
       <a href="habitat.html">Habitat</a>
     </div>
   </div>

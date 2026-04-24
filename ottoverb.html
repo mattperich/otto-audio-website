@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OttoVerb — Studio-Grade Reverb</title>
+<meta name="description" content="OttoVerb is a studio-grade reverb plugin for deep sound design — four topologies, nine character macros, multiple modulation sources, and a modular tail effects chain. macOS, iPad, AU, and VST3.">
+<link rel="icon" type="image/svg+xml" href="otto-favicon.svg">
+<meta name="theme-color" content="#06080f">
+<link rel="canonical" href="https://ottoengineering.xyz/ottoverb">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ottoengineering.xyz/ottoverb">
+<meta property="og:site_name" content="Otto Engineering">
+<meta property="og:title" content="OttoVerb — Studio-Grade Reverb">
+<meta property="og:description" content="Studio-grade reverb for deep sound design of lush spaces. Four topologies, nine character macros, multiple modulators, and a modular tail effects chain.">
+<meta property="og:image" content="https://ottoengineering.xyz/otto-logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OttoVerb — Studio-Grade Reverb">
+<meta name="twitter:description" content="Studio-grade reverb for deep sound design of lush spaces.">
+<meta name="twitter:image" content="https://ottoengineering.xyz/otto-logo.png">
+<link rel="preload" href="fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ── Hero ─────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+.hero-canvas.loaded { opacity: 1; }
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 60%, rgba(6,8,15,0.3) 0%, var(--bg) 75%),
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(184, 144, 64, 0.10) 0%, transparent 60%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 var(--space-6);
+  max-width: 880px;
+  animation: hero-rise 1.1s var(--ease-out) 0.1s both;
+}
+
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero .eyebrow { color: var(--ottoverb); opacity: 0.85; }
+
+.hero h1 {
+  font-size: var(--fs-4xl);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  color: var(--text-heading);
+  margin-bottom: var(--space-5);
+}
+
+.hero h1 span {
+  background: linear-gradient(135deg, var(--warm), var(--ottoverb));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  color: var(--text-body);
+  font-weight: 300;
+  max-width: 640px;
+  margin: 0 auto var(--space-8);
+  line-height: 1.7;
+}
+
+.hero-ctas {
+  display: inline-flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* OttoVerb amber primary-button variant (mirrors .btn-primary.habitat in habitat.html) */
+.btn-primary.ottoverb {
+  background: linear-gradient(135deg, var(--warm) 0%, var(--ottoverb) 50%, var(--warm) 100%);
+  background-size: 200% 100%;
+  box-shadow: 0 6px 24px rgba(184, 144, 64, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.btn-primary.ottoverb:hover {
+  box-shadow: 0 12px 40px rgba(184, 144, 64, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* ── Mode grid ────────────────────────────────────────── */
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-10);
+}
+
+.mode-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--mode-dim, var(--border));
+  border-radius: var(--radius-lg);
+  padding: 22px 20px 24px;
+  overflow: hidden;
+  transition: border-color var(--dur-med) var(--ease-standard),
+              transform var(--dur-med) var(--ease-spring),
+              background var(--dur-med) var(--ease-standard),
+              box-shadow var(--dur-med) var(--ease-standard);
+}
+
+.mode-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, var(--mode), transparent);
+  transition: width var(--dur-slow) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .mode-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--mode);
+    background: var(--surface-raised);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 32px var(--mode-dim);
+  }
+  .mode-card:hover::after { width: 100%; }
+  .mode-card:hover .mode-ir path,
+  .mode-card:hover .mode-ir line,
+  .mode-card:hover .mode-ir circle { animation-duration: 1.6s; }
+}
+
+.mode-ir {
+  width: 54px;
+  height: 22px;
+  margin-bottom: 14px;
+  display: block;
+  overflow: visible;
+  color: var(--mode);
+}
+
+.mode-ir path,
+.mode-ir line,
+.mode-ir circle {
+  stroke: currentColor;
+  stroke-width: 1.4;
+  fill: none;
+  stroke-linecap: round;
+  animation: ir-pulse 3.2s var(--ease-in-out) infinite;
+}
+
+@keyframes ir-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+.mode-card h3 {
+  font-size: 1.02rem;
+  font-weight: 500;
+  color: var(--text-heading);
+  margin-bottom: 6px;
+  letter-spacing: -0.005em;
+}
+
+.mode-card p {
+  font-size: 0.82rem;
+  color: var(--text-body);
+  line-height: 1.6;
+}
+
+.mode-presets {
+  display: inline-flex;
+  align-items: center;
+  margin-top: var(--space-8);
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ottoverb);
+  background: var(--ottoverb-soft);
+  border: 1px solid var(--ottoverb-dim);
+  border-radius: var(--radius-pill);
+}
+
+/* ── Features grid (reused across Character, Modulation, Effects) ── */
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-10);
+}
+
+.feature-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  border: 1px solid currentColor;
+}
+
+.feature-icon.tone     { background: rgba(184,144,64,0.10);  color: var(--ottoverb); border-color: rgba(184,144,64,0.25); }
+.feature-icon.shape    { background: rgba(200,134,74,0.10);  color: var(--warm);     border-color: rgba(200,134,74,0.25); }
+.feature-icon.evolve   { background: rgba(212,175,55,0.10);  color: var(--amber);    border-color: rgba(212,175,55,0.25); }
+.feature-icon.lfo      { background: rgba(184,144,64,0.10);  color: var(--ottoverb); border-color: rgba(184,144,64,0.25); }
+.feature-icon.env      { background: rgba(26,158,158,0.10);  color: var(--teal);     border-color: rgba(26,158,158,0.25); }
+.feature-icon.sweep    { background: rgba(74,144,209,0.08);  color: var(--accent);   border-color: rgba(74,144,209,0.20); }
+.feature-icon.shimmer  { background: rgba(212,175,55,0.10);  color: var(--amber);    border-color: rgba(212,175,55,0.25); }
+.feature-icon.dirt     { background: rgba(200,70,70,0.10);   color: var(--red);      border-color: rgba(200,70,70,0.25); }
+.feature-icon.swirl    { background: rgba(200,134,74,0.10);  color: var(--warm);     border-color: rgba(200,134,74,0.25); }
+
+.feature-icon svg { opacity: 0.9; }
+
+/* ── Interaction split ────────────────────────────────── */
+
+.surfaces {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  gap: var(--space-8);
+  align-items: center;
+  margin-top: var(--space-8);
+}
+
+.meta-panel {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(184,144,64,0.15) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(10,14,24,0.7), rgba(6,8,15,0.9));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.meta-panel-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ottoverb);
+  margin-bottom: 14px;
+  opacity: 0.8;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 10px;
+}
+
+.meta-knob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-knob-dial {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(184,144,64,0.25), rgba(184,144,64,0.05) 65%, transparent 70%),
+    conic-gradient(from 225deg, var(--ottoverb-dim) 0deg, var(--ottoverb-dim) var(--angle, 200deg), rgba(255,255,255,0.04) var(--angle, 200deg), rgba(255,255,255,0.04) 270deg);
+  border: 1px solid rgba(184,144,64,0.28);
+  position: relative;
+}
+
+.meta-knob-dial::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  width: 1.5px;
+  height: 12px;
+  background: var(--ottoverb);
+  border-radius: 2px;
+  transform-origin: 50% 14px;
+  transform: translateX(-50%) rotate(var(--rot, 45deg));
+  box-shadow: 0 0 6px rgba(184,144,64,0.6);
+}
+
+.meta-knob-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.surface-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.surface-list h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-heading);
+  margin-bottom: 6px;
+}
+
+.surface-list ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+
+.surface-list li {
+  position: relative;
+  padding-left: 20px;
+  color: var(--text-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.surface-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 10px;
+  height: 1px;
+  background: var(--ottoverb);
+}
+
+.surface-list li strong { color: var(--text-heading); font-weight: 500; }
+
+/* ── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .mode-grid { grid-template-columns: repeat(2, 1fr); }
+  .surfaces  { grid-template-columns: 1fr; }
+  .meta-panel { max-width: 380px; margin: 0 auto; }
+}
+
+@media (max-width: 480px) {
+  .mode-grid { grid-template-columns: 1fr; max-width: 380px; margin-left: auto; margin-right: auto; }
+  .meta-grid { grid-template-columns: repeat(3, 1fr); gap: 10px 6px; }
+  .meta-knob-dial { width: 38px; height: 38px; }
+}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="site-nav" aria-label="Primary">
+  <a href="index.html" class="logo" aria-label="Otto Engineering home"><img src="otto-logo.png" alt=""></a>
+  <div class="nav-links">
+    <a href="streams.html">Streams</a>
+    <a href="habitat.html">Habitat</a>
+    <a href="ottoverb.html" class="active">OttoVerb</a>
+  </div>
+  <div class="nav-right">
+    <a href="ottoverb.html" class="active">Overview</a>
+    <a href="ottoverb-sounds.html">Sounds</a>
+    <a href="download.html">Download</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <span class="eyebrow">Reverb Effect</span>
+    <h1><span>OttoVerb</span></h1>
+    <p class="hero-sub">
+      Studio-grade reverb for deep sound design of lush spaces. Four fundamentally different topologies, nine expressive character macros, multiple modulation sources, and a modular tail effects chain.
+    </p>
+    <div class="hero-ctas">
+      <a href="download.html" class="btn-primary ottoverb">Download</a>
+      <a href="ottoverb-sounds.html" class="btn-ghost">Listen</a>
+    </div>
+  </div>
+  <button class="canvas-pause" id="heroPause" aria-label="Pause background animation">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+  </button>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <span class="chevron" aria-hidden="true"></span>
+  </div>
+</div>
+
+<!-- ═══════ MODES ═══════ -->
+<section id="modes" class="cv-auto">
+  <div class="reveal">
+    <span class="eyebrow">Reverb modes</span>
+    <h2 class="section-title">Four algorithms, one plugin</h2>
+    <p class="section-desc">
+      Four fundamentally different reverb topologies — each voiced as its own instrument. Swap between them on the fly; every character macro, modulator, and tail effect carries across.
+    </p>
+  </div>
+
+  <div class="mode-grid reveal reveal-stagger">
+    <div class="mode-card" style="--mode:#b89040; --mode-dim:rgba(184,144,64,0.18)">
+      <svg class="mode-ir" viewBox="0 0 54 22" aria-hidden="true">
+        <path d="M0 11 L6 11 L6 3 L8 3 L8 19 L10 19 L10 5 L12 5 L12 17 L14 17 L14 8 L16 8 L16 14 L18 14 L18 11 L54 11"/>
+      </svg>
+      <h3>Plate</h3>
+      <p>Dattorro 2-loop stereo plate. Classic, punchy, compact — the sound of a thousand hit records, tuned by hand.</p>
+    </div>
+    <div class="mode-card" style="--mode:#c8864a; --mode-dim:rgba(200,134,74,0.18)">
+      <svg class="mode-ir" viewBox="0 0 54 22" aria-hidden="true">
+        <circle cx="27" cy="11" r="3"/>
+        <circle cx="9"  cy="6"  r="2"/>
+        <circle cx="9"  cy="16" r="2"/>
+        <circle cx="45" cy="6"  r="2"/>
+        <circle cx="45" cy="16" r="2"/>
+        <line x1="11" y1="7"  x2="24" y2="10"/>
+        <line x1="11" y1="15" x2="24" y2="12"/>
+        <line x1="30" y1="10" x2="43" y2="7"/>
+        <line x1="30" y1="12" x2="43" y2="15"/>
+      </svg>
+      <h3>FDN</h3>
+      <p>Feedback Delay Network with 4-to-32 loops. Smooth, dense, impossibly geometric — a room that doesn't quite exist.</p>
+    </div>
+    <div class="mode-card" style="--mode:#d4af37; --mode-dim:rgba(212,175,55,0.18)">
+      <svg class="mode-ir" viewBox="0 0 54 22" aria-hidden="true">
+        <circle cx="27" cy="11" r="9"/>
+        <circle cx="27" cy="11" r="6" stroke-dasharray="3 2"/>
+        <circle cx="27" cy="11" r="3"/>
+      </svg>
+      <h3>Nested Allpass</h3>
+      <p>Gardner-style nested allpass cascades. Ultra-silky diffusion with elegant internal routing for the longest, smoothest tails.</p>
+    </div>
+    <div class="mode-card" style="--mode:#a87f2f; --mode-dim:rgba(168,127,47,0.18)">
+      <svg class="mode-ir" viewBox="0 0 54 22" aria-hidden="true">
+        <line x1="2"  y1="4" x2="2"  y2="18"/>
+        <line x1="10" y1="7" x2="10" y2="15"/>
+        <line x1="16" y1="3" x2="16" y2="19"/>
+        <line x1="23" y1="6" x2="23" y2="16"/>
+        <line x1="30" y1="4" x2="30" y2="18"/>
+        <line x1="37" y1="8" x2="37" y2="14"/>
+        <line x1="43" y1="5" x2="43" y2="17"/>
+        <line x1="50" y1="9" x2="50" y2="13"/>
+      </svg>
+      <h3>Velvet Noise</h3>
+      <p>Sparse impulse-train convolution. Stochastic texture — the feel of natural ambience without the computational weight.</p>
+    </div>
+  </div>
+
+  <div class="reveal" style="text-align:center">
+    <span class="mode-presets">18 factory presets · tight rooms to infinite washes</span>
+  </div>
+</section>
+
+<!-- ═══════ CHARACTER ═══════ -->
+<section id="character" class="cv-auto">
+  <div class="reveal">
+    <span class="eyebrow">Character</span>
+    <h2 class="section-title">Nine meta-knobs for deep sound design</h2>
+    <p class="section-desc">
+      Shape every corner of the room with high-level macros that remap loop counts, diffusion, damping, and feedback behind the scenes. No need to dive into tank geometry — reach for the character you want.
+    </p>
+  </div>
+
+  <div class="features reveal reveal-stagger">
+    <div class="feature-card">
+      <div class="feature-icon tone" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 12h16"/><circle cx="8" cy="12" r="3"/><circle cx="16" cy="12" r="3"/></svg>
+      </div>
+      <h3>Tone &amp; Space</h3>
+      <p>Two macros set the room's balance and scale. <strong>Tone</strong> sweeps dark to bright across the whole decay; <strong>Space</strong> reshapes the envelope from tight booth to vast hall.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon shape" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 L8 6 L12 14 L16 4 L20 16"/></svg>
+      </div>
+      <h3>Nonlinearity &amp; Chaos</h3>
+      <p><strong>Nonlinearity</strong> adds structural irregularity — the difference between a perfect cube and a cathedral carved by hand. <strong>Chaos</strong> layers stereo drift and internal variation so nothing repeats.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon evolve" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 12c3 0 3-6 6-6s3 12 6 12 3-6 6-6"/></svg>
+      </div>
+      <h3>Emphasis · Dynamics · Evolve · Vintage · Natural</h3>
+      <p>Split decay across frequency bands, gate the tail to input dynamics, sweep spectral resonances on the output, and morph between vintage plate character and realistic room behavior — all without leaving the macro panel.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ MODULATION ═══════ -->
+<section id="modulation" class="cv-auto">
+  <div class="reveal">
+    <span class="eyebrow">Modulation</span>
+    <h2 class="section-title">Multiple modulators, complex evolution</h2>
+    <p class="section-desc">
+      Layered modulation sources operate at different timescales — fast random walks inside the tank, slow spectral sweeps on the output, envelope followers on the tail. Even the densest wash keeps moving.
+    </p>
+  </div>
+
+  <div class="features reveal reveal-stagger">
+    <div class="feature-card">
+      <div class="feature-icon lfo" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0 2 0 2 0"/></svg>
+      </div>
+      <h3>LFOs &amp; Seven Mix Modes</h3>
+      <p>Per-loop random-walk LFOs at independent rates. Seven routings — Classic, Ring Phase, Cluster, Tree Depth, Asymmetric, Cross-Mod, Freq Split — reshape how modulation propagates through the tank.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon env" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20 L6 4 L10 18 L14 8 L18 16 L22 12"/></svg>
+      </div>
+      <h3>Dynamics Envelope</h3>
+      <p>An input-tracking envelope follower reshapes tail amplitude and decay in real time. Hit the input hard and the tail blooms; lay back and it settles. The reverb breathes with the source.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon sweep" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="8"  cy="9"  r="1.6" fill="currentColor" stroke="none"/><circle cx="15" cy="14" r="1.6" fill="currentColor" stroke="none"/><path d="M8 9 C 10 6, 13 6, 15 14" opacity="0.5"/></svg>
+      </div>
+      <h3>Evolve &amp; In-Loop Motion</h3>
+      <p>Two orbiting spectral markers sweep bandpass resonances on the output. Inside the feedback loop, chorus and a 12-stage phaser add slow, lush interference — not on the output, <em>inside</em> the reverb.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ TAIL EFFECTS ═══════ -->
+<section id="tail-effects" class="cv-auto">
+  <div class="reveal">
+    <span class="eyebrow">Tail effects</span>
+    <h2 class="section-title">Otherworldly tails</h2>
+    <p class="section-desc">
+      A modular effects chain sits inside the feedback path. Shape decay into pitched ascending washes, tape-collapsed grit, swirling analog motion, or spectrally filtered textures — all on the tail itself, not the dry signal.
+    </p>
+  </div>
+
+  <div class="features reveal reveal-stagger">
+    <div class="feature-card">
+      <div class="feature-icon shimmer" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 3 L13.5 10.5 L21 12 L13.5 13.5 L12 21 L10.5 13.5 L3 12 L10.5 10.5 Z"/></svg>
+      </div>
+      <h3>Shimmer</h3>
+      <p>Pitch-shifted feedback at any interval from an octave down to two octaves up, with independent tone and feedback amount. Infinite ascending washes, subtle harmonic coloring, or dark octave-down drones.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon dirt" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8 L5 6 L8 10 L11 4 L14 12 L17 8 L20 14 L22 10"/><path d="M3 18 L22 18" stroke-dasharray="2 2"/></svg>
+      </div>
+      <h3>Dirt &amp; Lo-Fi</h3>
+      <p>In-loop waveshaping saturation, 500 Hz to 48 kHz sample-rate reduction, and 2-to-32 bit crushing. Tape grit, warm drive, or full digital collapse — applied to the reverb itself.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon swirl" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 3 C 18 3, 21 9, 18 14 C 15 18, 8 18, 5 14 C 3 11, 5 7, 9 7 C 12 7, 13 10, 11 12"/></svg>
+      </div>
+      <h3>Chorus &amp; Phaser</h3>
+      <p>In-tail modulated delay (Depth, Speed) and a 12-stage allpass phaser (Depth, Speed, Stages) add dense, lush interference. Both operate <em>inside</em> the feedback loop for a texture you can't get from a post-effect.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ INTERACTION ═══════ -->
+<section id="interaction" class="cv-auto">
+  <div class="reveal">
+    <span class="eyebrow">Interaction</span>
+    <h2 class="section-title">Focused macros. Full access.</h2>
+    <p class="section-desc">
+      Two surfaces in one plugin: sculpt fast with nine named macros, or open every parameter and work at DSP depth. A live topology visualizer shows the engine at work in either view.
+    </p>
+  </div>
+
+  <div class="reveal surfaces">
+    <div class="meta-panel" aria-hidden="true">
+      <div class="meta-panel-label">Character</div>
+      <div class="meta-grid">
+        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:260deg; --rot:35deg"></span><span class="meta-knob-label">Tone</span></div>
+        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:220deg; --rot:10deg"></span><span class="meta-knob-label">Space</span></div>
+        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:180deg; --rot:-15deg"></span><span class="meta-knob-label">Nonlin.</span></div>
+        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:140deg; --rot:-35deg"></span><span class="meta-knob-label">Chaos</span></div>
+        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:200deg; --rot:0deg"></span><span class="meta-knob-label">Emphasis</span></div>
+        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:170deg; --rot:-25deg"></span><span class="meta-knob-label">Dynamics</span></div>
+        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:230deg; --rot:20deg"></span><span class="meta-knob-label">Evolve</span></div>
+        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:110deg; --rot:-55deg"></span><span class="meta-knob-label">Vintage</span></div>
+        <div class="meta-knob"><span class="meta-knob-dial" style="--angle:250deg; --rot:30deg"></span><span class="meta-knob-label">Natural</span></div>
+      </div>
+    </div>
+    <div class="surface-list">
+      <h3>Play it two ways.</h3>
+      <ul>
+        <li><strong>Meta-knob panel</strong> — nine expressive macros shape tone, size, irregularity, asymmetry, and motion. Each one remaps multiple internal parameters at once.</li>
+        <li><strong>Full parameter view</strong> — dive into decay, size, diffusion, modulation depth, mix, width, and EQ directly. Everything the engine exposes is addressable.</li>
+        <li><strong>Topology visualizer</strong> — a live node graph shows delay loops pulse, energy flow, modulation rings orbit, and dynamics breathe in real time. A window into the engine you can read at a glance.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="otto-logo.png" alt="Otto Engineering" loading="lazy">
+      <p>Expressive instruments and effects, built in the Pacific Northwest.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Products</h4>
+      <a href="streams.html">Streams</a>
+      <a href="habitat.html">Habitat</a>
+      <a href="ottoverb.html">OttoVerb</a>
+    </div>
+    <div class="footer-col">
+      <h4>OttoVerb</h4>
+      <a href="ottoverb.html">Overview</a>
+      <a href="ottoverb-sounds.html">Sounds</a>
+      <a href="download.html">Download</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; <span id="year"></span> Matt Perich &middot; Otto Engineering</span>
+  </div>
+</footer>
+
+<!-- ═══════ SCRIPTS ═══════ -->
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// Nav scroll
+(function() {
+  const nav = document.querySelector('.site-nav');
+  const scrollInd = document.querySelector('.scroll-indicator');
+  if (scrollInd) {
+    scrollInd.addEventListener('animationend', () => {
+      scrollInd.style.animation = 'none';
+    }, { once: true });
+  }
+  const onScroll = () => {
+    const y = window.scrollY;
+    if (nav) nav.classList.toggle('scrolled', y > 4);
+    if (y > 4) document.body.classList.add('has-scrolled');
+    if (scrollInd) {
+      if (y > 0 && scrollInd.style.animation !== 'none') {
+        scrollInd.style.animation = 'none';
+      }
+      const p = Math.min(1, Math.max(0, y / 220));
+      scrollInd.style.opacity = String(1 - p);
+    }
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+
+// ── Hero topology viz ───────────────────────────────────
+// Ring of delay-loop nodes with energy dots flowing along connections,
+// occasional modulation rings, slow topology rearrangement. Amber palette.
+(function() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // Colors — OttoVerb amber family + soft dim
+  const COLOR_NODE      = 'rgba(184, 144, 64, __a)';     // ottoverb amber
+  const COLOR_EDGE      = 'rgba(184, 144, 64, 0.10)';
+  const COLOR_DOT_WARM  = 'rgba(212, 175, 55, __a)';     // amber
+  const COLOR_DOT_MOD   = 'rgba(200, 134, 74, __a)';     // warm
+  const COLOR_MOD_RING  = 'rgba(212, 175, 55, __a)';
+
+  const N_NODES = 14;
+  const DOTS_MAX = 220;
+
+  let W = 0, H = 0, cx = 0, cy = 0, radius = 0;
+  let rafId = null, paused = false, firstFrame = true, lastT = 0;
+
+  // Each node has a base position, an energy level, a wobble phase.
+  const nodes = [];
+  for (let i = 0; i < N_NODES; i++) {
+    nodes.push({ x: 0, y: 0, tx: 0, ty: 0, e: 0, phase: Math.random() * 6.28 });
+  }
+
+  // Edges: adjacency pairs (ring + a few chords for richness).
+  const edges = [];
+  function rebuildEdges(mode) {
+    edges.length = 0;
+    if (mode === 'ring') {
+      for (let i = 0; i < N_NODES; i++) edges.push([i, (i + 1) % N_NODES]);
+      // a few chords
+      for (let i = 0; i < N_NODES; i += 3) edges.push([i, (i + N_NODES / 2) | 0]);
+    } else if (mode === 'tree') {
+      // rough binary layout
+      for (let i = 1; i < N_NODES; i++) edges.push([i, ((i - 1) >> 1)]);
+      for (let i = 0; i < N_NODES; i += 4) edges.push([i, (i + 1) % N_NODES]);
+    } else { // cluster
+      for (let i = 0; i < N_NODES; i++) edges.push([i, (i + 1) % N_NODES]);
+      for (let i = 0; i < N_NODES; i++) edges.push([i, (i + 2) % N_NODES]);
+      for (let i = 0; i < N_NODES; i += 2) edges.push([i, (i + N_NODES / 2) | 0]);
+    }
+  }
+  let topology = 'ring';
+  rebuildEdges(topology);
+
+  // Flowing dots along edges.
+  const dots = []; // {e: edgeIdx, t: 0..1, spd, kind}
+  // Modulation rings (pulsing circles around a node).
+  const modRings = []; // {n: nodeIdx, age, life}
+
+  function placeNodes() {
+    cx = W / 2;
+    cy = H / 2;
+    radius = Math.min(W, H) * 0.30;
+    if (topology === 'ring') {
+      for (let i = 0; i < N_NODES; i++) {
+        const a = (i / N_NODES) * Math.PI * 2 - Math.PI / 2;
+        nodes[i].tx = cx + Math.cos(a) * radius;
+        nodes[i].ty = cy + Math.sin(a) * radius;
+      }
+    } else if (topology === 'tree') {
+      for (let i = 0; i < N_NODES; i++) {
+        const depth = Math.floor(Math.log2(i + 1));
+        const rowSize = Math.pow(2, depth);
+        const rowIdx = i + 1 - rowSize;
+        nodes[i].tx = cx + (rowIdx - (rowSize - 1) / 2) * (radius * 1.7 / Math.max(1, rowSize));
+        nodes[i].ty = cy - radius * 0.7 + depth * (radius * 0.55);
+      }
+    } else { // cluster
+      for (let i = 0; i < N_NODES; i++) {
+        const a = (i / N_NODES) * Math.PI * 2 - Math.PI / 2;
+        const jitter = 0.7 + 0.3 * Math.sin(i * 1.7);
+        nodes[i].tx = cx + Math.cos(a) * radius * jitter;
+        nodes[i].ty = cy + Math.sin(a) * radius * jitter;
+      }
+    }
+  }
+
+  function resize() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const r = canvas.getBoundingClientRect();
+    W = r.width; H = r.height;
+    if (!W || !H) return;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    placeNodes();
+    // initialize node positions if needed
+    for (const n of nodes) { if (n.x === 0 && n.y === 0) { n.x = n.tx; n.y = n.ty; } }
+  }
+
+  function rgba(template, a) { return template.replace('__a', a.toFixed(3)); }
+
+  // Randomly "fire" a node every ~1.5s
+  let fireTimer = 0;
+  let topoTimer = 0;
+
+  function tick(t) {
+    const dt = Math.min(0.05, (t - lastT) / 1000);
+    lastT = t;
+    fireTimer += dt;
+    topoTimer += dt;
+
+    // Node homing with slight wobble for organic motion
+    for (const n of nodes) {
+      n.phase += dt * 0.4;
+      const wx = Math.sin(n.phase) * 3;
+      const wy = Math.cos(n.phase * 0.8) * 3;
+      n.x += (n.tx + wx - n.x) * 0.04;
+      n.y += (n.ty + wy - n.y) * 0.04;
+      n.e *= Math.pow(0.35, dt); // energy decay
+    }
+
+    // Topology rotation every 18s
+    if (topoTimer > 18) {
+      topoTimer = 0;
+      topology = topology === 'ring' ? 'cluster' : topology === 'cluster' ? 'tree' : 'ring';
+      rebuildEdges(topology);
+      placeNodes();
+    }
+
+    // Fire a random node
+    if (fireTimer > 1.2) {
+      fireTimer = 0;
+      const src = (Math.random() * N_NODES) | 0;
+      nodes[src].e = 1;
+      // Emit dots along every edge touching this node
+      for (const [a, b] of edges) {
+        if ((a === src || b === src) && dots.length < DOTS_MAX) {
+          const forward = a === src;
+          dots.push({ e: [a, b], t: 0, spd: 0.5 + Math.random() * 0.4, fwd: forward, kind: Math.random() < 0.25 ? 'mod' : 'warm' });
+        }
+      }
+      // Occasionally pulse a modulation ring
+      if (Math.random() < 0.55) modRings.push({ n: src, age: 0, life: 2.2 + Math.random() * 1.4 });
+    }
+
+    // Advance dots
+    for (const d of dots) {
+      d.t += d.spd * dt;
+      if (d.t >= 1) {
+        // Deposit energy on target node
+        const tgtIdx = d.fwd ? d.e[1] : d.e[0];
+        nodes[tgtIdx].e = Math.min(1, nodes[tgtIdx].e + 0.55);
+      }
+    }
+    for (let i = dots.length - 1; i >= 0; i--) if (dots[i].t >= 1) dots.splice(i, 1);
+
+    // Advance mod rings
+    for (const r of modRings) r.age += dt;
+    for (let i = modRings.length - 1; i >= 0; i--) if (modRings[i].age >= modRings[i].life) modRings.splice(i, 1);
+
+    render();
+    if (!paused) rafId = requestAnimationFrame(tick);
+  }
+
+  function render() {
+    if (!W || !H) return;
+    ctx.fillStyle = '#06080f';
+    ctx.fillRect(0, 0, W, H);
+
+    // Edges (soft static lines)
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = COLOR_EDGE;
+    ctx.beginPath();
+    for (const [a, b] of edges) {
+      ctx.moveTo(nodes[a].x, nodes[a].y);
+      ctx.lineTo(nodes[b].x, nodes[b].y);
+    }
+    ctx.stroke();
+
+    // Mod rings (drawn before nodes so they sit behind)
+    for (const r of modRings) {
+      const n = nodes[r.n];
+      const prog = r.age / r.life;
+      const radius = 18 + prog * 42;
+      const alpha = Math.max(0, 0.45 * (1 - prog));
+      ctx.strokeStyle = rgba(COLOR_MOD_RING, alpha);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, radius, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Dots along edges
+    for (const d of dots) {
+      const a = nodes[d.e[0]], b = nodes[d.e[1]];
+      const t = d.fwd ? d.t : 1 - d.t;
+      const x = a.x + (b.x - a.x) * t;
+      const y = a.y + (b.y - a.y) * t;
+      const alpha = 0.75 * (1 - Math.abs(0.5 - t) * 0.8);
+      const col = d.kind === 'mod' ? COLOR_DOT_MOD : COLOR_DOT_WARM;
+      ctx.fillStyle = rgba(col, alpha);
+      ctx.beginPath();
+      ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Nodes
+    for (const n of nodes) {
+      const baseA = 0.28;
+      const glow = n.e;
+      if (glow > 0.05) {
+        ctx.fillStyle = rgba(COLOR_NODE, 0.18 * glow);
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 18 + glow * 10, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = rgba(COLOR_NODE, baseA + glow * 0.55);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 3.4 + glow * 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (firstFrame) { firstFrame = false; canvas.classList.add('loaded'); }
+  }
+
+  function start() { if (paused || rafId) return; lastT = performance.now(); rafId = requestAnimationFrame(tick); }
+  function stop()  { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
+
+  resize();
+
+  if (prefersReducedMotion.matches) {
+    render();
+    paused = true;
+  } else {
+    start();
+  }
+
+  let resizeRaf = 0;
+  window.addEventListener('resize', () => {
+    if (resizeRaf) return;
+    resizeRaf = requestAnimationFrame(() => { resizeRaf = 0; resize(); });
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else if (!paused) start();
+  });
+
+  const btn = document.getElementById('heroPause');
+  if (btn) {
+    const playIcon  = '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="6,4 20,12 6,20"/></svg>';
+    const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>';
+    btn.addEventListener('click', () => {
+      paused = !paused;
+      if (paused) { stop(); btn.innerHTML = playIcon; btn.setAttribute('aria-label', 'Play background animation'); }
+      else { start(); btn.innerHTML = pauseIcon; btn.setAttribute('aria-label', 'Pause background animation'); }
+    });
+  }
+})();
+
+// ── Scroll reveal ──
+(function() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+</script>
+</body>
+</html>
