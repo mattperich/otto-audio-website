@@ -1000,25 +1000,35 @@
   #introOverlay { max-width: 90%; }
 }
 
-/* Phone / small tablet: collapse the plugin UI replica. Viz still plays fullscreen. */
+/* Phone / small tablet: hide the desktop plugin replica (nav strip, param
+   panel, step dots) and promote #descOverlay to a bottom sheet that shows
+   the active step's title + description. The viz continues behind it. */
 @media (max-width: 768px) {
   #navStrip { display: none; }
-  #descOverlay, #floatPanel { display: none; }
+  #floatPanel { display: none; }
   #stepDots { display: none; }
+  #vizLayer canvas { touch-action: auto; cursor: default; }
+
+  /* Re-anchor #descOverlay as a bottom card, clear of #ctaFooter
+     (which is ~108px tall on mobile when it fades in on the end step). */
+  #descOverlay {
+    left: 16px;
+    right: 16px;
+    top: auto;
+    bottom: 120px;
+    width: auto;
+    max-height: 42vh;
+    overflow-y: auto;
+    transform: translateY(12px);
+    padding: 16px 18px;
+    border-radius: 14px;
+  }
+  #descOverlay.visible { transform: translateY(0); }
+
   #introOverlay { max-width: 92%; padding: 0 var(--space-4); }
   #introOverlay h1 { font-size: clamp(2rem, 10vw, 3rem); }
   #ctaFooter { padding: var(--space-6) var(--space-4) var(--space-4); }
   #ctaFooter .btn-primary { padding: 12px 22px; font-size: 13px; }
-  #introOverlay::after {
-    content: "The interactive tour requires a larger screen — scroll to preview the environment, then open Streams on desktop.";
-    display: block;
-    margin-top: var(--space-5);
-    font-size: var(--fs-xs);
-    color: var(--text-dim);
-    line-height: 1.6;
-    font-style: italic;
-  }
-  #introOverlay .scroll-cue { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1292,6 +1302,10 @@ body:hover .canvas-pause#vizPause,
 <div class="scroll-section" data-step="end"></div>
 
 <script>
+// Live — re-evaluated on every access so rotation / window resize across
+// the 768px boundary takes effect without a page reload.
+const phoneMedia = window.matchMedia('(max-width: 768px)');
+
 // ══════════════════════════════════════════════════════════
 // SHARED ENGINE (colormap, FFT, viz simulation)
 // ══════════════════════════════════════════════════════════
@@ -1509,8 +1523,8 @@ function createVizSim(canvas,mode,opts){
   canvas.addEventListener('mouseup',()=>{mDown=false;mx=my=-1e4;});
   canvas.addEventListener('mouseleave',()=>{mDown=false;mx=my=-1e4;});
   canvas.addEventListener('dblclick',e=>{if(!interact)return;e.preventDefault();const p=gp(e);vortices.push({x:p.x,y:p.y,born:performance.now()/1000,life:3+Math.random(),strength:1.0,radius:65,spin:(Math.random()>0.5?1:-1)*(0.8+Math.random()*0.4),fade:1,age:0});});
-  canvas.addEventListener('touchstart',e=>{if(!interact)return;e.preventDefault();mDown=true;const t=e.touches[0],r=canvas.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;lmx=mx;lmy=my;dvx=dvy=0;if(showStrings)pluckNearestString(my);},{passive:false});
-  canvas.addEventListener('touchmove',e=>{if(!interact)return;e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();const px=t.clientX-r.left,py=t.clientY-r.top;dvx=px-lmx;dvy=py-lmy;mx=px;my=py;lmx=mx;lmy=my;},{passive:false});
+  canvas.addEventListener('touchstart',e=>{if(!interact||phoneMedia.matches)return;e.preventDefault();mDown=true;const t=e.touches[0],r=canvas.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;lmx=mx;lmy=my;dvx=dvy=0;if(showStrings)pluckNearestString(my);},{passive:false});
+  canvas.addEventListener('touchmove',e=>{if(!interact||phoneMedia.matches)return;e.preventDefault();const t=e.touches[0],r=canvas.getBoundingClientRect();const px=t.clientX-r.left,py=t.clientY-r.top;dvx=px-lmx;dvy=py-lmy;mx=px;my=py;lmx=mx;lmy=my;},{passive:false});
   canvas.addEventListener('touchend',()=>{mDown=false;mx=my=-1e4;});
 
   let running=false,lastT=0;
@@ -2199,6 +2213,15 @@ function createVizSim(canvas,mode,opts){
   let activeStep = 'intro';
 
   function positionOverlays(stepName, navOverride) {
+    // On mobile the descOverlay is a bottom sheet (CSS-positioned);
+    // the nav strip is hidden so there's nothing to anchor to anyway.
+    // Clear any inline top left over from a prior desktop call so the
+    // mobile CSS can take effect after rotation.
+    if (phoneMedia.matches) {
+      descEl.style.top = '';
+      panel.style.top = '';
+      return;
+    }
     const target = navOverride || stepName;
     const btn = document.querySelector(`.nav-btn[data-step="${target}"]`) ||
                 document.querySelector(`.tool-btn[data-step="${target}"]`);

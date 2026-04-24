@@ -1216,28 +1216,36 @@
   #introOverlay { max-width: 90%; }
 }
 
-/* Phone / small tablet: collapse the plugin UI — show intro + CTA only, hide the panel chrome.
-   The viz still plays fullscreen but the replica strip + panels don't fit. */
+/* Phone / small tablet: hide the desktop plugin replica (nav strip, param
+   panel, step dots) and promote #descOverlay to a bottom sheet that shows
+   the active step's title + description. The viz continues behind it. */
 @media (max-width: 768px) {
   #navStrip { display: none; }
-  #descOverlay, #floatPanel { display: none; }
+  #floatPanel { display: none; }
   #stepDots { display: none; }
   #learnIndicator { display: none !important; }
+  #vizLayer canvas { touch-action: auto; cursor: default; }
+
+  /* Re-anchor #descOverlay as a bottom card, clear of #ctaFooter
+     (which is ~108px tall on mobile when it fades in on the end step). */
+  #descOverlay {
+    left: 16px;
+    right: 16px;
+    top: auto;
+    bottom: 120px;
+    width: auto;
+    max-height: 42vh;
+    overflow-y: auto;
+    transform: translateY(12px);
+    padding: 16px 18px;
+    border-radius: 14px;
+  }
+  #descOverlay.visible { transform: translateY(0); }
+
   #introOverlay { max-width: 92%; padding: 0 var(--space-4); }
   #introOverlay h1 { font-size: clamp(2rem, 10vw, 3rem); }
   #ctaFooter { padding: var(--space-6) var(--space-4) var(--space-4); }
   #ctaFooter .btn-primary { padding: 12px 22px; font-size: 13px; }
-  /* Show a note so users know to view on desktop */
-  #introOverlay::after {
-    content: "The interactive tour requires a larger screen — scroll to preview the environment, then open Habitat on desktop.";
-    display: block;
-    margin-top: var(--space-5);
-    font-size: var(--fs-xs);
-    color: var(--text-dim);
-    line-height: 1.6;
-    font-style: italic;
-  }
-  #introOverlay .scroll-cue { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1394,6 +1402,10 @@ body:hover .canvas-pause#vizPause,
 <div class="scroll-section" data-step="end"></div>
 
 <script>
+// Live — re-evaluated on every access so rotation / window resize across
+// the 768px boundary takes effect without a page reload.
+const phoneMedia = window.matchMedia('(max-width: 768px)');
+
 // ══════════════════════════════════════════════════════════
 // DOT GRID VISUALIZATION (exact Habitat app simulation)
 // ══════════════════════════════════════════════════════════
@@ -1758,16 +1770,19 @@ body:hover .canvas-pause#vizPause,
   canvas.addEventListener('mouseleave',()=>{mDown=false;gesture='idle';mx=my=-1e4;});
 
   canvas.addEventListener('touchstart',e=>{
+    if(phoneMedia.matches)return;
     e.preventDefault(); const t=e.touches[0];
     [mx,my]=[t.clientX-canvas.getBoundingClientRect().left,t.clientY-canvas.getBoundingClientRect().top];
     startX=mx;startY=my;mDown=true;gesture='pending';gestureStart=performance.now();
   },{passive:false});
   canvas.addEventListener('touchmove',e=>{
+    if(phoneMedia.matches)return;
     e.preventDefault();const t=e.touches[0];
     [mx,my]=[t.clientX-canvas.getBoundingClientRect().left,t.clientY-canvas.getBoundingClientRect().top];
     if(gesture==='pending'&&Math.sqrt((mx-startX)**2+(my-startY)**2)>DRAG_THRESHOLD)gesture='drag';
   },{passive:false});
   canvas.addEventListener('touchend',()=>{
+    if(phoneMedia.matches)return;
     if(gesture==='pending'){impulse(mx,my,50,1.5,EC.water);shocks.push({x:mx,y:my,r:0,e:1.2,mr:180});}
     mDown=false;gesture='idle';mx=my=-1e4;
   });
@@ -2293,6 +2308,15 @@ body:hover .canvas-pause#vizPause,
   let activeStep = 'intro';
 
   function positionOverlays(stepName, navOverride) {
+    // On mobile the descOverlay is a bottom sheet (CSS-positioned);
+    // the nav strip is hidden so there's nothing to anchor to anyway.
+    // Clear any inline top left over from a prior desktop call so the
+    // mobile CSS can take effect after rotation.
+    if (phoneMedia.matches) {
+      descEl.style.top = '';
+      panel.style.top = '';
+      return;
+    }
     const target = navOverride || stepName;
     const btn = document.querySelector(`.v2-nav-btn[data-step="${target}"]`) ||
                 document.querySelector(`.tool-btn[data-step="${target}"]`);
