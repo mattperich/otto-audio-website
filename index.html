@@ -405,7 +405,10 @@
                 border: 1px solid var(--border);
                 border-radius: var(--radius-pill);
                 text-decoration: none;
-                transition: all var(--dur-fast) var(--ease-standard);
+                transition: color var(--dur-fast) var(--ease-standard),
+                            border-color var(--dur-fast) var(--ease-standard),
+                            background var(--dur-fast) var(--ease-standard),
+                            transform var(--dur-fast) var(--ease-standard);
             }
 
             .pill-link:hover {
@@ -474,7 +477,7 @@
             <div class="nav-links">
                 <a href="streams-index.html">Streams</a>
                 <a href="habitat-index.html">Habitat</a>
-                <a href="#" aria-disabled="true">OttoVerb</a>
+                <a href="#" tabindex="-1" aria-disabled="true">OttoVerb</a>
             </div>
             <div class="nav-right">
                 <a href="download.html">Download</a>
@@ -693,7 +696,7 @@
         <footer class="site-footer">
             <div class="footer-inner">
                 <div class="footer-brand">
-                    <img src="otto_audio-05.svg" alt="Otto Engineering" />
+                    <img src="otto_audio-05.svg" alt="Otto Engineering" loading="lazy" />
                     <p>
                         Expressive instruments and effects for sound design and
                         exploration.
@@ -703,7 +706,7 @@
                     <h4>Products</h4>
                     <a href="streams-index.html">Streams</a>
                     <a href="habitat-index.html">Habitat</a>
-                    <a href="#" aria-disabled="true">OttoVerb</a>
+                    <a href="#" tabindex="-1" aria-disabled="true">OttoVerb</a>
                 </div>
                 <div class="footer-col">
                     <h4>Resources</h4>

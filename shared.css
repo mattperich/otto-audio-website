@@ -561,7 +561,10 @@ section {
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   color: var(--text-body);
-  transition: all var(--dur-fast) var(--ease-standard);
+  transition: color var(--dur-fast) var(--ease-standard),
+              border-color var(--dur-fast) var(--ease-standard),
+              background var(--dur-fast) var(--ease-standard),
+              transform var(--dur-fast) var(--ease-standard);
 }
 
 .site-footer .icon-link:hover {
