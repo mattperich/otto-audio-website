@@ -203,6 +203,7 @@ button {
 .site-nav .logo {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   text-decoration: none;
   transition: filter var(--dur-med) var(--ease-standard),
               transform var(--dur-med) var(--ease-spring);
@@ -747,7 +748,7 @@ section {
   .site-nav .logo img { height: 24px; }
   .site-nav .nav-links { gap: 0; }
   .site-nav .nav-links a,
-  .site-nav .nav-right a { font-size: 12px; padding: 10px 12px; }
+  .site-nav .nav-right a { font-size: 12px; padding: 14px 12px; }
   .site-footer .footer-inner {
     grid-template-columns: 1fr 1fr;
     gap: var(--space-8);
@@ -766,7 +767,7 @@ section {
   }
   .site-nav .nav-links::-webkit-scrollbar { display: none; }
   .site-nav .nav-right { gap: 0; }
-  .site-nav .nav-right a { padding: 10px 10px; }
+  .site-nav .nav-right a { padding: 14px 10px; }
   .btn-primary, .btn-ghost { padding: 12px 22px; font-size: 13px; }
   .site-footer { padding: var(--space-10) var(--space-4); }
   .site-footer .footer-inner { grid-template-columns: 1fr; }
