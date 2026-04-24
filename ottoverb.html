@@ -198,21 +198,6 @@
   line-height: 1.6;
 }
 
-.mode-presets {
-  display: inline-flex;
-  align-items: center;
-  margin-top: var(--space-8);
-  padding: 10px 16px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ottoverb);
-  background: var(--ottoverb-soft);
-  border: 1px solid var(--ottoverb-dim);
-  border-radius: var(--radius-pill);
-}
-
 /* ── Features grid (reused across Character, Modulation, Effects) ── */
 
 .features {
@@ -244,6 +229,156 @@
 .feature-icon.swirl    { background: rgba(200,134,74,0.10);  color: var(--warm);     border-color: rgba(200,134,74,0.25); }
 
 .feature-icon svg { opacity: 0.9; }
+
+/* ── Intuitive room preview ───────────────────────────── */
+
+.room-preview {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.1fr) 1fr;
+  gap: var(--space-8);
+  align-items: center;
+  margin-top: var(--space-8);
+}
+
+.room-viz {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  background:
+    radial-gradient(120% 80% at 30% 30%, rgba(184,144,64,0.14) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(10,14,24,0.7), rgba(6,8,15,0.9));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.room-decay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: room-morph 12s var(--ease-in-out) infinite;
+  transform-origin: left center;
+}
+
+@keyframes room-morph {
+  0%, 100% { transform: scaleX(0.38); filter: none; }
+  25%      { transform: scaleX(0.58); filter: saturate(1.15); }
+  50%      { transform: scaleX(0.98); filter: saturate(1.25) hue-rotate(-4deg); }
+  75%      { transform: scaleX(0.72); filter: saturate(1.1); }
+}
+
+.room-pulse {
+  position: absolute;
+  left: 7%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e8f4ff 0%, var(--ottoverb) 60%, transparent 100%);
+  box-shadow: 0 0 18px rgba(184,144,64,0.55);
+  transform: translate(-50%, -50%);
+  animation: room-pulse-anim 3.4s var(--ease-in-out) infinite;
+}
+
+@keyframes room-pulse-anim {
+  0%,   70% { opacity: 0.0; transform: translate(-50%, -50%) scale(0.6); }
+  5%        { opacity: 1.0; transform: translate(-50%, -50%) scale(1.0); }
+  40%       { opacity: 0.25; transform: translate(-50%, -50%) scale(1.4); }
+}
+
+.room-label {
+  position: absolute;
+  bottom: 14px;
+  left: 16px;
+  z-index: 2;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ottoverb);
+  background: rgba(6,8,15,0.6);
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--ottoverb-dim);
+}
+
+.room-label span { transition: opacity 400ms var(--ease-standard); }
+
+.room-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.room-controls h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-heading);
+  margin-bottom: var(--space-2);
+}
+
+.room-copy {
+  margin-top: var(--space-3);
+  color: var(--text-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 44ch;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.slider-label {
+  flex-shrink: 0;
+  width: 76px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.slider-track {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  background: var(--surface2);
+  border-radius: 2px;
+}
+
+.slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e8f4ff 0%, var(--ottoverb) 70%);
+  border: 1px solid rgba(184,144,64,0.4);
+  box-shadow: 0 0 10px rgba(184,144,64,0.45);
+  transform: translate(-50%, -50%);
+}
+
+.slider-thumb-size    { animation: slide-size   10s var(--ease-in-out) infinite; }
+.slider-thumb-tone    { animation: slide-tone   14s var(--ease-in-out) infinite; }
+.slider-thumb-shimmer { animation: slide-shimmer 8s var(--ease-in-out) infinite; }
+
+@keyframes slide-size    { 0%,100%{left:22%} 50%{left:86%} }
+@keyframes slide-tone    { 0%,100%{left:70%} 50%{left:32%} }
+@keyframes slide-shimmer { 0%,100%{left:14%} 50%{left:58%} }
+
+@media (max-width: 768px) {
+  .room-preview { grid-template-columns: 1fr; }
+  .room-viz { max-width: 480px; margin: 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room-decay, .room-pulse,
+  .slider-thumb-size, .slider-thumb-tone, .slider-thumb-shimmer { animation: none; }
+  .room-decay { transform: scaleX(0.7); }
+}
 
 /* ── Interaction split ────────────────────────────────── */
 
@@ -472,10 +607,6 @@
       <p>Sparse impulse-train convolution. Stochastic texture — the feel of natural ambience without the computational weight.</p>
     </div>
   </div>
-
-  <div class="reveal" style="text-align:center">
-    <span class="mode-presets">18 factory presets · tight rooms to infinite washes</span>
-  </div>
 </section>
 
 <!-- ═══════ CHARACTER ═══════ -->
@@ -493,22 +624,22 @@
       <div class="feature-icon tone" aria-hidden="true">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 12h16"/><circle cx="8" cy="12" r="3"/><circle cx="16" cy="12" r="3"/></svg>
       </div>
-      <h3>Tone &amp; Space</h3>
-      <p>Two macros set the room's balance and scale. <strong>Tone</strong> sweeps dark to bright across the whole decay; <strong>Space</strong> reshapes the envelope from tight booth to vast hall.</p>
+      <h3>Tonal shaping</h3>
+      <p><strong>Tone</strong> sweeps dark to bright across the whole decay. <strong>Emphasis</strong> splits decay across frequency bands so highs and lows breathe at different rates.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon shape" aria-hidden="true">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 L8 6 L12 14 L16 4 L20 16"/></svg>
       </div>
-      <h3>Nonlinearity &amp; Chaos</h3>
-      <p><strong>Nonlinearity</strong> adds structural irregularity — the difference between a perfect cube and a cathedral carved by hand. <strong>Chaos</strong> layers stereo drift and internal variation so nothing repeats.</p>
+      <h3>Reverb character</h3>
+      <p><strong>Space</strong> sets the scale from tight booth to vast hall. <strong>Nonlinearity</strong> adds structural irregularity, <strong>Vintage</strong> dials in plate-era warmth, and <strong>Natural</strong> morphs toward realistic room behavior.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon evolve" aria-hidden="true">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 12c3 0 3-6 6-6s3 12 6 12 3-6 6-6"/></svg>
       </div>
-      <h3>Emphasis · Dynamics · Evolve · Vintage · Natural</h3>
-      <p>Split decay across frequency bands, gate the tail to input dynamics, sweep spectral resonances on the output, and morph between vintage plate character and realistic room behavior — all without leaving the macro panel.</p>
+      <h3>Movement</h3>
+      <p><strong>Chaos</strong> layers stereo drift and internal variation so nothing repeats. <strong>Dynamics</strong> gates the tail to input amplitude. <strong>Evolve</strong> sweeps spectral resonances across the output.</p>
     </div>
   </div>
 </section>
@@ -579,6 +710,51 @@
       </div>
       <h3>Chorus &amp; Phaser</h3>
       <p>In-tail modulated delay (Depth, Speed) and a 12-stage allpass phaser (Depth, Speed, Stages) add dense, lush interference. Both operate <em>inside</em> the feedback loop for a texture you can't get from a post-effect.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ INTUITIVE ═══════ -->
+<section id="intuitive" class="cv-auto">
+  <div class="reveal">
+    <span class="eyebrow">Intuitive</span>
+    <h2 class="section-title">One knob. A different room.</h2>
+    <p class="section-desc">
+      The character macros make big moves with small gestures — reshape the tail, the tone, and the motion at once. Reach for what you want to hear; the DSP underneath follows.
+    </p>
+  </div>
+
+  <div class="reveal room-preview">
+    <div class="room-viz" aria-hidden="true">
+      <svg class="room-decay" viewBox="0 0 320 160" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="ottoDecayFill" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"   stop-color="#b89040" stop-opacity="0.55"/>
+            <stop offset="60%"  stop-color="#b89040" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="#b89040" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,118 C30,85 90,60 200,102 C260,120 300,135 320,144 L320,160 L0,160 Z" fill="url(#ottoDecayFill)"/>
+        <path d="M0,118 C30,85 90,60 200,102 C260,120 300,135 320,144" stroke="#b89040" stroke-width="1.3" fill="none" opacity="0.7"/>
+      </svg>
+      <span class="room-pulse"></span>
+      <div class="room-label"><span id="roomLabel">Tight room</span></div>
+    </div>
+    <div class="room-controls">
+      <h3>Big changes. Small moves.</h3>
+      <div class="slider-row">
+        <span class="slider-label">Size</span>
+        <div class="slider-track"><div class="slider-thumb slider-thumb-size"></div></div>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Tone</span>
+        <div class="slider-track"><div class="slider-thumb slider-thumb-tone"></div></div>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Shimmer</span>
+        <div class="slider-track"><div class="slider-thumb slider-thumb-shimmer"></div></div>
+      </div>
+      <p class="room-copy">One macro moves the whole space — room size, brightness, and shimmer amount all shift together. A short tail becomes a vast hall, and a dry bright plate slides into a dark cathedral, without ever opening a sub-panel.</p>
     </div>
   </div>
 </section>
@@ -916,6 +1092,26 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
       else { start(); btn.innerHTML = pauseIcon; btn.setAttribute('aria-label', 'Pause background animation'); }
     });
   }
+})();
+
+// ── Room-preview scene label rotator ──
+(function() {
+  const el = document.getElementById('roomLabel');
+  if (!el || prefersReducedMotion.matches) return;
+  const scenes = ['Tight room', 'Bright hall', 'Dark cathedral', 'Shimmer wash', 'Long plate'];
+  let i = 0, timer = null;
+  const step = () => {
+    i = (i + 1) % scenes.length;
+    el.style.transition = 'opacity 300ms var(--ease-standard)';
+    el.style.opacity = '0';
+    setTimeout(() => { el.textContent = scenes[i]; el.style.opacity = '1'; }, 320);
+  };
+  const start = () => { if (!timer) timer = setInterval(step, 3000); };
+  const stop  = () => { if (timer) { clearInterval(timer); timer = null; } };
+  start();
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop(); else start();
+  });
 })();
 
 // ── Scroll reveal ──
