@@ -1,6 +1,17 @@
 [build]
   publish = "."
 
+# Former URLs: redirect to the shortened paths.
+[[redirects]]
+  from = "/streams-index"
+  to = "/streams"
+  status = 301
+
+[[redirects]]
+  from = "/habitat-index"
+  to = "/habitat"
+  status = 301
+
 # HTML revalidates every load so content updates appear immediately.
 [[headers]]
   for = "/*.html"
