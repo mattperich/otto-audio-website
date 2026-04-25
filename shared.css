@@ -212,6 +212,8 @@ button {
 .site-nav .logo img {
   height: 28px;
   width: auto;
+  max-width: none;
+  flex-shrink: 0;
 }
 
 .site-nav .logo:hover {
