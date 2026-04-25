@@ -227,11 +227,18 @@
 
 .feature-icon svg { opacity: 0.9; }
 
-/* ── Focused view (app-style topology panel) ────────── */
+/* ── Focused view (app-style scene panel) ──────────── */
+
+.focused-split {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.1fr) 1fr;
+  gap: var(--space-10);
+  align-items: center;
+  margin-top: var(--space-8);
+}
 
 .focused-frame {
   position: relative;
-  margin-top: var(--space-10);
   border-radius: var(--radius-lg);
   border: 1px solid var(--ottoverb-dim);
   background: linear-gradient(180deg, rgba(8,12,20,0.85), rgba(6,8,15,0.95));
@@ -242,8 +249,12 @@
 .focused-canvas {
   display: block;
   width: 100%;
-  height: 420px;
+  height: 380px;
 }
+
+.focused-text .eyebrow { color: var(--ottoverb); }
+.focused-text .section-title { margin-top: var(--space-2); }
+.focused-text .section-desc { max-width: 40ch; }
 
 .sr-only {
   position: absolute;
@@ -304,15 +315,19 @@
 
 @media (max-width: 1024px) {
   .mode-grid { grid-template-columns: repeat(2, 1fr); }
-  .focused-canvas { height: 360px; }
+  .focused-split { grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+  .focused-canvas { height: 340px; }
 }
 
-@media (max-width: 640px) {
-  .focused-canvas { height: 300px; }
+@media (max-width: 768px) {
+  .focused-split { grid-template-columns: 1fr; gap: var(--space-6); }
+  .focused-canvas { height: 320px; }
+  .focused-text .section-desc { max-width: none; }
 }
 
 @media (max-width: 480px) {
   .mode-grid { grid-template-columns: 1fr; max-width: 380px; margin-left: auto; margin-right: auto; }
+  .focused-canvas { height: 280px; }
 }
 </style>
 </head>
@@ -421,16 +436,17 @@
 
 <!-- ═══════ FOCUSED VIEW ═══════ -->
 <section id="focused" class="cv-auto">
-  <div class="reveal">
-    <span class="eyebrow">Focused view</span>
-    <h2 class="section-title">Read the reverb you're shaping</h2>
-    <p class="section-desc">
-      A live topology visualizer shows delay loops pulse, energy flow between them, modulation rings orbit active nodes, and dynamics breathe with the source. Every gesture on the GUI reads back visually — you hear the change and you see it.
-    </p>
-  </div>
-
-  <div class="reveal focused-frame">
-    <canvas class="focused-canvas" id="focusedCanvas" aria-hidden="true"></canvas>
+  <div class="reveal focused-split">
+    <div class="focused-frame">
+      <canvas class="focused-canvas" id="focusedCanvas" aria-hidden="true"></canvas>
+    </div>
+    <div class="focused-text">
+      <span class="eyebrow">Focused view</span>
+      <h2 class="section-title">Read the reverb you're shaping</h2>
+      <p class="section-desc">
+        A live scene visualizer shows the room, its walls, and every macro gesture in real time. Drag, sweep, or nudge a control and the space reshapes as you hear it — intuitive feedback wired straight into the GUI.
+      </p>
+    </div>
   </div>
   <p class="sr-only">
     A rendering of the OttoVerb focused-view scene. A D-shaped room with a wall you drag to change room size, four horizontal macro strips along the bottom (Material, Flavor, Motion, Tail), left and right vertical rails for Mix and Shimmer, a listener ear with spread handles, and a source slider. The page shows a non-interactive auto-animated preview.
