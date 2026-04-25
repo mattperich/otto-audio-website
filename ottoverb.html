@@ -449,7 +449,7 @@
     </div>
   </div>
   <p class="sr-only">
-    A rendering of the OttoVerb focused-view scene. A D-shaped room with a wall you drag to change room size, four horizontal macro strips along the bottom (Material, Flavor, Motion, Tail), left and right vertical rails for Mix and Shimmer, a listener ear with spread handles, and a source slider. The page shows a non-interactive auto-animated preview.
+    A rendering of the OttoVerb focused-view scene. A D-shaped room with a wall you drag to change room size, four horizontal macro strips along the bottom (Material, Flavor, Motion, Tail), left and right vertical rails for Mix and Ethereal, a listener ear with spread handles, and a source slider. The page shows a non-interactive auto-animated preview.
   </p>
 </section>
 
@@ -912,7 +912,7 @@ initTopologyViz({ canvasId: 'heroCanvas', pauseBtnId: 'heroPause' });
     { param: 'motion',   to: 0.72, duration: 5.0, label: 'Motion · FLOWING' },
     { param: 'size',     to: 0.82, duration: 5.5, label: 'Room · expanding' },
     { param: 'flavor',   to: 0.80, duration: 5.0, label: 'Flavor · VINTAGE' },
-    { param: 'shimmer',  to: 0.58, duration: 4.0, label: 'Shimmer · rising' },
+    { param: 'shimmer',  to: 0.58, duration: 4.0, label: 'Ethereal · rising' },
     { param: 'tail',     to: 0.62, duration: 4.5, label: 'Tail · DIRTY' },
     { param: 'source',   to: 0.65, duration: 4.0, label: 'Source · back wall' },
     { param: 'width',    to: 0.78, duration: 4.0, label: 'Width · wide' },
@@ -921,7 +921,7 @@ initTopologyViz({ canvasId: 'heroCanvas', pauseBtnId: 'heroPause' });
     { param: 'motion',   to: 0.20, duration: 4.5, label: 'Motion · SETTLED' },
     { param: 'size',     to: 0.28, duration: 5.0, label: 'Room · intimate' },
     { param: 'flavor',   to: 0.20, duration: 4.5, label: 'Flavor · AIRY' },
-    { param: 'shimmer',  to: 0.20, duration: 3.5, label: 'Shimmer · subtle' },
+    { param: 'shimmer',  to: 0.20, duration: 3.5, label: 'Ethereal · subtle' },
     { param: 'tail',     to: 0.18, duration: 4.0, label: 'Tail · CLEAN' },
     { param: 'source',   to: 0.25, duration: 3.5, label: 'Source · entrance' },
   ];
@@ -1361,7 +1361,7 @@ initTopologyViz({ canvasId: 'heroCanvas', pauseBtnId: 'heroPause' });
     paintStrip(state.motion,   motionBandY,   'motion',   'Motion');
     paintStrip(state.tail,     tailBandY,     'tail',     'Tail');
     paintRail(state.mix,     mixRailX,     'MIX',     false);
-    paintRail(state.shimmer, shimmerRailX, 'SHIMMER', true);
+    paintRail(state.shimmer, shimmerRailX, 'ETHEREAL', true);
     paintListener();
     paintReadout();
   }
