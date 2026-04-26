@@ -155,29 +155,12 @@
                 overflow: hidden;
                 border: 1px solid var(--border);
                 background: var(--bg);
-                cursor: crosshair;
-                transition:
-                    border-color var(--dur-med) var(--ease-standard),
-                    box-shadow var(--dur-med) var(--ease-standard),
-                    transform var(--dur-med) var(--ease-spring);
-            }
-
-            .viz-cell:hover,
-            .viz-cell:focus-within,
-            .viz-cell.active {
-                border-color: var(--streams);
-                box-shadow:
-                    0 0 0 1px var(--streams-dim),
-                    0 12px 32px rgba(0, 0, 0, 0.45),
-                    0 0 32px var(--streams-dim);
-                transform: translateY(-2px);
             }
 
             .viz-cell canvas {
                 display: block;
                 width: 100%;
                 height: 100%;
-                touch-action: none;
             }
 
             .viz-label {
@@ -203,21 +186,6 @@
                 font-size: 12px;
                 color: var(--text-body);
                 line-height: 1.4;
-            }
-
-            .viz-interaction-hint {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                margin-top: var(--space-4);
-                padding: 6px 12px;
-                font-family: "JetBrains Mono", monospace;
-                font-size: 11px;
-                letter-spacing: 0.08em;
-                color: var(--streams);
-                background: var(--streams-soft);
-                border: 1px solid var(--streams-dim);
-                border-radius: var(--radius-pill);
             }
 
             /* ── Features Grid ────────────────────────────────────── */
@@ -668,19 +636,13 @@
             <section id="modes" class="cv-auto">
                 <div class="reveal">
                     <span class="eyebrow">Visualizations</span>
-                    <h2 class="section-title">Six interaction modes</h2>
+                    <h2 class="section-title">Six visualization modes</h2>
                     <p class="section-desc">
                         Each mode renders audio as a different particle system.
                     </p>
-                    <span class="viz-interaction-hint">Drag to push · Double-click for a vortex</span>
                 </div>
                 <div class="viz-grid reveal reveal-stagger" id="vizGrid">
-                    <div
-                        class="viz-cell"
-                        data-mode="flow"
-                        tabindex="0"
-                        aria-label="Flow visualization — interactive"
-                    >
+                    <div class="viz-cell" data-mode="flow" aria-label="Flow visualization">
                         <canvas></canvas>
                         <div class="viz-label">
                             <h3>Flow</h3>
@@ -689,24 +651,14 @@
                             </p>
                         </div>
                     </div>
-                    <div
-                        class="viz-cell"
-                        data-mode="flock"
-                        tabindex="0"
-                        aria-label="Flock visualization — interactive"
-                    >
+                    <div class="viz-cell" data-mode="flock" aria-label="Flock visualization">
                         <canvas></canvas>
                         <div class="viz-label">
                             <h3>Flock</h3>
                             <p>Curl-noise murmuration drifts and splits</p>
                         </div>
                     </div>
-                    <div
-                        class="viz-cell"
-                        data-mode="flame"
-                        tabindex="0"
-                        aria-label="Flame visualization — interactive"
-                    >
+                    <div class="viz-cell" data-mode="flame" aria-label="Flame visualization">
                         <canvas></canvas>
                         <div class="viz-label">
                             <h3>Flame</h3>
@@ -716,36 +668,21 @@
                             </p>
                         </div>
                     </div>
-                    <div
-                        class="viz-cell"
-                        data-mode="fractal"
-                        tabindex="0"
-                        aria-label="Fractal visualization — interactive"
-                    >
+                    <div class="viz-cell" data-mode="fractal" aria-label="Fractal visualization">
                         <canvas></canvas>
                         <div class="viz-label">
                             <h3>Fractal</h3>
                             <p>Golden-ratio spiral expanding from center</p>
                         </div>
                     </div>
-                    <div
-                        class="viz-cell"
-                        data-mode="flora"
-                        tabindex="0"
-                        aria-label="Flora visualization — interactive"
-                    >
+                    <div class="viz-cell" data-mode="flora" aria-label="Flora visualization">
                         <canvas></canvas>
                         <div class="viz-label">
                             <h3>Flora</h3>
-                            <p>Spectral blossoms bloom on growing branches</p>
+                            <p>Spectral blossoms hang on a quiet branching tree</p>
                         </div>
                     </div>
-                    <div
-                        class="viz-cell"
-                        data-mode="flood"
-                        tabindex="0"
-                        aria-label="Flood visualization — interactive"
-                    >
+                    <div class="viz-cell" data-mode="flood" aria-label="Flood visualization">
                         <canvas></canvas>
                         <div class="viz-label">
                             <h3>Flood</h3>
@@ -1464,8 +1401,6 @@
                 let blossoms = [];
                 let batchTimer = 0;
                 let treeAge = 0;
-                let growTimer = 0;
-                let nextSprout = 1.5 + Math.random();
                 let treeCanvas = null,
                     treeCtx = null;
                 let treeDirty = true;
@@ -1511,7 +1446,7 @@
                     bgGrad = ctx.createLinearGradient(0, 0, 0, H);
                     bgGrad.addColorStop(0, "#06080f");
                     bgGrad.addColorStop(1, "#0a0c14");
-                    if (mode === "flora" && branches.length === 0) initFlora();
+                    if (mode === "flora") initFlora();
                     treeDirty = true;
                 }
 
@@ -1533,76 +1468,50 @@
                     }
                 }
 
-                // ── Flora: tree generation ──
+                // ── Flora: static tree ──
+                // Hand-tuned skeleton (normalized 0..1 coords). All branches
+                // are pre-grown — no growth/split/fade animation. Only the
+                // blossoms (and the spawning droplets) move.
+                // Each entry: [sxN, syN, txN, tyN, depth, parentIdx, curveSide]
+                const FLORA_TREE = [
+                    // trunk
+                    [0.5, 0.92, 0.5, 0.6, 0, -1, 0],
+                    // primaries (3) — Y-fork
+                    [0.5, 0.6, 0.32, 0.46, 1, 0, -1],
+                    [0.5, 0.6, 0.5, 0.32, 1, 0, 0],
+                    [0.5, 0.6, 0.68, 0.46, 1, 0, 1],
+                    // secondaries (6) — two off each primary
+                    [0.32, 0.46, 0.18, 0.34, 2, 1, -1],
+                    [0.32, 0.46, 0.34, 0.28, 2, 1, 1],
+                    [0.5, 0.32, 0.42, 0.22, 2, 2, -1],
+                    [0.5, 0.32, 0.58, 0.22, 2, 2, 1],
+                    [0.68, 0.46, 0.82, 0.34, 2, 3, 1],
+                    [0.68, 0.46, 0.66, 0.28, 2, 3, -1],
+                ];
                 function initFlora() {
                     branches = [];
                     spawnPts = [];
                     blossoms = [];
                     treeAge = 0;
-                    const trunkX = W / 2,
-                        trunkBot = H * 0.92,
-                        trunkTop = H * 0.5;
-                    branches.push({
-                        x1: trunkX,
-                        y1: trunkBot,
-                        x2: trunkX,
-                        y2: trunkTop,
-                        tipX: trunkX,
-                        tipY: trunkTop,
-                        depth: 0,
-                        opacity: 1,
-                        parentIdx: -1,
-                        growProgress: 1,
-                        _fading: false,
-                        _sunset: false,
-                        curveSide: 1,
-                        _split: false,
-                        birthTime: -Infinity,
-                    });
-                    for (let r = 0; r < 3; r++) floSprout();
+                    for (const [sxN, syN, txN, tyN, depth, parentIdx, curveSide] of FLORA_TREE) {
+                        const x1 = sxN * W, y1 = syN * H;
+                        const x2 = txN * W, y2 = tyN * H;
+                        branches.push({
+                            x1, y1, x2, y2,
+                            tipX: x2, tipY: y2,
+                            depth,
+                            opacity: 1,
+                            parentIdx,
+                            growProgress: 1,
+                            _fading: false,
+                            _sunset: false,
+                            curveSide: curveSide || 1,
+                            _split: true,
+                            birthTime: Infinity,
+                        });
+                    }
                     rebuildSpawnPts();
                     treeDirty = true;
-                }
-
-                function floSprout() {
-                    const trunk = branches[0];
-                    if (!trunk) return;
-                    const t = 0.4 + Math.random() * 0.6;
-                    const cs = trunk.curveSide || 1;
-                    const cmx =
-                        (trunk.x1 + trunk.tipX) / 2 +
-                        (trunk.tipY - trunk.y1) * 0.08 * cs;
-                    const cmy =
-                        (trunk.y1 + trunk.tipY) / 2 -
-                        (trunk.tipX - trunk.x1) * 0.08 * cs;
-                    const u = 1 - t;
-                    const sx =
-                        u * u * trunk.x1 + 2 * u * t * cmx + t * t * trunk.tipX;
-                    const sy =
-                        u * u * trunk.y1 + 2 * u * t * cmy + t * t * trunk.tipY;
-                    const side = Math.random() < 0.5 ? -1 : 1;
-                    const angle =
-                        -Math.PI / 2 + side * (0.2 + Math.random() * 0.6);
-                    const len = Math.min(W, H) * (0.1 + Math.random() * 0.12);
-                    const ex = sx + Math.cos(angle) * len;
-                    const ey = sy + Math.sin(angle) * len;
-                    branches.push({
-                        x1: sx,
-                        y1: sy,
-                        x2: Math.max(5, Math.min(W - 5, ex)),
-                        y2: Math.max(5, ey),
-                        tipX: sx,
-                        tipY: sy,
-                        depth: 1,
-                        opacity: 0.1,
-                        parentIdx: 0,
-                        growProgress: 0,
-                        _fading: false,
-                        _sunset: false,
-                        curveSide: side,
-                        _split: false,
-                        birthTime: treeAge,
-                    });
                 }
 
                 function rebuildSpawnPts() {
@@ -1622,145 +1531,6 @@
                                 y: b.y1 + (b.y2 - b.y1) * pt,
                             });
                         }
-                    }
-                }
-
-                function updateTree(dt) {
-                    treeAge += dt;
-                    let structural = false;
-                    // Grow branches
-                    for (let i = 1; i < branches.length; i++) {
-                        const b = branches[i];
-                        if (b.growProgress < 1 && !b._fading) {
-                            b.growProgress = Math.min(
-                                1,
-                                b.growProgress + dt * 0.5,
-                            );
-                            b.tipX = b.x1 + (b.x2 - b.x1) * b.growProgress;
-                            b.tipY = b.y1 + (b.y2 - b.y1) * b.growProgress;
-                            b.opacity = Math.min(1, b.opacity + dt * 0.5);
-                        }
-                        // Edge check
-                        if (!b._fading && !b._sunset && b.growProgress >= 1) {
-                            if (
-                                b.tipX < 10 ||
-                                b.tipX > W - 10 ||
-                                b.tipY < 10 ||
-                                b.tipY > H - 10
-                            ) {
-                                b._sunset = true;
-                                b._sunsetTime = treeAge;
-                            }
-                        }
-                        // Age sunset
-                        if (
-                            !b._sunset &&
-                            !b._fading &&
-                            b.depth === 1 &&
-                            treeAge - b.birthTime > 18
-                        ) {
-                            b._sunset = true;
-                            b._sunsetTime = treeAge;
-                            structural = true;
-                        }
-                        // Cascade sunset
-                        if (
-                            !b._sunset &&
-                            b.parentIdx > 0 &&
-                            branches[b.parentIdx]._sunset
-                        ) {
-                            b._sunset = true;
-                            b._sunsetTime = branches[b.parentIdx]._sunsetTime;
-                        }
-                        // Start fade after grace
-                        if (
-                            b._sunset &&
-                            !b._fading &&
-                            treeAge - b._sunsetTime > 6
-                        ) {
-                            b._fading = true;
-                            structural = true;
-                        }
-                        if (
-                            !b._fading &&
-                            b.parentIdx > 0 &&
-                            branches[b.parentIdx]._fading
-                        ) {
-                            b._fading = true;
-                            structural = true;
-                        }
-                        // Split
-                        if (
-                            b.growProgress >= 1 &&
-                            !b._fading &&
-                            !b._sunset &&
-                            !b._split &&
-                            branches.length < 80
-                        ) {
-                            b._split = true;
-                            const pa = Math.atan2(b.tipY - b.y1, b.tipX - b.x1);
-                            const lenBase = Math.hypot(
-                                b.x2 - b.x1,
-                                b.y2 - b.y1,
-                            );
-                            for (let fork = 0; fork < 2; fork++) {
-                                const spread =
-                                    (fork === 0 ? -1 : 1) *
-                                    (0.25 + Math.random() * 0.35);
-                                const fa = pa + spread;
-                                const len =
-                                    lenBase * (0.5 + Math.random() * 0.3);
-                                let ex = b.tipX + Math.cos(fa) * len;
-                                let ey = b.tipY + Math.sin(fa) * len;
-                                ex = Math.max(2, Math.min(W - 2, ex));
-                                ey = Math.max(2, Math.min(H - 2, ey));
-                                branches.push({
-                                    x1: b.tipX,
-                                    y1: b.tipY,
-                                    x2: ex,
-                                    y2: ey,
-                                    tipX: b.tipX,
-                                    tipY: b.tipY,
-                                    depth: b.depth + 1,
-                                    opacity: 0.1,
-                                    parentIdx: i,
-                                    growProgress: 0,
-                                    _fading: false,
-                                    _sunset: false,
-                                    curveSide: fork === 0 ? -1 : 1,
-                                    _split: false,
-                                    birthTime: treeAge,
-                                });
-                            }
-                            structural = true;
-                        }
-                        // Fade
-                        if (b._fading) b.opacity -= dt * 0.12;
-                    }
-                    if (branches.length > 0) branches[0].opacity = 1;
-                    // Remove dead
-                    let newLen = 1;
-                    for (let i = 1; i < branches.length; i++) {
-                        if (branches[i].opacity > 0.02) {
-                            if (newLen !== i) branches[newLen] = branches[i];
-                            newLen++;
-                        }
-                    }
-                    if (newLen < branches.length) {
-                        branches.length = newLen;
-                        structural = true;
-                    }
-                    // Sprout
-                    growTimer += dt;
-                    if (growTimer > nextSprout && branches.length < 80) {
-                        growTimer = 0;
-                        nextSprout = 1.5 + Math.random();
-                        floSprout();
-                        structural = true;
-                    }
-                    if (structural) {
-                        rebuildSpawnPts();
-                        treeDirty = true;
                     }
                 }
 
@@ -2057,7 +1827,8 @@
 
                     if (mode === "flora") {
                         if (branches.length === 0) initFlora();
-                        updateTree(dt);
+                        // Tree is static — only blossoms animate
+                        treeAge += dt;
                         updateBlossoms(dt);
                     }
 
@@ -2851,7 +2622,8 @@
                     "(prefers-reduced-motion: reduce)",
                 ).matches;
 
-                // Create simulations
+                // Create simulations (visualization-only — no interaction; the
+                // tutorial page is where users get to push and twist particles)
                 cells.forEach((cell) => {
                     const mode = cell.dataset.mode;
                     const canvas = cell.querySelector("canvas");
@@ -2860,7 +2632,6 @@
                         spawnRate: 8,
                         dprCap: 1.25,
                     });
-                    sim.setInteraction(true);
                     sims.push({ sim, cell, canvas, mode });
                 });
 
