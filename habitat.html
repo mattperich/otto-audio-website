@@ -982,8 +982,9 @@ const ENGINE_COLORS = {
   const apply = (s) => {
     window.__evoActiveEngine = s.engine;
     if (dot) {
-      dot.style.background = s.color;
-      dot.style.boxShadow = '0 0 12px ' + s.color;
+      dot.style.setProperty('background', s.color, 'important');
+      dot.style.setProperty('background-color', s.color, 'important');
+      dot.style.setProperty('box-shadow', '0 0 12px ' + s.color, 'important');
     }
     el.textContent = s.label;
   };
