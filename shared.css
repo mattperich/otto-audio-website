@@ -277,6 +277,73 @@ button {
   margin-left: auto;
 }
 
+/* ── App sub-nav (per-app contextual links) ─────────────── */
+
+.app-subnav {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  height: 44px;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 16px;
+  background: rgba(6, 8, 15, 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid transparent;
+  transition: background var(--dur-med) var(--ease-standard),
+              border-color var(--dur-med) var(--ease-standard);
+  --subnav-accent: var(--accent);
+}
+
+.site-nav.scrolled ~ .app-subnav {
+  background: rgba(6, 8, 15, 0.88);
+  border-bottom-color: var(--border);
+}
+
+.app-subnav.streams  { --subnav-accent: var(--streams); }
+.app-subnav.habitat  { --subnav-accent: var(--habitat); }
+.app-subnav.ottoverb { --subnav-accent: var(--ottoverb); }
+
+.app-subnav a {
+  position: relative;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-body);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur-fast) var(--ease-standard),
+              background var(--dur-fast) var(--ease-standard);
+}
+
+.app-subnav a:hover {
+  color: var(--text-strong);
+  background: rgba(255, 255, 255, 0.03);
+  text-decoration: none;
+}
+
+.app-subnav a.active { color: var(--subnav-accent); }
+
+.app-subnav a.active::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 1px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+/* Push primary content below the doubled nav stack */
+body.has-subnav .hero { padding-top: 44px; }
+body.has-subnav main > section:first-of-type { scroll-margin-top: 100px; }
+
 /* ── Section Layout ──────────────────────────────────────── */
 
 section {
@@ -663,6 +730,11 @@ section {
   .site-nav .nav-links { gap: 0; }
   .site-nav .nav-links a,
   .site-nav .nav-right a { font-size: 12px; padding: 14px 12px; }
+  .app-subnav { top: 52px; height: 40px; padding: 0 12px; }
+  .app-subnav a { font-size: 12px; padding: 5px 10px; }
+  .app-subnav a.active::after { left: 10px; right: 10px; }
+  body.has-subnav .hero { padding-top: 40px; }
+  body.has-subnav main > section:first-of-type { scroll-margin-top: 92px; }
 }
 
 @media (max-width: 480px) {
