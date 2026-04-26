@@ -277,20 +277,22 @@ button {
   margin-left: auto;
 }
 
-/* ── App sub-nav (per-app contextual links) ─────────────── */
+/* ── App sub-nav (per-app contextual links, mobile-only) ── */
+/* Hidden by default; revealed at <=768px. The site-nav .subnav-link
+   items shown on desktop are mirrored here for mobile. */
 
 .app-subnav {
+  display: none;
   position: fixed;
-  top: 56px;
+  top: 52px;
   left: 0;
   right: 0;
-  height: 44px;
+  height: 40px;
   z-index: 99;
-  display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 0 16px;
+  padding: 0 12px;
   background: rgba(6, 8, 15, 0.72);
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
@@ -311,11 +313,11 @@ button {
 
 .app-subnav a {
   position: relative;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--text-body);
   text-decoration: none;
-  padding: 6px 14px;
+  padding: 5px 10px;
   border-radius: var(--radius-sm);
   transition: color var(--dur-fast) var(--ease-standard),
               background var(--dur-fast) var(--ease-standard);
@@ -332,17 +334,13 @@ button {
 .app-subnav a.active::after {
   content: "";
   position: absolute;
-  left: 14px;
-  right: 14px;
+  left: 10px;
+  right: 10px;
   bottom: 1px;
   height: 1px;
   background: currentColor;
   opacity: 0.5;
 }
-
-/* Push primary content below the doubled nav stack */
-body.has-subnav .hero { padding-top: 44px; }
-body.has-subnav main > section:first-of-type { scroll-margin-top: 100px; }
 
 /* ── Section Layout ──────────────────────────────────────── */
 
@@ -730,9 +728,9 @@ section {
   .site-nav .nav-links { gap: 0; }
   .site-nav .nav-links a,
   .site-nav .nav-right a { font-size: 12px; padding: 14px 12px; }
-  .app-subnav { top: 52px; height: 40px; padding: 0 12px; }
-  .app-subnav a { font-size: 12px; padding: 5px 10px; }
-  .app-subnav a.active::after { left: 10px; right: 10px; }
+  /* Show app sub-nav, and hide its duplicates in the main nav */
+  .app-subnav { display: flex; }
+  .site-nav .subnav-link { display: none; }
   body.has-subnav .hero { padding-top: 40px; }
   body.has-subnav main > section:first-of-type { scroll-margin-top: 92px; }
 }
