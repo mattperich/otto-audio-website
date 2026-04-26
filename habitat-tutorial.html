@@ -1223,10 +1223,9 @@
 
 /* Phone / small tablet: shrink the desktop plugin replica to something that
    fits a portrait phone. The nav strip stays (tap-to-jump), tool buttons
-   that don't map to a scroll step are hidden, and #descOverlay becomes a
-   bottom sheet carrying each step's title + description. Viz plays behind. */
+   that don't map to a scroll step are hidden, and #descOverlay + #floatPanel
+   stack as bottom sheets above the CTA footer. Viz plays behind. */
 @media (max-width: 768px) {
-  #floatPanel { display: none; }
   #stepDots { display: none; }
   #learnIndicator { display: none !important; }
   #vizLayer canvas { touch-action: auto; cursor: default; }
@@ -1252,13 +1251,28 @@
     top: auto;
     bottom: 120px;
     width: auto;
-    max-height: 42vh;
+    max-height: 24vh;
     overflow-y: auto;
     transform: translateY(12px);
-    padding: 16px 18px;
+    padding: 14px 16px;
     border-radius: 14px;
   }
   #descOverlay.visible { transform: translateY(0); }
+
+  /* #floatPanel: stacked above #descOverlay so the user sees the parameter
+     sliders alongside the description, matching the desktop layout. */
+  #floatPanel {
+    left: 48px;
+    right: 16px;
+    top: auto;
+    bottom: calc(120px + 24vh + 8px);
+    width: auto;
+    max-height: 28vh;
+    padding: 12px 14px;
+    border-radius: 14px;
+    transform: translateY(12px);
+  }
+  #floatPanel.visible { transform: translateY(0); }
 
   #introOverlay { max-width: 92%; padding: 0 var(--space-4); }
   #introOverlay h1 { font-size: clamp(2rem, 10vw, 3rem); }
