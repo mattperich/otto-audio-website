@@ -135,7 +135,7 @@ a {
   a:hover { text-decoration: underline; }
 }
 
-:focus { outline: none; }
+:focus:not(:focus-visible) { outline: none; }
 :focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 3px;
@@ -187,7 +187,7 @@ button {
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
   border-bottom: 1px solid transparent;
-  padding: 0 24px;
+  padding: 0 max(24px, env(safe-area-inset-right)) 0 max(24px, env(safe-area-inset-left));
   display: flex;
   align-items: center;
   gap: 24px;
@@ -676,16 +676,23 @@ section {
   transition-delay: 0s;
 }
 
+/* On touch devices we never get :hover, so reveal the pause control
+   at lower opacity by default — taps still work, and the control can
+   be opted out per-page (e.g. streams tutorial hides #vizPause). */
+@media (hover: none) {
+  .canvas-pause {
+    opacity: 0.7;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
 .canvas-pause:hover {
   color: var(--text-strong);
   transform: scale(1.05);
 }
 
 .canvas-pause svg { width: 14px; height: 14px; fill: currentColor; }
-
-/* Off-screen rendering skip was here; removed because Safari briefly paints
-   the intrinsic-size placeholder as a white box on cold load. */
-.cv-auto { /* intentionally empty — class retained so HTML markup still matches */ }
 
 /* ── Reduced motion ──────────────────────────────────────── */
 
@@ -735,9 +742,22 @@ section {
   body.has-subnav main > section:first-of-type { scroll-margin-top: 92px; }
 }
 
+/* Narrow phones: footer brand+copy crams horribly on a single row. Stack. */
+@media (max-width: 600px) {
+  .site-footer .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .site-footer .footer-copy { text-align: left; }
+}
+
 @media (max-width: 480px) {
   section { padding: var(--space-12) var(--space-4); }
-  .site-nav { gap: 8px; padding: 0 12px; }
+  .site-nav {
+    gap: 8px;
+    padding: 0 max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+  }
   .site-nav .nav-links {
     overflow-x: auto;
     scrollbar-width: none;

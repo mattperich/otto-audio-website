@@ -757,13 +757,15 @@
   position: relative;
   z-index: 1;
   height: 100vh;
+  height: 100dvh; /* track the visual viewport on mobile so step centers
+                     stay aligned as the URL bar shows/hides */
   pointer-events: none;
 }
 
 /* First section is taller so user sees the intro */
-.scroll-section:first-child { height: 110vh; }
+.scroll-section:first-child { height: 110vh; height: 110dvh; }
 /* Last section needs extra space for CTA */
-.scroll-section:last-child { height: 60vh; }
+.scroll-section:last-child  { height: 60vh;  height: 60dvh;  }
 
 /* ── Intro overlay (shown at top) ─────────────────────── */
 
@@ -1017,7 +1019,8 @@
     scrollbar-width: none;
   }
   #navStrip::-webkit-scrollbar { display: none; }
-  .nav-btn { width: 28px; height: 28px; font-size: 8px; }
+  /* Larger tap targets — 28px was below the ~36-44px guideline. */
+  .nav-btn { width: 34px; height: 34px; font-size: 8px; }
   .tool-btn { display: none; }             /* click-only tools, not scroll-linked */
   .nav-spacer { flex: 0 0 4px; min-height: 4px; }
 
@@ -1261,23 +1264,23 @@ body:hover .canvas-pause#vizPause,
 
 <!-- ═══════ LEFT NAV STRIP ═══════ -->
 <div id="navStrip">
-  <div class="nav-btn" data-step="input" data-tip="Input — audio source & sampling">IN</div>
-  <div class="nav-btn" data-step="generate" data-tip="Generate — AI source material & latent navigator" style="color:#4a90d1">GEN</div>
-  <div class="nav-btn" data-step="tempo" data-tip="Tempo — global clock">BPM</div>
-  <div class="nav-btn" data-step="scale" data-tip="Key — scale & pitch snapping">KEY</div>
-  <div class="nav-btn orange" data-step="grain" data-tip="Grain — granular engine">GRN</div>
-  <div class="nav-btn teal" data-step="stream" data-tip="Stream — grain scheduling">STR</div>
-  <div class="nav-btn teal" data-step="resonator" data-tip="Resonator — tuned feedback">RES</div>
-  <div class="nav-btn teal" data-step="delay" data-tip="Delay — echo & feedback">DLY</div>
-  <div class="nav-btn" data-step="reverb" data-tip="Reverb — space & tail">REV</div>
-  <div class="nav-btn" data-step="output" data-tip="Output — final shaping">OUT</div>
-  <div class="nav-btn amber" data-step="mod" data-tip="Modulation — LFOs & routing">MOD</div>
-  <div class="nav-btn red" data-step="seq" data-tip="Sequence — pattern & automation">SEQ</div>
-  <div class="nav-spacer"></div>
-  <div class="tool-btn" data-step="help" data-tip="Help">?</div>
-  <div class="tool-btn" data-step="preset" data-tip="Presets">PRE</div>
-  <div class="tool-btn" data-step="reset" data-tip="Reset to defaults">&#8635;</div>
-  <div class="tool-btn gear" data-step="settings" data-tip="Settings">&#9881;</div>
+  <button type="button" class="nav-btn"        data-step="input"     data-tip="Input — audio source & sampling"               aria-label="Input — audio source and sampling">IN</button>
+  <button type="button" class="nav-btn"        data-step="generate"  data-tip="Generate — AI source material & latent navigator" aria-label="Generate — AI source material and latent navigator" style="color:#4a90d1">GEN</button>
+  <button type="button" class="nav-btn"        data-step="tempo"     data-tip="Tempo — global clock"                          aria-label="Tempo — global clock">BPM</button>
+  <button type="button" class="nav-btn"        data-step="scale"     data-tip="Key — scale & pitch snapping"                  aria-label="Key — scale and pitch snapping">KEY</button>
+  <button type="button" class="nav-btn orange" data-step="grain"     data-tip="Grain — granular engine"                       aria-label="Grain — granular engine">GRN</button>
+  <button type="button" class="nav-btn teal"   data-step="stream"    data-tip="Stream — grain scheduling"                     aria-label="Stream — grain scheduling">STR</button>
+  <button type="button" class="nav-btn teal"   data-step="resonator" data-tip="Resonator — tuned feedback"                    aria-label="Resonator — tuned feedback">RES</button>
+  <button type="button" class="nav-btn teal"   data-step="delay"     data-tip="Delay — echo & feedback"                       aria-label="Delay — echo and feedback">DLY</button>
+  <button type="button" class="nav-btn"        data-step="reverb"    data-tip="Reverb — space & tail"                         aria-label="Reverb — space and tail">REV</button>
+  <button type="button" class="nav-btn"        data-step="output"    data-tip="Output — final shaping"                        aria-label="Output — final shaping">OUT</button>
+  <button type="button" class="nav-btn amber"  data-step="mod"       data-tip="Modulation — LFOs & routing"                   aria-label="Modulation — LFOs and routing">MOD</button>
+  <button type="button" class="nav-btn red"    data-step="seq"       data-tip="Sequence — pattern & automation"               aria-label="Sequence — pattern and automation">SEQ</button>
+  <div class="nav-spacer" aria-hidden="true"></div>
+  <button type="button" class="tool-btn"      data-step="help"     data-tip="Help"              aria-label="Help">?</button>
+  <button type="button" class="tool-btn"      data-step="preset"   data-tip="Presets"           aria-label="Presets">PRE</button>
+  <button type="button" class="tool-btn"      data-step="reset"    data-tip="Reset to defaults" aria-label="Reset to defaults">&#8635;</button>
+  <button type="button" class="tool-btn gear" data-step="settings" data-tip="Settings"          aria-label="Settings">&#9881;</button>
 </div>
 
 <!-- ═══════ DESCRIPTION OVERLAY (above panel) ═══════ -->
@@ -2376,9 +2379,15 @@ function createVizSim(canvas,mode,opts){
 
   // ── Step dots ──
   const dotsEl = document.getElementById('stepDots');
-  STEP_ORDER.forEach((_, i) => {
-    const dot = document.createElement('div');
+  STEP_ORDER.forEach(stepName => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
     dot.className = 'step-dot';
+    dot.setAttribute('aria-label', `Jump to ${stepName}`);
+    dot.addEventListener('click', () => {
+      const section = document.querySelector(`.scroll-section[data-step="${stepName}"]`);
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
     dotsEl.appendChild(dot);
   });
 

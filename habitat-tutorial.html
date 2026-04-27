@@ -722,11 +722,13 @@
   position: relative;
   z-index: 1;
   height: 100vh;
+  height: 100dvh; /* track the visual viewport on mobile so step centers
+                     stay aligned as the URL bar shows/hides */
   pointer-events: none;
 }
 
-.scroll-section:first-child { height: 110vh; }
-.scroll-section:last-child { height: 60vh; }
+.scroll-section:first-child { height: 110vh; height: 110dvh; }
+.scroll-section:last-child  { height: 60vh;  height: 60dvh;  }
 
 /* ── Intro overlay ────────────────────────────────────── */
 
@@ -1295,11 +1297,13 @@
     scrollbar-width: none;
   }
   #navStrip::-webkit-scrollbar { display: none; }
-  .v2-nav-btn { width: 28px; height: 28px; font-size: 8px; }
+  /* Larger tap targets — 28px was below the ~36-44px guideline. */
+  .v2-nav-btn { width: 34px; height: 34px; font-size: 8px; }
   .tool-btn { display: none; }             /* click-only tools, not scroll-linked */
   .tool-btn.transform-btn {                /* but Transform stays visible — it's now in its own corner */
     display: inline-flex;
-    top: 58px;
+    /* Sit below the app sub-nav (top: 52px, height: 40px → bottom at 92px). */
+    top: 100px;
     right: 12px;
     width: auto;
     height: 28px;
@@ -1423,29 +1427,29 @@ body:hover .canvas-pause#vizPause,
 
 <!-- ═══════ LEFT NAV STRIP ═══════ -->
 <div id="navStrip">
-  <div class="v2-nav-btn nav-green"  data-step="wind"     data-tip="Wind — sweeping gust engine">WND</div>
-  <div class="v2-nav-btn nav-cyan"   data-step="water"    data-tip="Water — meandering stream">WTR</div>
-  <div class="v2-nav-btn nav-amber"  data-step="bird"     data-tip="Birds — orbiting flock murmurations">BRD</div>
-  <div class="v2-nav-btn nav-green"  data-step="insect"   data-tip="Insects — pulsing swarm clusters">INS</div>
-  <div class="v2-nav-btn nav-red"    data-step="thunder"  data-tip="Thunder — storm fronts & shockwaves">THN</div>
-  <div class="v2-nav-btn nav-rain"   data-step="rain"     data-tip="Rain — drop impacts & diagonal bands">RAN</div>
-  <div class="v2-nav-btn nav-aurora" data-step="aurora"   data-tip="Aurora — vertical shimmer curtains">AUR</div>
-  <div class="v2-nav-btn nav-ice"    data-step="ice"      data-tip="Ice — directional cracks & stress pulse">ICE</div>
-  <div class="v2-nav-btn" data-step="interact" data-tip="Direct interaction with the dot field">&#9758;</div>
-  <div class="nav-spacer"></div>
-  <div class="v2-nav-btn" data-step="evo"   data-tip="Evolution — long-form automation">EVO</div>
-  <div class="v2-nav-btn" data-step="scale" data-tip="Key — scale & musical framing">KEY</div>
-  <div class="v2-nav-btn nav-teal" data-step="mod"   data-tip="Modulation — LFOs & routing">MOD</div>
-  <div class="v2-nav-btn nav-teal" data-step="mac"   data-tip="Macros — XY pad with motion loops">MAC</div>
-  <div class="v2-nav-btn nav-teal" data-step="delay" data-tip="Delay — rhythmic echo">DLY</div>
-  <div class="v2-nav-btn" data-step="reverb" data-tip="Reverb — space & tail">REV</div>
-  <div class="v2-nav-btn" data-step="output" data-tip="Output — final shaping">OUT</div>
-  <div class="nav-spacer"></div>
-  <div class="tool-btn" data-step="help"      data-tip="Help" title="Help"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-  <div class="tool-btn" data-step="preset"    data-tip="Save preset" title="Save Preset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></div>
-  <div class="tool-btn" data-step="preset"    data-tip="Load preset" title="Load Preset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
-  <div class="tool-btn" data-step="help"      data-tip="Reset to defaults" title="Reset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></div>
-  <div class="tool-btn" data-step="settings"  data-tip="Settings" title="Settings"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+  <button type="button" class="v2-nav-btn nav-green"  data-step="wind"     data-tip="Wind — sweeping gust engine"           aria-label="Wind — sweeping gust engine">WND</button>
+  <button type="button" class="v2-nav-btn nav-cyan"   data-step="water"    data-tip="Water — meandering stream"             aria-label="Water — meandering stream">WTR</button>
+  <button type="button" class="v2-nav-btn nav-amber"  data-step="bird"     data-tip="Birds — orbiting flock murmurations"   aria-label="Birds — orbiting flock murmurations">BRD</button>
+  <button type="button" class="v2-nav-btn nav-green"  data-step="insect"   data-tip="Insects — pulsing swarm clusters"      aria-label="Insects — pulsing swarm clusters">INS</button>
+  <button type="button" class="v2-nav-btn nav-red"    data-step="thunder"  data-tip="Thunder — storm fronts & shockwaves"   aria-label="Thunder — storm fronts and shockwaves">THN</button>
+  <button type="button" class="v2-nav-btn nav-rain"   data-step="rain"     data-tip="Rain — drop impacts & diagonal bands"  aria-label="Rain — drop impacts and diagonal bands">RAN</button>
+  <button type="button" class="v2-nav-btn nav-aurora" data-step="aurora"   data-tip="Aurora — vertical shimmer curtains"    aria-label="Aurora — vertical shimmer curtains">AUR</button>
+  <button type="button" class="v2-nav-btn nav-ice"    data-step="ice"      data-tip="Ice — directional cracks & stress pulse" aria-label="Ice — directional cracks and stress pulse">ICE</button>
+  <button type="button" class="v2-nav-btn" data-step="interact" data-tip="Direct interaction with the dot field" aria-label="Interact — direct interaction with the dot field">&#9758;</button>
+  <div class="nav-spacer" aria-hidden="true"></div>
+  <button type="button" class="v2-nav-btn" data-step="evo"   data-tip="Evolution — long-form automation" aria-label="Evolution — long-form automation">EVO</button>
+  <button type="button" class="v2-nav-btn" data-step="scale" data-tip="Key — scale & musical framing"   aria-label="Key — scale and musical framing">KEY</button>
+  <button type="button" class="v2-nav-btn nav-teal" data-step="mod"   data-tip="Modulation — LFOs & routing"        aria-label="Modulation — LFOs and routing">MOD</button>
+  <button type="button" class="v2-nav-btn nav-teal" data-step="mac"   data-tip="Macros — XY pad with motion loops"  aria-label="Macros — XY pad with motion loops">MAC</button>
+  <button type="button" class="v2-nav-btn nav-teal" data-step="delay" data-tip="Delay — rhythmic echo"              aria-label="Delay — rhythmic echo">DLY</button>
+  <button type="button" class="v2-nav-btn" data-step="reverb" data-tip="Reverb — space & tail"   aria-label="Reverb — space and tail">REV</button>
+  <button type="button" class="v2-nav-btn" data-step="output" data-tip="Output — final shaping"  aria-label="Output — final shaping">OUT</button>
+  <div class="nav-spacer" aria-hidden="true"></div>
+  <button type="button" class="tool-btn" data-step="help"     data-tip="Help"               aria-label="Help"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>
+  <button type="button" class="tool-btn" data-step="preset"   data-tip="Save preset"        aria-label="Save preset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
+  <button type="button" class="tool-btn" data-step="preset"   data-tip="Load preset"        aria-label="Load preset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></button>
+  <button type="button" class="tool-btn" data-step="help"     data-tip="Reset to defaults"  aria-label="Reset to defaults"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>
+  <button type="button" class="tool-btn" data-step="settings" data-tip="Settings"           aria-label="Settings"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
 </div>
 
 <!-- ═══════ DESCRIPTION OVERLAY ═══════ -->
@@ -2576,9 +2580,15 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
 
   // ── Step dots ──
   const dotsEl = document.getElementById('stepDots');
-  STEP_ORDER.forEach(() => {
-    const dot = document.createElement('div');
+  STEP_ORDER.forEach(stepName => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
     dot.className = 'step-dot';
+    dot.setAttribute('aria-label', `Jump to ${stepName}`);
+    dot.addEventListener('click', () => {
+      const section = document.querySelector(`.scroll-section[data-step="${stepName}"]`);
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
     dotsEl.appendChild(dot);
   });
 
