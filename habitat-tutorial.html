@@ -927,6 +927,62 @@
 
 .tool-btn.gear { font-size: 15px; line-height: 1; }
 
+/* ── Transform button (upper-right of simulated GUI) ───── */
+.transform-btn {
+  position: fixed;
+  top: 70px;          /* below site nav + app-subnav */
+  right: 16px;
+  width: auto;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(64,224,160,0.08);
+  border: 1px solid rgba(64,224,160,0.4);
+  z-index: 65;        /* above panels (60/61), below tooltips (80) */
+}
+.transform-btn:hover {
+  background: rgba(64,224,160,0.16);
+  border-color: var(--accent);
+  color: var(--app-text-bright);
+  box-shadow: 0 0 12px rgba(64,224,160,0.25);
+}
+.transform-btn.active {
+  background: rgba(64,224,160,0.2);
+  border-color: var(--accent);
+  color: var(--app-text-bright);
+  box-shadow: 0 0 16px rgba(64,224,160,0.35);
+}
+
+/* Mint-green ripple that pulses out across the screen, mirroring the
+   real plugin's click feedback. Spawned and removed dynamically in JS;
+   the JS computes --ripple-scale so the ring always reaches the far
+   corner regardless of viewport size. */
+.transform-ripple {
+  position: fixed;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  pointer-events: none;
+  z-index: 64;
+  opacity: 0;
+  animation: transform-ripple-anim 0.9s var(--ease-out) forwards;
+}
+@keyframes transform-ripple-anim {
+  0%   { opacity: 0.85; transform: scale(0.5);                      border-width: 1.5px; }
+  100% { opacity: 0;    transform: scale(var(--ripple-scale, 120)); border-width: 0.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .transform-ripple { display: none; }
+}
+
 /* ── Macros panel (replica of Habitat app) ────────────── */
 
 .xy-wrap {
@@ -1241,6 +1297,17 @@
   #navStrip::-webkit-scrollbar { display: none; }
   .v2-nav-btn { width: 28px; height: 28px; font-size: 8px; }
   .tool-btn { display: none; }             /* click-only tools, not scroll-linked */
+  .tool-btn.transform-btn {                /* but Transform stays visible — it's now in its own corner */
+    display: inline-flex;
+    top: 58px;
+    right: 12px;
+    width: auto;
+    height: 28px;
+    padding: 0 12px;
+    border-radius: 14px;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+  }
   .nav-spacer { flex: 0 0 4px; min-height: 4px; }
 
   /* #descOverlay: bottom card shifted right of the nav strip, clear of the
@@ -1351,6 +1418,9 @@ body:hover .canvas-pause#vizPause,
   <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
 </button>
 
+<!-- ═══════ TRANSFORM BUTTON (upper-right corner of simulated GUI) ═══════ -->
+<button class="tool-btn transform-btn" data-step="transform" title="Transform" aria-label="Transform">Transform</button>
+
 <!-- ═══════ LEFT NAV STRIP ═══════ -->
 <div id="navStrip">
   <div class="v2-nav-btn nav-green"  data-step="wind"     data-tip="Wind — sweeping gust engine">WND</div>
@@ -1375,7 +1445,6 @@ body:hover .canvas-pause#vizPause,
   <div class="tool-btn" data-step="preset"    data-tip="Save preset" title="Save Preset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></div>
   <div class="tool-btn" data-step="preset"    data-tip="Load preset" title="Load Preset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
   <div class="tool-btn" data-step="help"      data-tip="Reset to defaults" title="Reset"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></div>
-  <div class="tool-btn" data-step="randomize" data-tip="Randomize" title="Randomize"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="9" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="9" r="1.5" fill="currentColor" stroke="none"/><circle cx="9" cy="15" r="1.5" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></div>
   <div class="tool-btn" data-step="settings"  data-tip="Settings" title="Settings"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
 </div>
 
@@ -1422,6 +1491,7 @@ body:hover .canvas-pause#vizPause,
 <div class="scroll-section" data-step="rain"></div>
 <div class="scroll-section" data-step="aurora"></div>
 <div class="scroll-section" data-step="ice"></div>
+<div class="scroll-section" data-step="transform"></div>
 <div class="scroll-section" data-step="interact"></div>
 <div class="scroll-section" data-step="evo"></div>
 <div class="scroll-section" data-step="scale"></div>
@@ -1431,7 +1501,6 @@ body:hover .canvas-pause#vizPause,
 <div class="scroll-section" data-step="reverb"></div>
 <div class="scroll-section" data-step="output"></div>
 <div class="scroll-section" data-step="preset"></div>
-<div class="scroll-section" data-step="randomize"></div>
 <div class="scroll-section" data-step="end"></div>
 
 <script>
@@ -2267,11 +2336,11 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
     },
     preset: {
       title: 'Presets', tagClass: '', borderClass: '', panelClass: '',
-      desc: `<h3>Save &amp; Recall</h3><p>Save, load, and randomize entire soundscapes. The preset system captures all engine states, modulation routings, and effect settings.</p>`,
+      desc: `<h3>Save &amp; Recall</h3><p>Save and load entire soundscapes. The preset system captures all engine states, modulation routings, and effect settings.</p>`,
       html: `<div class="panel-header"><span class="panel-title">PRESETS</span></div>
         ${D('Preset Browser')}
         <div style="font-size:10px;color:var(--app-text-dim);line-height:1.5;margin-top:2px">
-          <b>Save</b> stores the current soundscape. <b>Load</b> recalls a saved state. <b>Randomize</b> generates a new combination of engine parameters.
+          <b>Save</b> stores the current soundscape. <b>Load</b> recalls a saved state.
         </div>
         ${D("What's Saved")}
         <div style="display:flex;flex-direction:column;gap:3px;font-size:10px;color:var(--app-text-dim);font-family:'JetBrains Mono',monospace">
@@ -2289,10 +2358,10 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
         </div>
         <div style="font-size:10px;color:var(--app-text-dim)">Share .habitat files containing the full soundscape state.</div>`
     },
-    randomize: {
-      title: 'Randomize', tagClass: '', borderClass: '', panelClass: '',
-      desc: `<h3>Randomize</h3><p>Generate entirely new soundscapes with one click. The randomizer intelligently distributes engine levels, modulation, and effects to create balanced, musically interesting combinations.</p>`,
-      html: `<div class="panel-header"><span class="panel-title">RANDOMIZE</span></div>
+    transform: {
+      title: 'Transform', tagClass: '', borderClass: '', panelClass: '',
+      desc: `<h3>Transform</h3><p>Re-roll the entire soundscape with one click. Transform intelligently distributes engine levels, modulation, and effects to create balanced, musically interesting starting points.</p>`,
+      html: `<div class="panel-header"><span class="panel-title">TRANSFORM</span></div>
         <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
           <div style="display:flex;gap:10px;align-items:flex-start">
             <div style="flex-shrink:0;width:32px;height:32px;border-radius:6px;background:rgba(64,224,160,0.1);display:flex;align-items:center;justify-content:center">
@@ -2300,7 +2369,7 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
             </div>
             <div>
               <div style="font-size:11px;font-weight:600;color:var(--app-text)">New Soundscape</div>
-              <div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Generates a balanced combination of 2-4 active engines with random parameter values, modulation routings, and effect settings.</div>
+              <div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Generates a balanced combination of 2&ndash;4 active engines with random parameter values, modulation routings, and effect settings.</div>
             </div>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start">
@@ -2309,7 +2378,7 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
             </div>
             <div>
               <div style="font-size:11px;font-weight:600;color:var(--app-text)">Quick Iteration</div>
-              <div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Click repeatedly to explore different combinations. Each randomization creates a new starting point for sound design.</div>
+              <div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Click repeatedly to explore different combinations. Each transform creates a new starting point for sound design.</div>
             </div>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start">
@@ -2318,14 +2387,14 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
             </div>
             <div>
               <div style="font-size:11px;font-weight:600;color:var(--app-text)">Save Discoveries</div>
-              <div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Found something you like? Save it as a preset before randomizing again.</div>
+              <div style="font-size:10px;color:var(--app-text-dim);margin-top:2px">Found something you like? Save it as a preset before transforming again.</div>
             </div>
           </div>
         </div>`
     }
   };
 
-  const STEP_ORDER = ['intro','wind','water','bird','insect','thunder','rain','aurora','ice','interact','evo','scale','mod','mac','delay','reverb','output','preset','randomize','end'];
+  const STEP_ORDER = ['intro','wind','water','bird','insect','thunder','rain','aurora','ice','transform','interact','evo','scale','mod','mac','delay','reverb','output','preset','end'];
   const panel = document.getElementById('floatPanel');
   const panelBody = document.getElementById('panelBody');
   const descEl = document.getElementById('descOverlay');
@@ -2367,12 +2436,46 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
     panel.style.top = (top + descH + gap) + 'px';
   }
 
+  // ── Transform-button mint pulse (mirrors the plugin's click feedback) ──
+  let transformPulseTimer = null;
+  function fireTransformPulse() {
+    const btn = document.querySelector('.transform-btn');
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    if (!r.width) return;
+    const cx = r.left + r.width  / 2;
+    const cy = r.top  + r.height / 2;
+    // Reach the farthest viewport corner from the button center (the lower-left
+    // dot-field corner on a typical layout). Base ring radius is 16px.
+    const dx = Math.max(cx, window.innerWidth  - cx);
+    const dy = Math.max(cy, window.innerHeight - cy);
+    const scale = Math.ceil((Math.hypot(dx, dy) + 40) / 16);
+    const ripple = document.createElement('div');
+    ripple.className = 'transform-ripple';
+    ripple.style.left = cx + 'px';
+    ripple.style.top  = cy + 'px';
+    ripple.style.setProperty('--ripple-scale', scale);
+    document.body.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+  }
+  function startTransformPulse() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    stopTransformPulse();
+    fireTransformPulse();
+    transformPulseTimer = setInterval(fireTransformPulse, 2600);
+  }
+  function stopTransformPulse() {
+    if (transformPulseTimer) { clearInterval(transformPulseTimer); transformPulseTimer = null; }
+  }
+
   function setStep(stepName) {
     if (stepName === activeStep) return;
     activeStep = stepName;
 
     // Stop LFO animation on step change
     stopLfoAnim();
+    // Stop transform pulse on step change (re-armed below if entering transform)
+    stopTransformPulse();
 
     // Intro overlay
     introOverlay.classList.toggle('hidden', stepName !== 'intro');
@@ -2418,6 +2521,11 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
       // Start LFO animation for mod step
       if (stepName === 'mod') {
         requestAnimationFrame(() => startLfoAnim());
+      }
+
+      // Fire mint-green ripple on the transform step, recurring every ~2.6s
+      if (stepName === 'transform') {
+        requestAnimationFrame(() => startTransformPulse());
       }
 
       // Update visualization color
