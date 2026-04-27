@@ -2547,19 +2547,32 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
   }
 
   // ── Scroll-driven step detection ──
-  const sections = document.querySelectorAll('.scroll-section');
-  const obs = new IntersectionObserver(entries => {
-    let best = null, bestRatio = 0;
-    entries.forEach(e => {
-      if (e.isIntersecting && e.intersectionRatio > bestRatio) {
-        best = e.target;
-        bestRatio = e.intersectionRatio;
-      }
-    });
+  // Resolve the active step from the live scroll position each frame:
+  // pick the section whose center is closest to the visual-viewport center.
+  // Robust to mobile URL-bar resize and to fast flick scrolls (vs. an IO,
+  // which only fires on threshold crossings and can skip steps).
+  const sections = Array.from(document.querySelectorAll('.scroll-section'));
+  let scrollRaf = 0;
+  function resolveActiveStep() {
+    scrollRaf = 0;
+    const vh = window.innerHeight;
+    const center = vh / 2;
+    let best = null, bestDist = Infinity;
+    for (const s of sections) {
+      const r = s.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > vh) continue;
+      const dist = Math.abs((r.top + r.bottom) / 2 - center);
+      if (dist < bestDist) { bestDist = dist; best = s; }
+    }
     if (best) setStep(best.dataset.step);
-  }, { threshold: [0, 0.3, 0.5, 0.7, 1], rootMargin: '-40% 0px -40% 0px' });
-
-  sections.forEach(s => obs.observe(s));
+  }
+  function onScrollOrResize() {
+    if (scrollRaf) return;
+    scrollRaf = requestAnimationFrame(resolveActiveStep);
+  }
+  window.addEventListener('scroll', onScrollOrResize, { passive: true });
+  window.addEventListener('resize', onScrollOrResize, { passive: true });
+  resolveActiveStep();
 
   // ── Step dots ──
   const dotsEl = document.getElementById('stepDots');
