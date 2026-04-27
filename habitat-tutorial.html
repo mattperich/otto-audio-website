@@ -2417,6 +2417,7 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
     if (phoneMedia.matches) {
       descEl.style.top = '';
       panel.style.top = '';
+      panel.style.maxHeight = '';
       return;
     }
     const target = navOverride || stepName;
@@ -2432,8 +2433,10 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
     let top = btnRect.top + btnRect.height / 2 - totalH / 2;
     top = Math.max(50, Math.min(window.innerHeight - totalH - 10, top));
 
+    const panelTop = top + descH + gap;
     descEl.style.top = top + 'px';
-    panel.style.top = (top + descH + gap) + 'px';
+    panel.style.top = panelTop + 'px';
+    panel.style.maxHeight = Math.max(120, window.innerHeight - panelTop - 10) + 'px';
   }
 
   // ── Transform-button mint pulse (mirrors the plugin's click feedback) ──
@@ -2503,6 +2506,7 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
 
       // Parameter panel
       panelBody.innerHTML = data.html;
+      panel.scrollTop = 0;
       panel.className = 'visible' + (data.panelClass ? ' ' + data.panelClass : '');
 
       // Wire sliders: update --fill on drag + push to viz engine
