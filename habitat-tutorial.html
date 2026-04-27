@@ -1351,6 +1351,14 @@
   #ctaFooter .btn-primary { padding: 12px 22px; font-size: 13px; }
 }
 
+/* Narrow short landscape (e.g. iPhone SE landscape ≈ 667×375): the
+   bottom-anchored floatPanel rises high enough to collide with both
+   the sub-nav above and any top-right Transform button. Hide the
+   button — the transform step is still reachable by scrolling. */
+@media (max-width: 768px) and (max-height: 500px) {
+  .tool-btn.transform-btn { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #floatPanel, #descOverlay, #introOverlay, #ctaFooter { transition: none; }
   #introOverlay { animation: none; }
