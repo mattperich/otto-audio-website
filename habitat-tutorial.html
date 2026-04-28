@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Habitat Tutorial — Generative Drone Synthesizer</title>
 <meta name="description" content="Interactive tutorial for Habitat generative drone synthesizer. Explore 8 nature engines, modulation, delay, reverb, and output shaping.">
 <link rel="icon" type="image/svg+xml" href="otto-favicon.svg">
@@ -2534,14 +2534,16 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
       // Position next frame
       requestAnimationFrame(() => positionOverlays(stepName, navTarget));
 
-      // Start LFO animation for mod step
+      // Start LFO animation for mod step. Gate inside the rAF so a fast
+      // step change between scheduling and firing doesn't leave a stale
+      // animation running on the wrong step.
       if (stepName === 'mod') {
-        requestAnimationFrame(() => startLfoAnim());
+        requestAnimationFrame(() => { if (activeStep === stepName) startLfoAnim(); });
       }
 
       // Fire mint-green ripple on the transform step, recurring every ~2.6s
       if (stepName === 'transform') {
-        requestAnimationFrame(() => startTransformPulse());
+        requestAnimationFrame(() => { if (activeStep === stepName) startTransformPulse(); });
       }
 
       // Update visualization color
@@ -2565,8 +2567,24 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
   // which only fires on threshold crossings and can skip steps).
   const sections = Array.from(document.querySelectorAll('.scroll-section'));
   let scrollRaf = 0;
+  // While a programmatic smooth scroll is in flight, suppress the resolver:
+  // it would otherwise call setStep on every section the scroll passes
+  // through, swapping panel/desc HTML ~15× in 500ms (visible flicker).
+  let isJumping = false;
+  let jumpTimer = 0;
+  function jumpToStep(stepName) {
+    const section = document.querySelector(`.scroll-section[data-step="${stepName}"]`);
+    if (!section) return;
+    isJumping = true;
+    activeStep = '';
+    setStep(stepName);
+    section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    clearTimeout(jumpTimer);
+    jumpTimer = setTimeout(() => { isJumping = false; }, 800);
+  }
   function resolveActiveStep() {
     scrollRaf = 0;
+    if (isJumping) return;
     const vh = window.innerHeight;
     const center = vh / 2;
     let best = null, bestDist = Infinity;
@@ -2593,24 +2611,13 @@ const phoneMedia = window.matchMedia('(max-width: 768px)');
     dot.type = 'button';
     dot.className = 'step-dot';
     dot.setAttribute('aria-label', `Jump to ${stepName}`);
-    dot.addEventListener('click', () => {
-      const section = document.querySelector(`.scroll-section[data-step="${stepName}"]`);
-      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+    dot.addEventListener('click', () => jumpToStep(stepName));
     dotsEl.appendChild(dot);
   });
 
   // ── Click nav/toolbar buttons to jump to section ──
   allStepBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const step = btn.dataset.step;
-      const section = document.querySelector(`.scroll-section[data-step="${step}"]`);
-      if (section) {
-        activeStep = '';
-        setStep(step);
-        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    });
+    btn.addEventListener('click', () => jumpToStep(btn.dataset.step));
   });
 
   // Set initial state
