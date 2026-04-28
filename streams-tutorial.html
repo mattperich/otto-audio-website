@@ -1010,8 +1010,11 @@
   #stepDots { display: none; }
   #vizLayer canvas { touch-action: auto; cursor: default; }
 
-  /* Compact left nav strip (tap buttons to jump between steps) */
+  /* Compact left nav strip (tap buttons to jump between steps).
+     Shift below the app-subnav (top:52, height:40 → bottom:92), which
+     otherwise sits on top of and hides the first nav button. */
   #navStrip {
+    top: 96px;
     width: 40px;
     padding: 8px 0;
     gap: 3px;
